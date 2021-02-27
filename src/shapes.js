@@ -792,14 +792,14 @@ ShapeZR.prototype = {
 		}
 	},
 	//Move the shape to the left
-	goLeft: function(matrix, sound) {
+	goLeft: function(matrix) {
 		if (isShapeCanMove(this, matrix, 'left')) {
 			new Audio('./dist/Click.ogg').play();
 			this.x -= 1;
 		}
 	},
 	//Move the shape to the right
-	goRight: function(matrix, sound) {
+	goRight: function(matrix) {
 		if (isShapeCanMove(this, matrix, 'right')) {
 			new Audio('./dist/Click.ogg').play();
 			this.x += 1;

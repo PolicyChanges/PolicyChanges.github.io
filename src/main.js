@@ -224,7 +224,7 @@ Tetris.prototype = {
         this.score = 0;
 		this.lines = 0;
 		// beginning of frame
-        this.startTime =  new Date();
+        this.startTime =  new Date().getTime();
         this.currentTime = this.startTime;
         this.prevTime = this.startTime;
 		//todo:get rid of extra
@@ -261,7 +261,7 @@ Tetris.prototype = {
     //Pause game
     pause: function() {
         this.running = false;
-        this.currentTime =  new Date();
+        this.currentTime =  new Date().getTime();
         this.prevTime = this.currentTime;
     },
 	pushHoldStack: function()
@@ -412,12 +412,12 @@ Tetris.prototype = {
 			while((inputs.gamepadQueue != undefined && inputs.gamepadQueue.length >= 1)){
 				var curkey = inputs.gamepadQueue.shift();
 				if(curkey == "DPad-Left") {
-					this.shape.goLeft(this.matrix, this.minoShiftSound);
+					this.shape.goLeft(this.matrix);
 					this.resetLockdown();
 					this._draw();
 				}
 				if(curkey == "DPad-Right") {
-					this.shape.goRight(this.matrix, this.minoShiftSound);
+					this.shape.goRight(this.matrix);
 					this.resetLockdown();
 					this._draw();
 				}
@@ -472,12 +472,12 @@ Tetris.prototype = {
 			while((inputs.inputqueue != undefined && inputs.inputqueue.length >= 1)){
 				var curkey = inputs.inputqueue.shift();
 				if(curkey == 37) {
-					this.shape.goLeft(this.matrix, this.minoShiftSound);
+					this.shape.goLeft(this.matrix);
 					this.resetLockdown();
 					this._draw();
 				}
 				if(curkey == 39){
-					this.shape.goRight(this.matrix, this.minoShiftSound);
+					this.shape.goRight(this.matrix);
 					this.resetLockdown();
 					this._draw();
 				}
@@ -537,7 +537,7 @@ Tetris.prototype = {
 		if (!this.running) 
             return;
         
-		this.currentTime =  new Date();
+		this.currentTime =  new Date().getTime();
 		var deltaLevelTime = this.currentTime - this.prevTime;
         if (deltaLevelTime > this.interval) {  //  every .6 seconds?
             this._update();
@@ -558,7 +558,7 @@ Tetris.prototype = {
 			return;
 		if(!this.shape.isSameSRS(this.hintMino))
 		{
-			new Audio('./dist/Failed.ogg');
+			new Audio('./dist/Failed.ogg').play();
 			this._restartHandler();
 			// Restart
 			return 1;
