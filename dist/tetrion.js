@@ -863,6 +863,7 @@ Tetris.prototype = {
 		this.currentOpener = 0;
 		this.doTest = false;
         this.matrix = initMatrix(consts.ROW_COUNT, consts.COLUMN_COUNT);
+		
         this.reset();
         
 		this._initEvents();
@@ -924,7 +925,7 @@ Tetris.prototype = {
         this.score = 0;
 		this.lines = 0;
 		// beginning of frame
-        this.startTime = new Date().getTime();
+        this.startTime =  new Date();
         this.currentTime = this.startTime;
         this.prevTime = this.startTime;
 		//todo:get rid of extra
@@ -948,6 +949,7 @@ Tetris.prototype = {
         views.setScore(this.score);
         views.setGameOver(this.isGameOver);
 		openers.reset();
+		shapes.resetMinoRNG();
 		
         this._draw();
     },
@@ -960,7 +962,7 @@ Tetris.prototype = {
     //Pause game
     pause: function() {
         this.running = false;
-        this.currentTime = new Date().getTime();
+        this.currentTime =  new Date();
         this.prevTime = this.currentTime;
     },
 	pushHoldStack: function()
@@ -1030,7 +1032,7 @@ Tetris.prototype = {
 				this.shapeQueue.push(this.preparedShape);
 			}
 			
-			this.shape = this.shapeQueue.shift() || shapes.randomShape();
+			this.shape = this.shapeQueue.shift();// || shapes.randomShape();
 			this.currentMinoInx++;
 		}
 		
@@ -1086,9 +1088,9 @@ Tetris.prototype = {
 	_processTick: async function() {
 	
 		var deltaTime = 1.0; // 1 millisecond
-		var tenthOfFrame = 1.0//1;//1.6; // 1.6ms = 1 fram
-		var halfFrame = 5.0//5;//8.0;
-		var halfFramePlus = 10.0;//10.0;
+		var tenthOfFrame = 1.0  //1.6; // 1.6ms = 1 fram
+		var halfFrame = 5.0		//8.0;
+		var halfFramePlus = 10.0;
 		
 		
 		inputs.incDeciframes();
@@ -1111,12 +1113,12 @@ Tetris.prototype = {
 			while((inputs.gamepadQueue != undefined && inputs.gamepadQueue.length >= 1)){
 				var curkey = inputs.gamepadQueue.shift();
 				if(curkey == "DPad-Left") {
-					this.shape.goLeft(this.matrix);
+					this.shape.goLeft(this.matrix, this.minoShiftSound);
 					this.resetLockdown();
 					this._draw();
 				}
 				if(curkey == "DPad-Right") {
-					this.shape.goRight(this.matrix);
+					this.shape.goRight(this.matrix, this.minoShiftSound);
 					this.resetLockdown();
 					this._draw();
 				}
@@ -1171,12 +1173,12 @@ Tetris.prototype = {
 			while((inputs.inputqueue != undefined && inputs.inputqueue.length >= 1)){
 				var curkey = inputs.inputqueue.shift();
 				if(curkey == 37) {
-					this.shape.goLeft(this.matrix);
+					this.shape.goLeft(this.matrix, this.minoShiftSound);
 					this.resetLockdown();
 					this._draw();
 				}
 				if(curkey == 39){
-					this.shape.goRight(this.matrix);
+					this.shape.goRight(this.matrix, this.minoShiftSound);
 					this.resetLockdown();
 					this._draw();
 				}
@@ -1203,12 +1205,10 @@ Tetris.prototype = {
 				}
 				if(curkey == 16) {
 					this.pushHoldStack();
-					//this._update();
 					this._draw();
 				}
 				if(curkey == 17 || curkey == 67) {
 					this.popHoldStack();
-					//this._update();
 					this._draw();
 				}
 				if(curkey == 81) {
@@ -1226,7 +1226,6 @@ Tetris.prototype = {
 			inputs.inputqueue = [];
 		}
 		
-		
 		if(inputs.getTickCounter() >= halfFramePlus)
 			inputs.saveKeyboardKeys();
 		
@@ -1235,21 +1234,13 @@ Tetris.prototype = {
 		
 	},		
     // Refresh game canvas
-    _refresh: async function() {
-
-		if (!this.running) {
+    _refresh: function() {
+		if (!this.running) 
             return;
-        }
-		
-		this.currentTime = new Date().getTime();
-		
-		var curInputTime = new Date().getTime();
-	
-		this.prevInputTime = curInputTime;
+        
+		this.currentTime =  new Date();
 		var deltaLevelTime = this.currentTime - this.prevTime;
-
-		
-        if (deltaLevelTime > this.interval) {
+        if (deltaLevelTime > this.interval) {  //  every .6 seconds?
             this._update();
             this._checkLevel(this.prevTime = this.currentTime);
         }
@@ -1268,7 +1259,7 @@ Tetris.prototype = {
 			return;
 		if(!this.shape.isSameSRS(this.hintMino))
 		{
-			new Audio('./dist/Failed.ogg').play();
+			new Audio('./dist/Failed.ogg');
 			this._restartHandler();
 			// Restart
 			return 1;
@@ -1285,16 +1276,14 @@ Tetris.prototype = {
             this._check();
 			if(this._checkHint()) return;
             this._fireShape();
-			new Audio('./dist/Blop2.ogg').play();
+			 new Audio('./dist/Blop2.ogg').play();
         }
         this._draw();
         this.isGameOver = checkGameOver(this.matrix);
         views.setGameOver(this.isGameOver);
 		
-		
-        if (this.isGameOver) {
+        if (this.isGameOver) 
             views.setFinalScore(this.score);
-        }
 
     },
 	// 0 - none, 1 - mini, 2 - tspin
@@ -1341,8 +1330,7 @@ Tetris.prototype = {
         var rows = checkFullRows(this.matrix);
         if (rows.length) {
 			var tspinType;
-			// if(rows.length >= 4)
-				// new Audio('./dist/Tetris.ogg').play();
+			
 			if(this.shape.flag === 'T')
 				tspinType = this._tSpinType(this.shape, this.matrix);
 			
@@ -2605,14 +2593,14 @@ ShapeZR.prototype = {
 		}
 	},
 	//Move the shape to the left
-	goLeft: function(matrix) {
+	goLeft: function(matrix, sound) {
 		if (isShapeCanMove(this, matrix, 'left')) {
 			new Audio('./dist/Click.ogg').play();
 			this.x -= 1;
 		}
 	},
 	//Move the shape to the right
-	goRight: function(matrix) {
+	goRight: function(matrix, sound) {
 		if (isShapeCanMove(this, matrix, 'right')) {
 			new Audio('./dist/Click.ogg').play();
 			this.x += 1;
@@ -2646,36 +2634,51 @@ ShapeZR.prototype = {
 /**
 	Create  a random shape for game
 */
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
 // Handles randomly generating and returning a tetromino
 var RandomGenerator = {
-    bag: [],
+	returnBag: [],
     getTetrimino() {
-        if (this.bag.length === 0) {
-            this.bag = this.generateNewBag();
-        }
-        return this.bag.shift();
+		
+		if(this.returnBag.length < 7) 
+			this.returnBag.push.apply(this.returnBag, this.generateNewBag());
+			
+		
+		console.log("return bag: " + this.returnBag);
+
+		return parseInt(this.returnBag.shift());
     },
+	onlyUnique(value, index, self) {
+		return self.indexOf(value) === index;
+	},
     generateNewBag() {
-        //var tetrominoes = ['I', 'J', 'L', 'O', 'S', 'T', 'Z'];
-		var tetrominoes = ['0', '1', '2', '3', '4', '5', '6'];
-        //var tetrominoes = ['L','L','L','L','L','L','L',];
-        var bag = [];
+		var minoes = ['0','1','2','3','4','5','6'];
+		
+        var newBag = [];	
+		var bagLength = 7;
 
-        for (var i = 7; i > 0; i--) {
-            var tetrominoIndex = Math.floor(Math.random() * i);
-
-            bag.push(tetrominoes[tetrominoIndex]);
-            tetrominoes.splice(tetrominoIndex, 1);
-        }
-
-        return bag;
-    }
+		while(newBag.length < bagLength)
+		{
+			mino = getRandomInt(bagLength);
+			newBag.push(minoes[mino]);
+			newBag = newBag.filter(this.onlyUnique);
+		}
+        return newBag;
+    },
+	reset() {
+		returnBag = 0;
+	}
+		
 };
 
 function randomShape() {
-    var result = parseInt(RandomGenerator.getTetrimino(),10);//Math.floor(Math.random() * 7);
+	
+	
+    var result = RandomGenerator.getTetrimino();
     var shape;
-	shape = new ShapeT();
+	
 	
     switch (result) {
         case 0:
@@ -2702,6 +2705,7 @@ function randomShape() {
     }
     shape.init(result);
     return shape;
+	
 }
 
 
@@ -2737,6 +2741,7 @@ function getShape(shapei) {
     return shape;
 }
 
+module.exports.resetMinoRNG = RandomGenerator.reset;
 module.exports.randomShape = randomShape;
 module.exports.getShape = getShape;
 // export randomShape;
