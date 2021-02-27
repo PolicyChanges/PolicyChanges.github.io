@@ -68,7 +68,7 @@ function ShapeL() {
 
 	this.rotationPoints = [state1RotationPointsOffset, state2RotationPointsOffset, state3RotationPointsOffset, state4RotationPointsOffset];
     this.states = [state1, state2, state3, state4];
-    this.x = 4;
+    this.x = 3;
     this.y = -3;
 	this.originY = -3;
     this.flag = 'L';
@@ -134,7 +134,7 @@ function ShapeLR() {
 
 	this.rotationPoints = [state1RotationPointsOffset, state2RotationPointsOffset, state3RotationPointsOffset, state4RotationPointsOffset];
     this.states = [state1, state2, state3, state4];
-    this.x = 4;
+    this.x = 3;
     this.y = -3;
 	this.originY = -3;
     this.flag = 'LR';
@@ -205,7 +205,7 @@ function ShapeO() {
 }
 
 function ShapeI() {
-	// North
+/*	// North
     var state1 = [
         [1, 0, 0, 0],
         [1, 0, 0, 0],
@@ -235,6 +235,38 @@ function ShapeI() {
         [1, 1, 1, 1],
 		[0, 0, 0, 0],
         [0, 0, 0, 0]
+    ];
+	*/
+	// North
+    var state1 = [
+        [0, 0, 0, 0],
+        [1, 1, 1, 1],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]
+    ];
+
+	// East
+    var state2 = [
+        [0, 0, 1, 0],
+        [0, 0, 1, 0],
+		[0, 0, 1, 0],
+        [0, 0, 1, 0]
+    ];
+	
+	// South
+    var state3 = [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+		[1, 1, 1, 1],
+        [0, 0, 0, 0]
+    ];
+	
+	// West
+    var state4 = [
+        [0, 1, 0, 0],
+        [0, 1, 0, 0],
+		[0, 1, 0, 0],
+        [0, 1, 0, 0]
     ];
 	
 	var state1RotationPointsOffset = [ 
@@ -270,7 +302,7 @@ function ShapeI() {
 	this.rotationPoints = [state1RotationPointsOffset, state2RotationPointsOffset, state3RotationPointsOffset, state4RotationPointsOffset];
     this.states = [state1, state2, state3, state4];
 
-    this.x = 5;
+    this.x = 3;
     this.y = -4;
 	this.originY = -4;
     this.flag = 'I';
@@ -309,11 +341,7 @@ function ShapeT() {
 		1,  1, -1,  1,   
 		NaN, NaN,  NaN,  NaN,   
 		1, -2, -1, -2
-		// 0, 0, 0, 0,
-		// -1, 0, 1, 0,
-		// -1, 1, 1, 1,
-		// NaN, NaN,  NaN,  NaN,
-		// -1, -2, 1, -2
+
 	];
 	var state2RotationPointsOffset = [
 		0,  0,  0,  0,   
@@ -340,7 +368,7 @@ function ShapeT() {
 	this.rotationPoints = [state1RotationPointsOffset, state2RotationPointsOffset, state3RotationPointsOffset, state4RotationPointsOffset];
 	this.states = [state1, state2, state3, state4];
 	
-    this.x = 4;
+    this.x = 3;
     this.y = -2;
 	this.originY = -2;
     this.flag = 'T';
@@ -405,7 +433,7 @@ function ShapeZ() {
 
 	this.rotationPoints = [state1RotationPointsOffset, state2RotationPointsOffset, state3RotationPointsOffset, state4RotationPointsOffset];
     this.states = [state1, state2, state3, state4];
-    this.x = 4;
+    this.x = 3;
     this.y = -2;
 	this.originY = -2;
     this.flag = 'Z';
@@ -470,7 +498,7 @@ function ShapeZR() {
 
 	this.rotationPoints = [state1RotationPointsOffset, state2RotationPointsOffset, state3RotationPointsOffset, state4RotationPointsOffset];
     this.states = [state1, state2, state3, state4];
-    this.x = 4;
+    this.x = 3;
     this.y = -2
 	this.originY = -2;
     this.flag = 'ZR';

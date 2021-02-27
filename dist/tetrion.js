@@ -1561,7 +1561,7 @@ var OpenerGenerator = {
 					shapes.getShape(3));
 				
 				// position x, position y, orientation, position x,...
-				var hintDataList = [-1,17,1,  3,17,1,  6,18,0,  5,17,1,  3,17,0,  7,16,0,  1,17,2];
+				var hintDataList = [-1,17,1,  3,18,0,  6,18,0,  5,17,1,  3,17,0,  7,16,0,  1,17,2];
 				
 				for(var i = 0; i < this.hintQueue.length; i++) {
 					this.hintQueue[i].x = hintDataList[i * 3];
@@ -1589,7 +1589,7 @@ var OpenerGenerator = {
 					shapes.getShape(3));
 				
 				// position x, position y, orientation, position x,...
-				var hintDataList = [-2,18,0,  6,16,0,  6,17,1,  7,17,1,  4,17,-1,  3,17,3,  3,15,0, 5,15,0,  9,14,0,  2,13,-1,  -1,15,1,  1,16,2,  3,16,1,  1,17,-1];
+				var hintDataList = [-2,18,0,  4,16,1,  6,17,1,  7,17,1,  4,17,-1,  3,17,3,  3,15,0, 5,15,0,  7,14,1,  2,13,-1,  -1,15,1,  1,16,2,  3,16,1,  1,17,-1];
 				
 				for(var i = 0; i < this.hintQueue.length; i++) {
 					this.hintQueue[i].x = hintDataList[i * 3];
@@ -1616,7 +1616,7 @@ var OpenerGenerator = {
 					shapes.getShape(3));
 					
 				// position x, position y, orientation, position x,...
-				var hintDataList = [0,18,0,  0,16,-1,  9,16,0,  4,18,0,  4,16,1,  5,18,0,  1,15,-1,  2,17,2,  5,18,0,  3,17,1,  6,15,1,  0,15,2,  0,14,0,  2,16,2];
+				var hintDataList = [0,18,0,  0,16,-1,  8,16,-1,  4,18,0,  4,16,1,  5,18,0,  1,15,-1,  2,17,2,  5,18,0,  3,17,1,  6,16,0,  0,15,2,  0,14,0,  2,16,2];
 				
 				for(var i = 0; i < this.hintQueue.length; i++) {
 					this.hintQueue[i].x = hintDataList[i * 3];
@@ -1645,8 +1645,8 @@ var OpenerGenerator = {
 					shapes.getShape(0),
 					shapes.getShape(3));
 				
-				var hintDataList = [0,17,1,  0,16,0,  4,18,0,  4,17,-1,  3,15,1,  8,17,-1,  2,17,2,  0,17,0,  0,15,-1,  
-									1,15,0,  8,16,-2,  6,15,0,  3,14,1,  6,12,-1,  6,16,1,  2,16,-1,  7,17,2 ];
+				var hintDataList = [0,17,1,  -2,16,1,  4,18,0,  4,17,-1,  3,15,1,  8,17,-1,  2,17,2,  0,17,0,  0,15,-1,  
+									1,15,0,  8,16,-2,  5,15,-1,  3,14,1,  6,12,-1,  6,16,1,  2,16,-1,  7,17,2 ];
 				
 				for(var i = 0; i < this.hintQueue.length; i++) {
 					this.hintQueue[i].x = hintDataList[i * 3];
@@ -1674,7 +1674,7 @@ var OpenerGenerator = {
 					shapes.getShape(3),
 					shapes.getShape(3));
 				
-				var hintDataList = [4,18,0,  0,18,0,  7,17,1,  0,15,1,  4,17,-1,  6,14,0,  2,17,2,  1,17,0,  0,16,0,  2,15,-1,  
+				var hintDataList = [4,18,0,  0,18,0,  7,17,1,  0,15,1,  4,17,-1,  5,14,-1,  2,17,2,  1,17,0,  -1,16,-1,  2,15,-1,  
 									0,14,0,  3,15,1,  8,16,-1,  5,13,2,  6,16,1,  7,17,2 ];
 				
 				for(var i = 0; i < this.hintQueue.length; i++) {
@@ -1702,7 +1702,7 @@ var OpenerGenerator = {
 				shapes.getShape(0),
 				shapes.getShape(3));
 				
-				var hintDataList = [1,18,0,  0,18,0,  9,16,0,  2,15,1,  6,17,2,  5,16,2,  1,16,2,  0,16,0,  -1,16,0,  5,16,0,  0,14,0,  3,15,0,  8,14,-1,  7,16,-1];
+				var hintDataList = [1,18,0,  0,18,0,  8,16,-1,  2,15,1,  6,17,2,  5,16,2,  1,16,2,  -1,16,-1,  -1,16,0,  5,16,0,  0,14,0,  3,15,0,  8,14,-1,  7,16,-1];
 				
 				for(var i = 0; i < this.hintQueue.length; i++) {
 					this.hintQueue[i].x = hintDataList[i * 3];
@@ -1721,7 +1721,7 @@ var OpenerGenerator = {
 				shapes.getShape(2),
 				shapes.getShape(3));
 				
-				var hintDataList = [1,18,0,  0,17,-1,  9,16,0,  5,17,2,  6,16,2,  3,16,0,  1,16,2];
+				var hintDataList = [1,18,0,  0,17,-1,  8,16,-1,  5,17,2,  6,16,2,  3,16,0,  1,16,2];
 				
 				for(var i = 0; i < this.hintQueue.length; i++) {
 					this.hintQueue[i].x = hintDataList[i * 3];
@@ -1740,7 +1740,7 @@ var OpenerGenerator = {
 				shapes.getShape(5),
 				shapes.getShape(3));
 				
-				var hintDataList = [3,18,0,  0,17,2,  0,15,1,  4,15,-1,  6,17,0,  8,16,-1,  3,17,-1];
+				var hintDataList = [3,18,0,  0,17,2,  0,16,0,  4,15,-1,  6,17,0,  8,16,-1,  3,17,-1];
 				
 				for(var i = 0; i < this.hintQueue.length; i++) {
 					this.hintQueue[i].x = hintDataList[i * 3];
@@ -1881,7 +1881,7 @@ function ShapeL() {
 
 	this.rotationPoints = [state1RotationPointsOffset, state2RotationPointsOffset, state3RotationPointsOffset, state4RotationPointsOffset];
     this.states = [state1, state2, state3, state4];
-    this.x = 4;
+    this.x = 3;
     this.y = -3;
 	this.originY = -3;
     this.flag = 'L';
@@ -1947,7 +1947,7 @@ function ShapeLR() {
 
 	this.rotationPoints = [state1RotationPointsOffset, state2RotationPointsOffset, state3RotationPointsOffset, state4RotationPointsOffset];
     this.states = [state1, state2, state3, state4];
-    this.x = 4;
+    this.x = 3;
     this.y = -3;
 	this.originY = -3;
     this.flag = 'LR';
@@ -2018,7 +2018,7 @@ function ShapeO() {
 }
 
 function ShapeI() {
-	// North
+/*	// North
     var state1 = [
         [1, 0, 0, 0],
         [1, 0, 0, 0],
@@ -2048,6 +2048,38 @@ function ShapeI() {
         [1, 1, 1, 1],
 		[0, 0, 0, 0],
         [0, 0, 0, 0]
+    ];
+	*/
+	// North
+    var state1 = [
+        [0, 0, 0, 0],
+        [1, 1, 1, 1],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]
+    ];
+
+	// East
+    var state2 = [
+        [0, 0, 1, 0],
+        [0, 0, 1, 0],
+		[0, 0, 1, 0],
+        [0, 0, 1, 0]
+    ];
+	
+	// South
+    var state3 = [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+		[1, 1, 1, 1],
+        [0, 0, 0, 0]
+    ];
+	
+	// West
+    var state4 = [
+        [0, 1, 0, 0],
+        [0, 1, 0, 0],
+		[0, 1, 0, 0],
+        [0, 1, 0, 0]
     ];
 	
 	var state1RotationPointsOffset = [ 
@@ -2083,7 +2115,7 @@ function ShapeI() {
 	this.rotationPoints = [state1RotationPointsOffset, state2RotationPointsOffset, state3RotationPointsOffset, state4RotationPointsOffset];
     this.states = [state1, state2, state3, state4];
 
-    this.x = 5;
+    this.x = 3;
     this.y = -4;
 	this.originY = -4;
     this.flag = 'I';
@@ -2122,11 +2154,7 @@ function ShapeT() {
 		1,  1, -1,  1,   
 		NaN, NaN,  NaN,  NaN,   
 		1, -2, -1, -2
-		// 0, 0, 0, 0,
-		// -1, 0, 1, 0,
-		// -1, 1, 1, 1,
-		// NaN, NaN,  NaN,  NaN,
-		// -1, -2, 1, -2
+
 	];
 	var state2RotationPointsOffset = [
 		0,  0,  0,  0,   
@@ -2153,7 +2181,7 @@ function ShapeT() {
 	this.rotationPoints = [state1RotationPointsOffset, state2RotationPointsOffset, state3RotationPointsOffset, state4RotationPointsOffset];
 	this.states = [state1, state2, state3, state4];
 	
-    this.x = 4;
+    this.x = 3;
     this.y = -2;
 	this.originY = -2;
     this.flag = 'T';
@@ -2218,7 +2246,7 @@ function ShapeZ() {
 
 	this.rotationPoints = [state1RotationPointsOffset, state2RotationPointsOffset, state3RotationPointsOffset, state4RotationPointsOffset];
     this.states = [state1, state2, state3, state4];
-    this.x = 4;
+    this.x = 3;
     this.y = -2;
 	this.originY = -2;
     this.flag = 'Z';
@@ -2283,7 +2311,7 @@ function ShapeZR() {
 
 	this.rotationPoints = [state1RotationPointsOffset, state2RotationPointsOffset, state3RotationPointsOffset, state4RotationPointsOffset];
     this.states = [state1, state2, state3, state4];
-    this.x = 4;
+    this.x = 3;
     this.y = -2
 	this.originY = -2;
     this.flag = 'ZR';
