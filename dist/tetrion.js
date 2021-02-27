@@ -2641,13 +2641,8 @@ function getRandomInt(max) {
 var RandomGenerator = {
 	returnBag: [],
     getTetrimino() {
-		
 		if(this.returnBag.length < 7) 
 			this.returnBag.push.apply(this.returnBag, this.generateNewBag());
-			
-		
-		console.log("return bag: " + this.returnBag);
-
 		return parseInt(this.returnBag.shift());
     },
 	onlyUnique(value, index, self) {
@@ -2665,10 +2660,12 @@ var RandomGenerator = {
 			newBag.push(minoes[mino]);
 			newBag = newBag.filter(this.onlyUnique);
 		}
+		
         return newBag;
     },
 	reset() {
-		returnBag = 0;
+		if(this.returnBag != undefined)
+			this.returnBag.splice(0, returnBag.length);
 	}
 		
 };
