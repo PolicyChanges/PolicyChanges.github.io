@@ -134,7 +134,7 @@ var calcIntervalByLevel = function(level) {
 // Default max scene size
 var defaults = {
     maxHeight: 700,
-    maxWidth: 600
+    maxWidth: 560
 };
 
 /**
@@ -158,7 +158,7 @@ Tetris.prototype = {
 		inputs.init();
 		this.createSettings();
 		// if true no openers.  just random tetrinos
-		this.isFreePlay = true;1
+		this.isFreePlay = true;
 		this.isTimerOn = false;
 		this.currentOpener = 0;
 		this.doTest = false;
@@ -334,7 +334,7 @@ Tetris.prototype = {
 				if(this.isTimerOn) {
 					var besttime = document.getElementById("besttime").value;
 					var deltaTime = new Date().getTime() - this.sequencePrevTime;
-					if(besttime == "" || deltaTime/1000.0 < parseInt(besttime)) {	
+					if(besttime == "" || deltaTime/1000.0 < parseFloat(besttime)) {	
 						document.getElementById("besttime").value = (deltaTime/1000.0).toString();
 					}
 					this.isSequenceCompleted = true;

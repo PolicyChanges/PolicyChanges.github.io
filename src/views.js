@@ -126,7 +126,7 @@ var tetrisView = {
 	},
 	// Update the extra reward score
 	setLines:function(setlines){
-		lines.innerHTML = setlines;
+		//lines.innerHTML = setlines;
 	
 	},
 	setReward:function(rewardScore){

@@ -178,7 +178,9 @@ var UserInputs = {
 		var DAS = parseInt(this.settingsMap.get("Keyboard DAS"));	//65.0;
 		var ARR = parseInt(this.settingsMap.get("Keyboard ARR"));	//20.0;
 
-	
+	if(key == 75)
+		console.log("keyboard key: " + key);
+		
 		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key]) {
 			this.isDirectionArrowDown = false;
 			if(this.keyboardKeys[key] == true)
@@ -269,7 +271,7 @@ var UserInputs = {
 						"50.0", "16.0", "RB", "LB",
 						"DPad-Left", "DPad-Right", "A", "B",
 						"DPad-Down", "DPad-Up", "Back", "", 
-						"=/"],
+						"=/",""],
 	settingsMap: []
 };
 

@@ -602,7 +602,9 @@ var UserInputs = {
 		var DAS = parseInt(this.settingsMap.get("Keyboard DAS"));	//65.0;
 		var ARR = parseInt(this.settingsMap.get("Keyboard ARR"));	//20.0;
 
-	
+	if(key == 75)
+		console.log("keyboard key: " + key);
+		
 		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key]) {
 			this.isDirectionArrowDown = false;
 			if(this.keyboardKeys[key] == true)
@@ -693,7 +695,7 @@ var UserInputs = {
 						"50.0", "16.0", "RB", "LB",
 						"DPad-Left", "DPad-Right", "A", "B",
 						"DPad-Down", "DPad-Up", "Back", "", 
-						"=/"],
+						"=/",""],
 	settingsMap: []
 };
 
@@ -836,7 +838,7 @@ var calcIntervalByLevel = function(level) {
 // Default max scene size
 var defaults = {
     maxHeight: 700,
-    maxWidth: 600
+    maxWidth: 560
 };
 
 /**
@@ -860,7 +862,7 @@ Tetris.prototype = {
 		inputs.init();
 		this.createSettings();
 		// if true no openers.  just random tetrinos
-		this.isFreePlay = true;1
+		this.isFreePlay = true;
 		this.isTimerOn = false;
 		this.currentOpener = 0;
 		this.doTest = false;
@@ -1036,7 +1038,7 @@ Tetris.prototype = {
 				if(this.isTimerOn) {
 					var besttime = document.getElementById("besttime").value;
 					var deltaTime = new Date().getTime() - this.sequencePrevTime;
-					if(besttime == "" || deltaTime/1000.0 < parseInt(besttime)) {	
+					if(besttime == "" || deltaTime/1000.0 < parseFloat(besttime)) {	
 						document.getElementById("besttime").value = (deltaTime/1000.0).toString();
 					}
 					this.isSequenceCompleted = true;
@@ -3053,7 +3055,7 @@ var tetrisView = {
 	},
 	// Update the extra reward score
 	setLines:function(setlines){
-		lines.innerHTML = setlines;
+		//lines.innerHTML = setlines;
 	
 	},
 	setReward:function(rewardScore){
