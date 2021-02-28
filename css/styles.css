@@ -22,8 +22,7 @@ body{
 	left:42%;
 	top:50%;
 	position: absolute;
-	background: #555;
-	background:rgba(1,1,1,.10);
+	background:rgba(0,0,0,0);
 	width:560px;
 	
 }
@@ -31,7 +30,6 @@ body{
 #scene{
 	height:100%;
 	position: absolute;
-	background: #2f2f2f;
 	left:210px;
 	background:rgba(1,1,1,.10);
 }
@@ -53,21 +51,19 @@ body{
 	height:200px;
 	width:200px;
 	margin:0 auto;
-	background: rgba(30,30,30,.70);
-    border: 1px solid black;
+	background: rgba(0,0,0,.40);
+    border: 1px solid DimGrey;
 }
 
 #leftInfo ul {padding:2%;}
 
 #hold{
-	left:50px;
-	text-align:right;
+	left:55px;
 	position:relative;
 	width:80px;
-	height:435px;
-	background: #2f2f2f;
-	margin:10px auto;
-	background:rgba(0,0,0,.80);
+	height:400px;
+	margin:5px auto;
+	background:rgba(10,10,10,.40);
 }
 
 #gameOver{
@@ -115,12 +111,10 @@ body{
 
 #preview{
 	width:80px;
-	height:468px;
+	height:400px;
 	top:0px;
-	
-	background: #ffffff;
 	margin:10px auto;
-	background:rgba(0,0,0,.80);
+	background:rgba(10,10,10,.40);
 }
 
 

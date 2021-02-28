@@ -46,14 +46,13 @@
 
 <!-- <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/tdjyzz?gui=true&t=10&paused=false&muted=false" allowfullscreen></iframe> -->
 <!-- <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/3lVfDm?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe> -->
-<iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/WldfWX?gui=&paused=false&muted=false" ></iframe>
+<!-- <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/WldfWX?gui=&paused=false&muted=false" ></iframe> -->
 <!-- <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/3sy3Wy?gui=true&t=10&paused=false&muted=false" ></iframe> -->
-<!-- <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/MlSSRt?gui=&paused=false&muted=false" allowfullscreen></iframe> -->
+<iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/MlSSRt?gui=&paused=false&muted=false" allowfullscreen></iframe>
 <script>
 document.getElementById("bg").width = window.innerWidth;
 document.getElementById("bg").height = window.innerHeight;
-//document.getElementById("bg").setAttribute("tabIndex", "-1");
-//document.getElementById("divbg").setAttribute("tabIndex", "-1");
+
 document.getElementById("bg").removeAttribute("tabIndex");
 document.getElementById("divbg").removeAttribute("tabIndex");
 </script>
@@ -123,14 +122,14 @@ document.getElementById("divbg").removeAttribute("tabIndex");
 			</ul>
 		</div>
 	
-		<canvas style="border: 1px solid #000;" id="hold"></canvas>
+		<canvas style="border: 1px solid DarkGrey;" id="hold"></canvas>
 		<br>
+		<br>
+		<input style="padding:1px;text-decoration:underline;overflow:visible;font-size:12px;background:rgba(40,40,40,.80);color:dodgerblue;border:1px solid DarkGrey;text-align:left;" type="button" id="Timer" value="Timer Off"/>
+		<input disabled=true style="padding:1px;overflow:visible;width:80px;font-size:12px;background:rgba(40,40,40,.80);color:dodgerblue;border:1px solid DarkGrey;text-align:left;" type="text" id="Time" value=""/>
 		
-		<input style="padding:1px;text-decoration:underline;overflow:visible;font-size:12px;background:rgba(0,0,0,.80);color:dodgerblue;border:1px solid black;text-align:left;" type="button" id="Timer" value="Timer Off"/>
-		<input disabled=true style="padding:1px;overflow:visible;width:80px;font-size:12px;background:rgba(0,0,0,.80);color:dodgerblue;border:1px solid black;text-align:left;" type="text" id="Time" value=""/>
-		
-		<input disabled=true style="overflow:visible;width:40%;font-size:12px;background:rgba(0,0,0,.80);color:dodgerblue;border:1px solid black;text-align:left;" type="text" id="besttimetext" value="Best Time:"/>
-		<input disabled=true style="overflow:visible;width:80px;font-size:12px;background:rgba(0,0,0,.80);color:dodgerblue;border:1px solid black;text-align:left;" type="text" id="besttime" value=""/>
+		<input disabled=true style="overflow:visible;width:40%;font-size:12px;background:rgba(40,40,40,.80);color:dodgerblue;border:1px solid DarkGrey;text-align:left;" type="text" id="besttimetext" value="Best Time:"/>
+		<input disabled=true style="overflow:visible;width:80px;font-size:12px;background:rgba(40,40,40,.80);color:dodgerblue;border:1px solid DarkGrey;text-align:left;" type="text" id="besttime" value=""/>
 	</div>
 	
 	<div id="gameOver">
@@ -145,16 +144,16 @@ document.getElementById("divbg").removeAttribute("tabIndex");
 			<h2 id="scoreInfo">Score: <br><span id="score" >0</span></h2>
 			<!-- <h1 style="visibility:collapse;" id="linesInfo">Lines: <br><span id="lines" >0</span></h1> -->
 			<div style="visibility:collapse" id="rewardInfo" class="invisible">+<span id="reward">0</span></div>
-			<canvas style="border: 1px solid #000;" id="preview"></canvas>
+			<canvas style="border: 1px solid DarkGrey;" id="preview"></canvas>
 			
 			<br>
-			<select style="width:80px;font-size:13px;background:rgba(0,0,0,.80);color:dodgerblue;border: 1px solid Black;text-align:left;" id="settings" name="setting">
+			<select style="width:80px;font-size:13px;background:rgba(40,40,40,.80);color:dodgerblue;border: 1px solid DarkGrey;text-align:left;" id="settings" name="setting">
 			  <option selected="">Settings:</option>
 				
 			</select>
-			<input style="width:80px;font-size:13px;background:rgba(0,0,0,.80);color:dodgerblue;border:1px solid black;text-align:left;" type="text" id="setting_value">
-			<input style="width:80px;font-size:12px;background:rgba(0,0,0,.80);color:dodgerblue;border:1px solid black;" id="submitsetting" type="submit" value="Set Setting"></input>
-			<input style="width:80px;font-size:12px;background:rgba(0,0,0,.80);color:dodgerblue;border:1px solid black;" id="test" type="submit" value="Test Yourself"></input>
+			<input style="width:80px;font-size:13px;background:rgba(40,40,40,.80);color:dodgerblue;border:1px solid DarkGrey;text-align:left;" type="text" id="setting_value">
+			<input style="width:80px;font-size:12px;background:rgba(40,40,40,.80);color:dodgerblue;border:1px solid DarkGrey;" id="submitsetting" type="submit" value="Set Setting"></input>
+			<input style="width:80px;font-size:12px;background:rgba(40,40,40,.80);color:dodgerblue;border:1px solid DarkGrey;" id="test" type="submit" value="Test Yourself"></input>
 
 			
 		</div>
