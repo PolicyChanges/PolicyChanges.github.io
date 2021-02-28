@@ -1,4 +1,5 @@
 var consts = require('./consts.js');
+var utils = require('./utils.js');
 // import * as consts from './const.js';
 var COLORS = consts.COLORS;
 var COLUMN_COUNT = consts.COLUMN_COUNT;
@@ -688,7 +689,7 @@ ShapeZR.prototype = {
 	// 0 - no, 1 - up,left, 2 - up,right, 3 - down,left, 4 - down, right
 	kickShape: function(matrix, rotationDirection) {
 
-	let clone = Object.assign(Object.create(Object.getPrototypeOf(this)), this);
+	let clone = utils.deepClone(this);
 	
 	for(var j = 0; j < 4; j++) {
 		if(this.state == j) {

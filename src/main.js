@@ -158,7 +158,8 @@ Tetris.prototype = {
 		inputs.init();
 		this.createSettings();
 		// if true no openers.  just random tetrinos
-		this.isFreePlay = true;
+		this.isFreePlay = true;1
+		this.isTimerOn = false;
 		this.currentOpener = 0;
 		this.doTest = false;
         this.matrix = initMatrix(consts.ROW_COUNT, consts.COLUMN_COUNT);
@@ -169,8 +170,15 @@ Tetris.prototype = {
         this._fireShape();
 
     },
+	toggleTimer: function() {
+		document.getElementById("Timer").value = (this.isTimerOn = !this.isTimerOn) ? "Seconds:" : "Timer Off";
+	},
 	setFreePlay: function()
 	{
+		document.getElementById("Timer").value = "Timer Off";
+		document.getElementById("Time").value = "";
+		document.getElementById("besttime").value = "";
+		this.isTimerOn = false;
 		this.isFreePlay = true;
 		this.doTest = false;
 		this.hintQueue = [];
@@ -182,6 +190,7 @@ Tetris.prototype = {
 	},
 	setCurrentOpener(opener)
 	{
+		document.getElementById("besttime").value = "";
 		this.isFreePlay = false;
 		this.doTest = false;
 		this.currentOpener = opener;
@@ -227,6 +236,7 @@ Tetris.prototype = {
         this.startTime =  new Date().getTime();
         this.currentTime = this.startTime;
         this.prevTime = this.startTime;
+		this.sequencePrevTime = this.startTime;
 		//todo:get rid of extra
         this.levelTime = this.startTime;
 		this.prevInputTime = this.startTime;
@@ -242,6 +252,7 @@ Tetris.prototype = {
 		// timer for srs extened piece lockdown
 		this.lockdownTimer = 0;
 		this.landed = false;
+		this.isSequenceCompleted = false;
 		
         clearMatrix(this.matrix);
         views.setLevel(this.level);
@@ -317,10 +328,21 @@ Tetris.prototype = {
 			this.shape = this.shapeQueue.shift();
 		   
 		   this.currentMinoInx++;
-		   
+				
+		   //  Opener sequence completed
 			if(this.currentMinoInx > openers.getLength()) {
+				if(this.isTimerOn) {
+					var besttime = document.getElementById("besttime").value;
+					var deltaTime = new Date().getTime() - this.sequencePrevTime;
+					if(besttime == "" || deltaTime/1000.0 < parseInt(besttime)) {	
+						document.getElementById("besttime").value = (deltaTime/1000.0).toString();
+					}
+					this.isSequenceCompleted = true;
+					
+				}				
 				this.hintQueue = [];
 				this.shapeQueue = [];
+
 				// Recursion warning
 				this._restartHandler();
 			}
@@ -382,11 +404,13 @@ Tetris.prototype = {
 		canvas.drawGhostShape(clone, bottomY);
 		}
         canvas.drawMatrix(this.matrix);
+
+
     },
 	// tick input data
 	_processTick: async function() {
 	
-		var deltaTime = 1.0; // 1 millisecond
+		var deltaTime = 1.0;	// 1 millisecond
 		var tenthOfFrame = 1.0  //1.6; // 1.6ms = 1 fram
 		var halfFrame = 5.0		//8.0;
 		var halfFramePlus = 10.0;
@@ -406,6 +430,15 @@ Tetris.prototype = {
 		// Don't process game related events if game over
 		if(this.isGameOver) return;
 		
+		
+		if(this.isTimerOn) {
+			var deltaPlayTime = new Date().getTime() - this.sequencePrevTime;
+			
+			if(inputs.getTickCounter() >= 20) { 
+				document.getElementById("Time").value = (deltaPlayTime/1000).toString();
+			}
+		}
+	
 		// drain gamepad queue
 		if(inputs.getTickCounter() > halfFrame)  // 8 millisecons
 		{
@@ -548,8 +581,6 @@ Tetris.prototype = {
         if (!this.isGameOver) {
             window.requestAnimationFrame(utils.proxy(this._refresh, this));
         }
-		
-
     },
 	// check if the current piece is in the same location as the hint piece
 	_checkHint: function() {
@@ -606,7 +637,8 @@ Tetris.prototype = {
 			side1 = 1;
 		if(matrix[side2Y][side2X] != 0)
 			side2 = 1;
-		if(matrix[side3Y][side3X] != 0)
+		// TODO: figure out why this occasionally  is undefined
+		if(matrix[side3Y] != undefined && matrix[side3Y][side3X] != 0)
 			side3 = 1;
 		if(matrix[side4Y][side4X] != 0)
 			side4 = 1;

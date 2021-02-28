@@ -2,51 +2,6 @@ html,body{
 	height:100%;
 }
 
- /* Dropdown Button */
-.dropbtn {
-  background-color: #3498DB;
-  color: white;
-  padding: 16px;
-  font-size: 16px;
-  border: none;
-  cursor: pointer;
-}
-
-/* Dropdown button on hover & focus */
-.dropbtn:hover, .dropbtn:focus {
-  background-color: #2980B9;
-}
-
-/* The container <div> - needed to position the dropdown content */
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-/* Dropdown Content (Hidden by Default) */
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #f1f1f1;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-}
-
-/* Links inside the dropdown */
-.dropdown-content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-}
-
-/* Change color of dropdown links on hover */
-.dropdown-content a:hover {background-color: #ddd}
-
-/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
-.show {display:block;} 
-
 
 body{
 	background: #000000;
@@ -87,7 +42,7 @@ body{
 	top:0px;
 	left:0px;
 	width:210px;
-	text-align: center;
+	text-align: left;
 	background:rgba(1,1,1,.20);
 }
 
@@ -103,6 +58,7 @@ body{
 #leftInfo ul {padding:2%;}
 
 #hold{
+	text-align:right;
 	position:relative;
 	width:80px;
 	height:435px;
@@ -118,7 +74,7 @@ body{
 	left:210px;
 	background:rgba(0,0,0,.75);
 	z-index:999;
-	color:#ffe100;
+	color:#2f2f2f;
 	text-align: center;
 	display: none;
 }
@@ -128,12 +84,12 @@ body{
 }
 
 #gameOver a,#gameOver a:visited{
-	color:#66bc29;
+	color:dodgerblue;
 	text-decoration: none;
 }
 
 #gameOver h3{
-	color:orange;
+	color:AliceBlue;
 }
 
 #side{
@@ -171,7 +127,7 @@ body{
 	background:rgba(.9,.9,.9,.70);
 }
 #level{
-	color:orange;
+	color:dodgerblue;
 	font-size:32px;
 	background:rgba(.9,.9,.9,.70);
 }
@@ -184,59 +140,15 @@ body{
 }
 
 #score{
-	color:orange;
-	font-family: 'Chalkboard SE';
+	color:dodgerblue;
+	font-family: 'Arial';
 	background:rgba(.9,.9,.9,.70);
 	
 }#linesInfo{
 	color:#fff;
 	font-size: 18px;
 	margin-top:0;
-	background:rgba(.9,.9,.9,.70);
-}
-
-#lines{
-	color:orange;
-	font-family: 'Chalkboard SE';
-	background:rgba(.9,.9,.9,.70);
-}
-#rewardInfo{
-	color:yellow;
-	font-weight: bold;
-	height:20px;
-}
-
-
-
-
-
-.invisible{
-	visibility: hidden;
-}
-
-.animated {
-  -webkit-animation-duration: 1.5s;
-  animation-duration: 1.5s;
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both;
-}
-
-
-@-webkit-keyframes fadeOutUp {
-  0% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-    -webkit-transform: translate3d(0, -100%, 0);
-    transform: translate3d(0, -100%, 0);
-  }
-}
-
-@keyframes fadeOutUp {
-  0% {
-    opacity: 1;
+	background:rgba(.9,.9,.9,.70);c
   }
 
   100% {

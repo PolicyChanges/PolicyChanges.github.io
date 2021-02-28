@@ -33,6 +33,7 @@ var UserInputs = {
 	},
 	incTickCounter() {
 		this.ticks++;
+		if(this.ticks > 1200000)this.ticks = 0;  // set to 0 every 12 seconds?
 	},
 	getTickCounter() {
 		return this.ticks;
@@ -258,17 +259,17 @@ var UserInputs = {
 					"Gamepad DAS", "Gamepad ARR", "Gamepad Harddrop", "Gamepad Hold",
 					"Gamepad Left", "Gamepad Right", "Gamepad Rotateccw", "Gamepad Rotate", 
 					"Gamepad Down","Gamepad Pophold", "Gamepad Reset", "Gamepad Background", 
-					"path", "SameSite"],
+					"path", "High Score"],
 	
 	settingsDefault: ["true", 
-						"65.0", "20.0", "32", "16",
+						"50.0", "16.0", "32", "16",
 						"37", "39", "90", "88",
 						"40", "17", "82", "81",
 						
-						"65.0", "20.0", "RB", "LB",
+						"50.0", "16.0", "RB", "LB",
 						"DPad-Left", "DPad-Right", "A", "B",
 						"DPad-Down", "DPad-Up", "Back", "", 
-						"=/", "Strict"],
+						"=/"],
 	settingsMap: []
 };
 

@@ -457,6 +457,7 @@ var UserInputs = {
 	},
 	incTickCounter() {
 		this.ticks++;
+		if(this.ticks > 1200000)this.ticks = 0;  // set to 0 every 12 seconds?
 	},
 	getTickCounter() {
 		return this.ticks;
@@ -682,17 +683,17 @@ var UserInputs = {
 					"Gamepad DAS", "Gamepad ARR", "Gamepad Harddrop", "Gamepad Hold",
 					"Gamepad Left", "Gamepad Right", "Gamepad Rotateccw", "Gamepad Rotate", 
 					"Gamepad Down","Gamepad Pophold", "Gamepad Reset", "Gamepad Background", 
-					"path", "SameSite"],
+					"path", "High Score"],
 	
 	settingsDefault: ["true", 
-						"65.0", "20.0", "32", "16",
+						"50.0", "16.0", "32", "16",
 						"37", "39", "90", "88",
 						"40", "17", "82", "81",
 						
-						"65.0", "20.0", "RB", "LB",
+						"50.0", "16.0", "RB", "LB",
 						"DPad-Left", "DPad-Right", "A", "B",
 						"DPad-Down", "DPad-Up", "Back", "", 
-						"=/", "Strict"],
+						"=/"],
 	settingsMap: []
 };
 
@@ -859,7 +860,8 @@ Tetris.prototype = {
 		inputs.init();
 		this.createSettings();
 		// if true no openers.  just random tetrinos
-		this.isFreePlay = true;
+		this.isFreePlay = true;1
+		this.isTimerOn = false;
 		this.currentOpener = 0;
 		this.doTest = false;
         this.matrix = initMatrix(consts.ROW_COUNT, consts.COLUMN_COUNT);
@@ -870,8 +872,15 @@ Tetris.prototype = {
         this._fireShape();
 
     },
+	toggleTimer: function() {
+		document.getElementById("Timer").value = (this.isTimerOn = !this.isTimerOn) ? "Seconds:" : "Timer Off";
+	},
 	setFreePlay: function()
 	{
+		document.getElementById("Timer").value = "Timer Off";
+		document.getElementById("Time").value = "";
+		document.getElementById("besttime").value = "";
+		this.isTimerOn = false;
 		this.isFreePlay = true;
 		this.doTest = false;
 		this.hintQueue = [];
@@ -883,6 +892,7 @@ Tetris.prototype = {
 	},
 	setCurrentOpener(opener)
 	{
+		document.getElementById("besttime").value = "";
 		this.isFreePlay = false;
 		this.doTest = false;
 		this.currentOpener = opener;
@@ -928,6 +938,7 @@ Tetris.prototype = {
         this.startTime =  new Date().getTime();
         this.currentTime = this.startTime;
         this.prevTime = this.startTime;
+		this.sequencePrevTime = this.startTime;
 		//todo:get rid of extra
         this.levelTime = this.startTime;
 		this.prevInputTime = this.startTime;
@@ -943,6 +954,7 @@ Tetris.prototype = {
 		// timer for srs extened piece lockdown
 		this.lockdownTimer = 0;
 		this.landed = false;
+		this.isSequenceCompleted = false;
 		
         clearMatrix(this.matrix);
         views.setLevel(this.level);
@@ -1018,10 +1030,21 @@ Tetris.prototype = {
 			this.shape = this.shapeQueue.shift();
 		   
 		   this.currentMinoInx++;
-		   
+				
+		   //  Opener sequence completed
 			if(this.currentMinoInx > openers.getLength()) {
+				if(this.isTimerOn) {
+					var besttime = document.getElementById("besttime").value;
+					var deltaTime = new Date().getTime() - this.sequencePrevTime;
+					if(besttime == "" || deltaTime/1000.0 < parseInt(besttime)) {	
+						document.getElementById("besttime").value = (deltaTime/1000.0).toString();
+					}
+					this.isSequenceCompleted = true;
+					
+				}				
 				this.hintQueue = [];
 				this.shapeQueue = [];
+
 				// Recursion warning
 				this._restartHandler();
 			}
@@ -1083,11 +1106,13 @@ Tetris.prototype = {
 		canvas.drawGhostShape(clone, bottomY);
 		}
         canvas.drawMatrix(this.matrix);
+
+
     },
 	// tick input data
 	_processTick: async function() {
 	
-		var deltaTime = 1.0; // 1 millisecond
+		var deltaTime = 1.0;	// 1 millisecond
 		var tenthOfFrame = 1.0  //1.6; // 1.6ms = 1 fram
 		var halfFrame = 5.0		//8.0;
 		var halfFramePlus = 10.0;
@@ -1107,6 +1132,15 @@ Tetris.prototype = {
 		// Don't process game related events if game over
 		if(this.isGameOver) return;
 		
+		
+		if(this.isTimerOn) {
+			var deltaPlayTime = new Date().getTime() - this.sequencePrevTime;
+			
+			if(inputs.getTickCounter() >= 20) { 
+				document.getElementById("Time").value = (deltaPlayTime/1000).toString();
+			}
+		}
+	
 		// drain gamepad queue
 		if(inputs.getTickCounter() > halfFrame)  // 8 millisecons
 		{
@@ -1249,8 +1283,6 @@ Tetris.prototype = {
         if (!this.isGameOver) {
             window.requestAnimationFrame(utils.proxy(this._refresh, this));
         }
-		
-
     },
 	// check if the current piece is in the same location as the hint piece
 	_checkHint: function() {
@@ -1307,7 +1339,8 @@ Tetris.prototype = {
 			side1 = 1;
 		if(matrix[side2Y][side2X] != 0)
 			side2 = 1;
-		if(matrix[side3Y][side3X] != 0)
+		// TODO: figure out why this occasionally  is undefined
+		if(matrix[side3Y] != undefined && matrix[side3Y][side3X] != 0)
 			side3 = 1;
 		if(matrix[side4Y][side4X] != 0)
 			side4 = 1;
@@ -1800,6 +1833,7 @@ module.exports.reset = reset;
 
 },{"./shapes.js":7}],7:[function(require,module,exports){
 var consts = require('./consts.js');
+var utils = require('./utils.js');
 // import * as consts from './const.js';
 var COLORS = consts.COLORS;
 var COLUMN_COUNT = consts.COLUMN_COUNT;
@@ -2489,7 +2523,7 @@ ShapeZR.prototype = {
 	// 0 - no, 1 - up,left, 2 - up,right, 3 - down,left, 4 - down, right
 	kickShape: function(matrix, rotationDirection) {
 
-	let clone = Object.assign(Object.create(Object.getPrototypeOf(this)), this);
+	let clone = utils.deepClone(this);
 	
 	for(var j = 0; j < 4; j++) {
 		if(this.state == j) {
@@ -2744,7 +2778,7 @@ module.exports.getShape = getShape;
 // export randomShape;
 // export getShape;
 
-},{"./consts.js":2}],8:[function(require,module,exports){
+},{"./consts.js":2,"./utils.js":8}],8:[function(require,module,exports){
 
 var exports = module.exports = {};
 

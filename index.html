@@ -38,7 +38,12 @@
 
 
 <div id="divbg">
+<!-- https://www.shadertoy.com/view/3tXBWj# -->
+<!-- <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/Xlf3Rj?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe> -->
+<!-- <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/tdjyzz?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe> -->
+<!-- <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/3lVfDm?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe> -->
 <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/WldfWX?gui=&paused=false&muted=false" ></iframe>
+<!-- <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/3sy3Wy?gui=true&t=10&paused=true&muted=false" ></iframe> -->
 <script>
 document.getElementById("bg").width = window.innerWidth;
 document.getElementById("bg").height = window.innerHeight;
@@ -112,8 +117,15 @@ document.getElementById("divbg").removeAttribute("tabIndex");
 				</ul>
 			</ul>
 		</div>
-		
+	
 		<canvas id="hold"></canvas>
+		<br>
+		
+		<input style="padding:1px;text-decoration:underline;overflow:visible;font-size:12px;background:black;color:dodgerblue;border:1px solid black;text-align:left;" type="button" id="Timer" value="Timer Off"/>
+		<input disabled=true style="padding:1px;overflow:visible;width:80px;font-size:12px;background:black;color:dodgerblue;border:1px solid black;text-align:left;" type="text" id="Time" value=""/>
+		
+		<input disabled=true style="overflow:visible;width:40%;font-size:12px;background:black;color:dodgerblue;border:1px solid black;text-align:left;" type="text" id="besttimetext" value="Best Time:"/>
+		<input disabled=true style="overflow:visible;width:80px;font-size:12px;background:black;color:dodgerblue;border:1px solid black;text-align:left;" type="text" id="besttime" value=""/>
 	</div>
 	
 	<div id="gameOver">
@@ -135,9 +147,9 @@ document.getElementById("divbg").removeAttribute("tabIndex");
 			  <option selected="">Settings:</option>
 				
 			</select>
-			<input style="width:80px;font-size:13px;background:black;color:dodgerblue;text-align:left;" type="text" id="setting_value">
-			<input id="submitsetting" type="submit" value="Set Setting">
-			<input id="test" type="submit" value="Test Yourself">
+			<input style="width:80px;font-size:13px;background:black;color:dodgerblue;border:1px solid black;text-align:left;" type="text" id="setting_value">
+			<input style="width:80px;font-size:12px;background:black;color:dodgerblue;border:1px solid black;" id="submitsetting" type="submit" value="Set Setting"></input>
+			<input style="width:80px;font-size:12px;background:black;color:dodgerblue;border:1px solid black;" id="test" type="submit" value="Test Yourself"></input>
 
 			
 		</div>
@@ -160,6 +172,7 @@ document.getElementById("divbg").removeAttribute("tabIndex");
 		document.getElementById("setAlbatrossVar").addEventListener("click", function() { tetrion.setCurrentOpener(7); } );
 		document.getElementById("setNumberOneVar").addEventListener("click", function() { tetrion.setCurrentOpener(8); } );
 		
+		document.getElementById("Timer").addEventListener("click", function() { tetrion.toggleTimer(); } );
 		
 		document.getElementById("test").addEventListener("click", function() { tetrion.setDoTest(); } );
 		document.getElementById("settings").addEventListener("change", function() { tetrion.updateSettingTextBox(); } );
