@@ -885,7 +885,7 @@ Tetris.prototype = {
 		document.getElementById("Timer").value = (this.isTimerOn = !this.isTimerOn) ? "Seconds:" : "Timer Off";
 	},
 	toggleGamepad: function(){
-		document.getElementById("gamepad").value = (this.gamepadEnabled = !this.gamepadEnabled) ? "Disable Gamepad" : "Enable Gamepad";
+		document.getElementById("enablegamepad").value = ((this.gamepadEnabled = !this.gamepadEnabled) ? "Disable Gamepad" : "Enable Gamepad");
 	},
 	setFreePlay: function()
 	{

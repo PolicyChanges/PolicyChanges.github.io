@@ -41,7 +41,7 @@ body{
 	left:0px;
 	width:210px;
 	text-align: left;
-	background:rgba(1,1,1,.20);
+	background:rgba(200,200,200,.03);
 }
 
 #leftInfo{
@@ -50,8 +50,8 @@ body{
 	height:200px;
 	width:200px;
 	margin:0 auto;
-	background: rgba(0,0,0,.40);
-    border: 1px solid DimGrey;
+	background:rgba(1,1,1,.7);
+    border: 1px solid #6666;
 }
 
 #leftInfo ul {padding:2%;}
@@ -62,7 +62,7 @@ body{
 	width:80px;
 	height:400px;
 	margin:5px auto;
-	background:rgba(10,10,10,.40);
+	background:rgba(1,1,1,.3);
 }
 
 #gameOver{
@@ -97,7 +97,7 @@ body{
 	right:0;
 	left:560px;
 	text-align: center;
-	background:rgba(1,1,1,.30);
+	background:rgba(255,255,255,0);
 }
 
 #info{
@@ -105,7 +105,7 @@ body{
 	width:210px;
 	left:210px;
 	margin:0 auto;
-	background:rgba(1,1,1,.30);
+	background:rgba(200,200,200,.03);
 }
 
 #preview{
@@ -113,7 +113,7 @@ body{
 	height:400px;
 	top:0px;
 	margin:10px auto;
-	background:rgba(10,10,10,.40);
+	background:rgba(1,1,1,.3);
 }
 
 
@@ -121,25 +121,25 @@ body{
 	color:DimGrey;
 	font-size:18px;
 	margin:10px 0;
-	background:rgba(0,0,0,0);
+	background:rgba(255,255,255,0);
 }
 #level{
 	color:dodgerblue;
 	font-size:18px;
-	background:rgba(0,0,0,0);
+	background:rgba(255,255,255,0);;
 }
 
 #scoreInfo{
 	color:DimGrey;
 	font-size: 18px;
 	margin-top:0;
-	background:rgba(0,0,0,0);
+	background:rgba(255,255,255,0);
 }
 
 #score{
 	color:dodgerblue;
 	font-family: 'Arial';
-	background:rgba(0,0,0,0);
+	background:rgba(255,255,255,0);
 	
 }
 
