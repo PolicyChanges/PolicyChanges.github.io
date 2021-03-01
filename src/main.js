@@ -419,25 +419,18 @@ Tetris.prototype = {
 
 
     },
-	// tick input data -- wont have better than 4-15ms resolution since javascript is single theaded
+	// tick input data -- wont have better than 4-15ms resolution since javascript is single theaded and any ARR or DAS below 15ms will likely be broken
 	_processTick: async function() {
 	
 	
 		//var deltaTime = (new Date()).getTime() - this.eventTimer.getTime();
 		//console.log("desync time: " + deltaTime);	
 
-
-		
-		
-		inputs.incDeciframes();
-		inputs.incTickCounter();
 	
 		if(this.isTimerOn) {
 			var deltaPlayTime = new Date().getTime() - this.sequencePrevTime;
+			document.getElementById("Time").value = (deltaPlayTime/1000).toString();
 			
-			if(inputs.getTickCounter() >= 20) { // Set html element at a reasonble rate
-				document.getElementById("Time").value = (deltaPlayTime/1000).toString();
-			}
 		}
 		
 		
@@ -451,14 +444,14 @@ Tetris.prototype = {
 			var halfFrame = 5.0		//8.0;
 			var halfFramePlus = 10.0;
 			
-			if(inputs.getTickCounter() >= tenthOfFrame) {
-				inputs.updateGamepad();
-				inputs.processGamepadDPad();
-				inputs.processGamepadInput();
-			}
+
+			inputs.updateGamepad();
+			inputs.processGamepadDPad();
+			inputs.processGamepadInput();
+			
 			// drain gamepad queue
-			if( inputs.getTickCounter() > halfFrame)  // 8 millisecons
-			{
+			// if( inputs.getTickCounter() > halfFrame)  // 8 millisecons
+			// {
 				while((inputs.gamepadQueue != undefined && inputs.gamepadQueue.length >= 1)){
 					var curkey = inputs.gamepadQueue.shift();
 					if(curkey == "DPad-Left") {
@@ -507,14 +500,13 @@ Tetris.prototype = {
 				}
 				
 				inputs.gamepadQueue = [];
-			}
+			// }
 			//inputs.gamepadButtonClear();
 		}
 		
 		
-		// Do keyboard
-		inputs.processKeys();
-		
+			// Do keyboard
+			inputs.processKeys();
 			inputs.processKeyShift();
 			// Keyboard inputs
 			while((inputs.inputQueue != undefined && inputs.inputQueue.length >= 1)){

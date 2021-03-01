@@ -31,6 +31,7 @@ body{
 	height:100%;
 	position: absolute;
 	left:210px;
+	boarder:1px solid #6666;
 	background:rgba(1,1,1,.10);
 }
 

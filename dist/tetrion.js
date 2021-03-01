@@ -428,8 +428,10 @@ var utils = require('./utils.js');
 
 var UserInputs = {
 	init() {
-		this.dt = 0;
-		this.debugTimer  = new Date();
+		this.gamepadShiftTimer = new Date();
+		this.gamepadButtonTimer = new Date();
+		this.keyboardKeyTimer = new Date();
+		this.keyboardShiftTimer  = new Date();
 		this.settingsMap = new Map();		
 		
 		// var init = utils.getCookie("init");
@@ -453,21 +455,6 @@ var UserInputs = {
 	gamepadEnabled() {
 		return gamepad.controller || false;
 	},
-	incDeciframes() {
-		this.keyboardButtonsDeciframes++;
-		this.keyboardDirectionArrowsDeciframes++;
-		this.gamepadButtonsDeciFrames++;
-		this.gamepadDirectionPadDeciFrames++;
-		
-		
-	},
-	incTickCounter() {
-		this.ticks++;
-		if(this.ticks > 1200000)this.ticks = 0;  // set to 0 every 12 seconds?
-	},
-	getTickCounter() {
-		return this.ticks;
-	},
 	
 	processGamepadInput() {
 		this.gamepadButtonsDown(this.settingsMap.get("Gamepad Harddrop"));	// hard drop
@@ -488,34 +475,34 @@ var UserInputs = {
 		
 		return;
 	},
-	
-	
-	//  X, Y, A, B , RB, LB Buttons
+	// Single press gamepad buttons
 	gamepadButtonsDown(finds) {
-		var deciDAS = 50.0;
-		var deciARR = 10.0;
+		var DAS = 167.0;
+		var ARR = 300.0;
 		var isContained = this.gpButtons.includes(finds);
 		var isPrevContained = this.prevGpButtons.includes(finds);
 
 		if(isPrevContained != isContained ) {
-			this.isGamepadButtonDown = false;
-			// Do once
+			// Not being held yet
+			this.gamepadButtonTimer = new Date();
+			this.isPassedDelayGamepadShift = false;
+			// Add button to queue on pressed input
 			if(isContained)
 				this.gamepadQueue.push(finds);
 		}
-		var gamepadDASFrames = this.gamepadButtonsDeciFrames;
 		
-		if (!this.isGamepadButtonDown) {
-
-				if (gamepadDASFrames >= deciDAS) {
-					this.gamepadButtonsDeciFrames = 0;
-					this.isGamepadButtonDown = true;
+		var deltaTime = (new Date()).getTime() - this.gamepadButtonTimer.getTime();
+		
+		if (!this.isPassedDelayGamepadShift) {
+				if (deltaTime >= DAS) {
+					this.gamepadButtonTimer = new Date();
+					this.isPassedDelayGamepadShift = true;
 				}
 				
 		} else {
-			if (gamepadDASFrames >= deciARR && isContained) {
-				//this.gamepadQueue.push(finds);
-				this.gamepadButtonsDeciFrames = 0;
+			if (deltaTime >= ARR && isContained) {
+				this.gamepadQueue.push(finds);
+				this.gamepadButtonTimer = new Date();
 			}
 		}
 			
@@ -523,32 +510,34 @@ var UserInputs = {
 	
 	// Direction Pad
 	gamepadDPadDown(finds) {
-		var DAS = parseInt(this.settingsMap.get("Gamepad DAS"));	//65.0;
-		var ARR = parseInt(this.settingsMap.get("Gamepad ARR"));	//20.0;
+		var DAS = parseInt(this.settingsMap.get("Gamepad DAS"));	
+		var ARR = parseInt(this.settingsMap.get("Gamepad ARR"));
 		var isContained = this.gpButtons.includes(finds);
 		var isPrevContained = this.prevGpButtons.includes(finds);
 		
 		if(isPrevContained != isContained ) {
-			this.isGamepadDown = false;
-			// Do once
+			// Not being held yet
+			this.gamepadShiftTimer = new Date();
+			this.isDelayedPassedGamepadShift = false;
+			// Add button to queue on pressed input
 			if(isContained)
 				this.gamepadQueue.push(finds);
 		}
-		var gamepadDirectionDasFrames = this.gamepadDirectionPadDeciFrames;
-			if (!this.isGamepadDown) {
-					if (gamepadDirectionDasFrames >= DAS) {
-						this.gamepadDirectionPadDeciFrames = 0;
-						this.isGamepadDown = true;
-						
-					}
-			} 
-			else 
-		{
-				if (gamepadDirectionDasFrames >= ARR && isContained) {
-					this.gamepadQueue.push(finds);
-					this.gamepadDirectionPadDeciFrames = 0;
-				}
+		
+		var deltaTime = (new Date()).getTime() - this.gamepadShiftTimer.getTime();
+
+		if (!this.isDelayedPassedGamepadShift) {
+			if (deltaTime >= DAS) {
+				this.gamepadShiftTimer = new Date();
+				this.isDelayedPassedGamepadShift = true;	
 			}
+		} 
+		else {
+			if (deltaTime >= ARR && isContained) {
+				this.gamepadQueue.push(finds);
+				this.gamepadShiftTimer = new Date();
+			}
+		}
 		
 		
 		return;
@@ -568,36 +557,37 @@ var UserInputs = {
 	// keyboard keys z,x,space
 	processKeyDown(key)
 	{
-		var deciDAS = 50.0;
-		var deciARR = 50.0;
+		var DAS = 167.0;
+		var ARR = 300.0;
 		
-		// todo: fix this mess
-		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key] && this.isKeyBoardKeyDown == true) {
-			
-			this.isKeyboardKeyDown = false;
+		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key]) {
+			// Not being held yet
+			this.keyboardKeyTimer = new Date();
+			this.isPassedDelayKeyboardKey = false;
+			// Add shift to queue on pressed input
 			if(this.keyboardKeys[key] == true)
 				this.inputQueue.push(key);
-			//this.keyboardKeys[key] = false;
 		}
 		
-		var keyboardDASFrames = this.keyboardButtonsDeciframes;
+		var deltaTime = (new Date()).getTime() - this.keyboardKeyTimer.getTime();
 
-		if (!this.isKeyboardKeyDown) {
-				if (keyboardDASFrames >= deciDAS) {
+		if (!this.isPassedDelayKeyboardKey) {
+				if (deltaTime >= DAS) {
+					this.keyboardKeyTimer = new Date();
 					this.keyboardButtonsDeciframes = 0;
-					this.isKeyboardKeyDown = true;
+					this.isPassedDelayKeyboardKey = true;
 				}
 		} else {
-			if (keyboardDASFrames >= deciARR && this.keyboardKeys[key] == true) {
-				//this.inputQueue.push(key);
-				this.keyboardButtonsDeciframes = 0;
+			if (deltaTime >= ARR && this.keyboardKeys[key] == true) {
+				this.inputQueue.push(key);
+				this.keyboardKeyTimer = new Date();
 			}
 		}
 		
 		
 		
 	},
-	
+	// Process applicable key inputs
 	processKeyShift() {
 		this.processKeyboardArrowKeys(parseInt(this.settingsMap.get("Keyboard Left")));		//39);  // right
 		this.processKeyboardArrowKeys(parseInt(this.settingsMap.get("Keyboard Right")));		//37);	// left
@@ -610,25 +600,30 @@ var UserInputs = {
 
 		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key]) {
 			// Not being held yet
-			this.isPassedDelay = false;
+			this.isPassedDelayKeyboardShift = false;
+			this.keyboardShiftTimer = new Date();
+			
+			// Do shift if key has been pushed down
 			if(this.keyboardKeys[key] == true)
 				this.inputQueue.push(key);
 		}
+		
+		
+		var deltaTime = (new Date()).getTime() - this.keyboardShiftTimer.getTime();
+		
+            if (!this.isPassedDelayKeyboardShift) {
 				
-		var keyboardDASFrames = this.keyboardDirectionArrowsDeciframes;
-				
-            if (!this.isPassedDelay) {
-				
-                if (keyboardDASFrames >= DAS) {
-                    this.keyboardDirectionArrowsDeciframes = 0;
-                    this.isPassedDelay = true;
+                if (deltaTime >= DAS) {
+					this.keyboardShiftTimer = new Date();
+                    this.isPassedDelayKeyboardShift = true;
                 }
             } 
-			else if(keyboardDASFrames >= ARR && this.keyboardKeys[key] == true) {
+			else if(deltaTime >= ARR && this.keyboardKeys[key] == true) {
                     this.inputQueue.push(key);
-                    this.keyboardDirectionArrowsDeciframes = 0;
+					this.keyboardShiftTimer  = new Date();
 			}
-
+	
+		
     },
     keyDown(event) {
 		
@@ -657,16 +652,10 @@ var UserInputs = {
 		this.prevKeyboardKeys = {...this.keyboardKeys};
 	},
 	// button states
-    isPassedDelay: false,
-	isKeyboardKeyDown: false,
-	isGamepadDown: false,
-	isGamepadButtonDown: false,
-	
-	// das frame counters 
-	keyboardButtonsDeciframes: 0,				// DAS controlled frames/10 for non-shifted keys
-	keyboardDirectionArrowsDeciframes: 0, 		// DAS controlled frames/10 for mino shifting keys
-	gamepadButtonsDeciFrames: 0,				// DAS controlled frames/10 for non-shifted keys
-	gamepadDirectionPadDeciFrames: 0,			// DAS controlled frames/10 for mino shifting keys
+    isPassedDelayKeyboardShift: false,
+	isPassedDelayKeyboardKey: false,
+	isPassedDelayGamepadShift: false,
+	isPassedDelayGamepadButton: false,
 	
 	// buttons state contatiners
 	gpButtons: [],
@@ -677,10 +666,8 @@ var UserInputs = {
 	// button pressed containers
 	inputQueue: [],
 	gamepadQueue: [],
-	
-	ticks: 0,
-	
-	settingsList: ["init", 
+
+	settingsList: ["Soft Drop Rate [1 - 100]", 
 					"Keyboard DAS", "Keyboard ARR", "Keyboard Harddrop", "Keyboard Hold", 
 					"Keyboard Left", "Keyboard Right", "Keyboard Rotateccw", "Keyboard Rotate", 
 					"Keyboard Down", "Keyboard Pophold", "Keyboard Reset", "Keyboard Background",
@@ -690,12 +677,12 @@ var UserInputs = {
 					"Gamepad Down","Gamepad Pophold", "Gamepad Reset", "Gamepad Background", 
 					"path", "High Score"],
 	
-	settingsDefault: ["true", 
-						"50.0", "16.0", "32", "16",
+	settingsDefault: ["70", 
+						"167.0", "33.0", "32", "16",
 						"37", "39", "90", "88",
 						"40", "17", "82", "81",
 						
-						"50.0", "16.0", "RB", "LB",
+						"167.0", "33.0", "RB", "LB",
 						"DPad-Left", "DPad-Right", "A", "B",
 						"DPad-Down", "DPad-Up", "Back", "", 
 						"=/",""],
@@ -1126,25 +1113,18 @@ Tetris.prototype = {
 
 
     },
-	// tick input data -- wont have better than 4-15ms resolution since javascript is single theaded
+	// tick input data -- wont have better than 4-15ms resolution since javascript is single theaded and any ARR or DAS below 15ms will likely be broken
 	_processTick: async function() {
 	
 	
 		//var deltaTime = (new Date()).getTime() - this.eventTimer.getTime();
 		//console.log("desync time: " + deltaTime);	
 
-
-		
-		
-		inputs.incDeciframes();
-		inputs.incTickCounter();
 	
 		if(this.isTimerOn) {
 			var deltaPlayTime = new Date().getTime() - this.sequencePrevTime;
+			document.getElementById("Time").value = (deltaPlayTime/1000).toString();
 			
-			if(inputs.getTickCounter() >= 20) { // Set html element at a reasonble rate
-				document.getElementById("Time").value = (deltaPlayTime/1000).toString();
-			}
 		}
 		
 		
@@ -1158,14 +1138,14 @@ Tetris.prototype = {
 			var halfFrame = 5.0		//8.0;
 			var halfFramePlus = 10.0;
 			
-			if(inputs.getTickCounter() >= tenthOfFrame) {
-				inputs.updateGamepad();
-				inputs.processGamepadDPad();
-				inputs.processGamepadInput();
-			}
+
+			inputs.updateGamepad();
+			inputs.processGamepadDPad();
+			inputs.processGamepadInput();
+			
 			// drain gamepad queue
-			if( inputs.getTickCounter() > halfFrame)  // 8 millisecons
-			{
+			// if( inputs.getTickCounter() > halfFrame)  // 8 millisecons
+			// {
 				while((inputs.gamepadQueue != undefined && inputs.gamepadQueue.length >= 1)){
 					var curkey = inputs.gamepadQueue.shift();
 					if(curkey == "DPad-Left") {
@@ -1214,14 +1194,13 @@ Tetris.prototype = {
 				}
 				
 				inputs.gamepadQueue = [];
-			}
+			// }
 			//inputs.gamepadButtonClear();
 		}
 		
 		
-		// Do keyboard
-		inputs.processKeys();
-		
+			// Do keyboard
+			inputs.processKeys();
 			inputs.processKeyShift();
 			// Keyboard inputs
 			while((inputs.inputQueue != undefined && inputs.inputQueue.length >= 1)){
