@@ -162,7 +162,8 @@ body{
   -webkit-animation-name: fadeOutUp;
   animation-name: fadeOutUp;
 }
-#bg {
+
+ #bg {
   -webkit-filter: blur(3px);
-  filter: blur(3px);
-}
+  filter: blur(0px);
+} 

@@ -4,6 +4,8 @@ var utils = require('./utils.js');
 
 var UserInputs = {
 	init() {
+		this.dt = 0;
+		this.debugTimer  = new Date();
 		this.settingsMap = new Map();		
 		
 		// var init = utils.getCookie("init");
@@ -24,12 +26,16 @@ var UserInputs = {
 	updateGamepad() {
 		this.gpButtons = gamepad.update();
 	},
-
+	gamepadEnabled() {
+		return gamepad.controller || false;
+	},
 	incDeciframes() {
 		this.keyboardButtonsDeciframes++;
 		this.keyboardDirectionArrowsDeciframes++;
 		this.gamepadButtonsDeciFrames++;
 		this.gamepadDirectionPadDeciFrames++;
+		
+		
 	},
 	incTickCounter() {
 		this.ticks++;
@@ -141,13 +147,13 @@ var UserInputs = {
 		var deciDAS = 50.0;
 		var deciARR = 50.0;
 		
-
 		// todo: fix this mess
 		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key] && this.isKeyBoardKeyDown == true) {
+			
 			this.isKeyboardKeyDown = false;
 			if(this.keyboardKeys[key] == true)
-				this.inputqueue.push(key);
-				this.keyboardKeys[key] = false;
+				this.inputQueue.push(key);
+			//this.keyboardKeys[key] = false;
 		}
 		
 		var keyboardDASFrames = this.keyboardButtonsDeciframes;
@@ -159,7 +165,7 @@ var UserInputs = {
 				}
 		} else {
 			if (keyboardDASFrames >= deciARR && this.keyboardKeys[key] == true) {
-				//this.inputqueue.push(key);
+				//this.inputQueue.push(key);
 				this.keyboardButtonsDeciframes = 0;
 			}
 		}
@@ -178,31 +184,27 @@ var UserInputs = {
 		var DAS = parseInt(this.settingsMap.get("Keyboard DAS"));	//65.0;
 		var ARR = parseInt(this.settingsMap.get("Keyboard ARR"));	//20.0;
 
-	if(key == 75)
-		console.log("keyboard key: " + key);
-		
 		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key]) {
-			this.isDirectionArrowDown = false;
+			// Not being held yet
+			this.isPassedDelay = false;
 			if(this.keyboardKeys[key] == true)
-				this.inputqueue.push(key);
+				this.inputQueue.push(key);
 		}
-		
-		
+				
 		var keyboardDASFrames = this.keyboardDirectionArrowsDeciframes;
-		
-            if (!this.isDirectionArrowDown) {
+				
+            if (!this.isPassedDelay) {
 				
                 if (keyboardDASFrames >= DAS) {
                     this.keyboardDirectionArrowsDeciframes = 0;
-                    this.isDirectionArrowDown = true;
+                    this.isPassedDelay = true;
                 }
-            } else {
-                if (keyboardDASFrames >= ARR && this.keyboardKeys[key] == true) {
-                    this.inputqueue.push(key);
+            } 
+			else if(keyboardDASFrames >= ARR && this.keyboardKeys[key] == true) {
+                    this.inputQueue.push(key);
                     this.keyboardDirectionArrowsDeciframes = 0;
-                }
-            }
-        //}
+			}
+
     },
     keyDown(event) {
 		
@@ -227,10 +229,11 @@ var UserInputs = {
 	this.prevGpButtons = this.gpButtons;
 	},
 	saveKeyboardKeys() {
+		//this.prevKeyboardKeys = utils.deepClone(this.keyboardKeys);
 		this.prevKeyboardKeys = {...this.keyboardKeys};
 	},
 	// button states
-    isDirectionArrowDown: false,
+    isPassedDelay: false,
 	isKeyboardKeyDown: false,
 	isGamepadDown: false,
 	isGamepadButtonDown: false,
@@ -248,7 +251,7 @@ var UserInputs = {
 	prevKeyboardKeys: [],
     
 	// button pressed containers
-	inputqueue: [],
+	inputQueue: [],
 	gamepadQueue: [],
 	
 	ticks: 0,

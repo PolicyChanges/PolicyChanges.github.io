@@ -428,6 +428,8 @@ var utils = require('./utils.js');
 
 var UserInputs = {
 	init() {
+		this.dt = 0;
+		this.debugTimer  = new Date();
 		this.settingsMap = new Map();		
 		
 		// var init = utils.getCookie("init");
@@ -448,12 +450,16 @@ var UserInputs = {
 	updateGamepad() {
 		this.gpButtons = gamepad.update();
 	},
-
+	gamepadEnabled() {
+		return gamepad.controller || false;
+	},
 	incDeciframes() {
 		this.keyboardButtonsDeciframes++;
 		this.keyboardDirectionArrowsDeciframes++;
 		this.gamepadButtonsDeciFrames++;
 		this.gamepadDirectionPadDeciFrames++;
+		
+		
 	},
 	incTickCounter() {
 		this.ticks++;
@@ -565,13 +571,13 @@ var UserInputs = {
 		var deciDAS = 50.0;
 		var deciARR = 50.0;
 		
-
 		// todo: fix this mess
 		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key] && this.isKeyBoardKeyDown == true) {
+			
 			this.isKeyboardKeyDown = false;
 			if(this.keyboardKeys[key] == true)
-				this.inputqueue.push(key);
-				this.keyboardKeys[key] = false;
+				this.inputQueue.push(key);
+			//this.keyboardKeys[key] = false;
 		}
 		
 		var keyboardDASFrames = this.keyboardButtonsDeciframes;
@@ -583,7 +589,7 @@ var UserInputs = {
 				}
 		} else {
 			if (keyboardDASFrames >= deciARR && this.keyboardKeys[key] == true) {
-				//this.inputqueue.push(key);
+				//this.inputQueue.push(key);
 				this.keyboardButtonsDeciframes = 0;
 			}
 		}
@@ -602,31 +608,27 @@ var UserInputs = {
 		var DAS = parseInt(this.settingsMap.get("Keyboard DAS"));	//65.0;
 		var ARR = parseInt(this.settingsMap.get("Keyboard ARR"));	//20.0;
 
-	if(key == 75)
-		console.log("keyboard key: " + key);
-		
 		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key]) {
-			this.isDirectionArrowDown = false;
+			// Not being held yet
+			this.isPassedDelay = false;
 			if(this.keyboardKeys[key] == true)
-				this.inputqueue.push(key);
+				this.inputQueue.push(key);
 		}
-		
-		
+				
 		var keyboardDASFrames = this.keyboardDirectionArrowsDeciframes;
-		
-            if (!this.isDirectionArrowDown) {
+				
+            if (!this.isPassedDelay) {
 				
                 if (keyboardDASFrames >= DAS) {
                     this.keyboardDirectionArrowsDeciframes = 0;
-                    this.isDirectionArrowDown = true;
+                    this.isPassedDelay = true;
                 }
-            } else {
-                if (keyboardDASFrames >= ARR && this.keyboardKeys[key] == true) {
-                    this.inputqueue.push(key);
+            } 
+			else if(keyboardDASFrames >= ARR && this.keyboardKeys[key] == true) {
+                    this.inputQueue.push(key);
                     this.keyboardDirectionArrowsDeciframes = 0;
-                }
-            }
-        //}
+			}
+
     },
     keyDown(event) {
 		
@@ -651,10 +653,11 @@ var UserInputs = {
 	this.prevGpButtons = this.gpButtons;
 	},
 	saveKeyboardKeys() {
+		//this.prevKeyboardKeys = utils.deepClone(this.keyboardKeys);
 		this.prevKeyboardKeys = {...this.keyboardKeys};
 	},
 	// button states
-    isDirectionArrowDown: false,
+    isPassedDelay: false,
 	isKeyboardKeyDown: false,
 	isGamepadDown: false,
 	isGamepadButtonDown: false,
@@ -672,7 +675,7 @@ var UserInputs = {
 	prevKeyboardKeys: [],
     
 	// button pressed containers
-	inputqueue: [],
+	inputQueue: [],
 	gamepadQueue: [],
 	
 	ticks: 0,
@@ -853,6 +856,8 @@ Tetris.prototype = {
 
     init: function(options) {
 		
+		// this gameStates = {"
+		// this.state = 
         var cfg = this.config = utils.extend(options, defaults);
         this.interval = consts.DEFAULT_INTERVAL;
 
@@ -867,7 +872,9 @@ Tetris.prototype = {
 		this.currentOpener = 0;
 		this.doTest = false;
         this.matrix = initMatrix(consts.ROW_COUNT, consts.COLUMN_COUNT);
-		
+		this.eventTimer = new Date();
+		this.debugTimer = new Date();
+		this.gamepadEnabled = false;
         this.reset();
         
 		this._initEvents();
@@ -876,6 +883,9 @@ Tetris.prototype = {
     },
 	toggleTimer: function() {
 		document.getElementById("Timer").value = (this.isTimerOn = !this.isTimerOn) ? "Seconds:" : "Timer Off";
+	},
+	toggleGamepad: function(){
+		document.getElementById("gamepad").value = (this.gamepadEnabled = !this.gamepadEnabled) ? "Disable Gamepad" : "Enable Gamepad";
 	},
 	setFreePlay: function()
 	{
@@ -919,9 +929,13 @@ Tetris.prototype = {
 
 			list.add(option);
 		});
-	},	
+	},
 	updateSettingTextBox: function() {
-		console.log(document.getElementById("setting_value").value = inputs.settingsDefault[document.getElementById("settings").selectedIndex-1]);
+		document.getElementById("setting_value").value = 
+		inputs.settingsMap.get(inputs.settingsList[document.getElementById("settings").selectedIndex-1]);
+		
+		//inputs.settingsDefault[document.getElementById("settings").selectedIndex-1];
+		
 	},
 	setSettings: function() {
 		var newVal = document.getElementById("setting_value").value;
@@ -931,6 +945,7 @@ Tetris.prototype = {
 	},
     //Reset game
     reset: function() {
+		this.numlefts = 0;
         this.running = false;
         this.isGameOver = false;
         this.level = 1;
@@ -1111,23 +1126,25 @@ Tetris.prototype = {
 
 
     },
-	// tick input data
+	// tick input data -- wont have better than 4-15ms resolution since javascript is single theaded
 	_processTick: async function() {
 	
-		var deltaTime = 1.0;	// 1 millisecond
-		var tenthOfFrame = 1.0  //1.6; // 1.6ms = 1 fram
-		var halfFrame = 5.0		//8.0;
-		var halfFramePlus = 10.0;
+	
+		//var deltaTime = (new Date()).getTime() - this.eventTimer.getTime();
+		//console.log("desync time: " + deltaTime);	
+
+
 		
 		
 		inputs.incDeciframes();
 		inputs.incTickCounter();
-		
 	
-		if(inputs.getTickCounter() >= tenthOfFrame) {
-			inputs.updateGamepad();
-			inputs.processGamepadDPad();
-			inputs.processGamepadInput();
+		if(this.isTimerOn) {
+			var deltaPlayTime = new Date().getTime() - this.sequencePrevTime;
+			
+			if(inputs.getTickCounter() >= 20) { // Set html element at a reasonble rate
+				document.getElementById("Time").value = (deltaPlayTime/1000).toString();
+			}
 		}
 		
 		
@@ -1135,80 +1152,82 @@ Tetris.prototype = {
 		if(this.isGameOver) return;
 		
 		
-		if(this.isTimerOn) {
-			var deltaPlayTime = new Date().getTime() - this.sequencePrevTime;
+		
+		if(this.gamepadEnabled && inputs.gamepadEnabled()) {
+			var tenthOfFrame = 1.0  //1.6; // 1.6ms = 1 fram
+			var halfFrame = 5.0		//8.0;
+			var halfFramePlus = 10.0;
 			
-			if(inputs.getTickCounter() >= 20) { 
-				document.getElementById("Time").value = (deltaPlayTime/1000).toString();
+			if(inputs.getTickCounter() >= tenthOfFrame) {
+				inputs.updateGamepad();
+				inputs.processGamepadDPad();
+				inputs.processGamepadInput();
 			}
-		}
-	
-		// drain gamepad queue
-		if(inputs.getTickCounter() > halfFrame)  // 8 millisecons
-		{
-			while((inputs.gamepadQueue != undefined && inputs.gamepadQueue.length >= 1)){
-				var curkey = inputs.gamepadQueue.shift();
-				if(curkey == "DPad-Left") {
-					this.shape.goLeft(this.matrix);
-					this.resetLockdown();
-					this._draw();
+			// drain gamepad queue
+			if( inputs.getTickCounter() > halfFrame)  // 8 millisecons
+			{
+				while((inputs.gamepadQueue != undefined && inputs.gamepadQueue.length >= 1)){
+					var curkey = inputs.gamepadQueue.shift();
+					if(curkey == "DPad-Left") {
+						this.shape.goLeft(this.matrix);
+						this.resetLockdown();
+						this._draw();
+					}
+					if(curkey == "DPad-Right") {
+						this.shape.goRight(this.matrix);
+						this.resetLockdown();
+						this._draw();
+					}
+					if(curkey == "A") {
+						this.rotationCounter++;
+						this.shape.rotate(this.matrix);
+						this.resetLockdown();
+						this._draw();
+					}
+					if(curkey == "B") {
+						this.rotationCounter++;
+						this.shape.rotateClockwise(this.matrix);
+						this.resetLockdown();
+						this._draw();
+					}
+					if(curkey == "DPad-Down") {
+						 this.shape.goDown(this.matrix);
+						 this._draw();
+					}
+					if(curkey == "RB") {
+						this.shape.goBottom(this.matrix);
+						this.lockDownTimer = 5000;
+						this._update();
+					}
+					if(curkey == "LB") {
+						this.pushHoldStack();
+						this._draw();
+					}				
+					if(curkey == "DPad-Up") {
+						this.popHoldStack();
+						this._draw();
+					}
+					if(curkey == "Back") {
+						this._restartHandler();
+						return;
+					}
 				}
-				if(curkey == "DPad-Right") {
-					this.shape.goRight(this.matrix);
-					this.resetLockdown();
-					this._draw();
-				}
-				if(curkey == "A") {
-					this.rotationCounter++;
-					this.shape.rotate(this.matrix);
-					this.resetLockdown();
-					this._draw();
-				}
-				if(curkey == "B") {
-					this.rotationCounter++;
-					this.shape.rotateClockwise(this.matrix);
-					this.resetLockdown();
-					this._draw();
-				}
-				if(curkey == "DPad-Down") {
-					 this.shape.goDown(this.matrix);
-					 this._draw();
-				}
-				if(curkey == "RB") {
-					this.shape.goBottom(this.matrix);
-					this.lockDownTimer = 5000;
-					this._update();
-				}
-				if(curkey == "LB") {
-					this.pushHoldStack();
-					this._draw();
-				}				
-				if(curkey == "DPad-Up") {
-					this.popHoldStack();
-					this._draw();
-				}
-				if(curkey == "Back") {
-					this._restartHandler();
-					return;
-				}
+				
+				inputs.gamepadQueue = [];
 			}
-			
-			inputs.gamepadQueue = [];
+			//inputs.gamepadButtonClear();
 		}
-		//inputs.gamepadButtonClear();
+		
 		
 		// Do keyboard
-		if(inputs.getTickCounter() > tenthOfFrame)		// 120hz
-		{
-			inputs.processKeys();
-		}
+		inputs.processKeys();
 		
-		if (inputs.getTickCounter() > tenthOfFrame) {  // 60hz
 			inputs.processKeyShift();
 			// Keyboard inputs
-			while((inputs.inputqueue != undefined && inputs.inputqueue.length >= 1)){
-				var curkey = inputs.inputqueue.shift();
+			while((inputs.inputQueue != undefined && inputs.inputQueue.length >= 1)){
+				var curkey = inputs.inputQueue.shift();
 				if(curkey == 37) {
+					this.debugTimer = new Date();
 					this.shape.goLeft(this.matrix);
 					this.resetLockdown();
 					this._draw();
@@ -1219,6 +1238,7 @@ Tetris.prototype = {
 					this._draw();
 				}
 				if(curkey == 40) {
+					
 					 this.shape.goDown(this.matrix);
 					 this._draw();
 				}
@@ -1259,15 +1279,12 @@ Tetris.prototype = {
 				}
 					
 			}
-			inputs.inputqueue = [];
-		}
+			inputs.inputQueue = [];
 		
-		if(inputs.getTickCounter() >= halfFramePlus)
+		
 			inputs.saveKeyboardKeys();
-		
-		if(inputs.getTickCounter() >= tenthOfFrame)
+
 			inputs.saveButtons();
-		
 	},		
     // Refresh game canvas
     _refresh: function() {
@@ -1293,7 +1310,7 @@ Tetris.prototype = {
 			return;
 		if(!this.shape.isSameSRS(this.hintMino))
 		{
-			new Audio('./dist/Failed.ogg').play();
+			//new Audio('./dist/Failed.ogg').play();
 			this._restartHandler();
 			// Restart
 			return 1;
@@ -1404,7 +1421,7 @@ var shapes = require("./shapes.js");
 
 // https://harddrop.com/wiki/Opener
 // https://four.lol/
-var OpenerGenerator = {
+var openerGenerator = {
 	shapeQueue: [],
 	hintQueue: [],
 	idx: 0,
@@ -1808,19 +1825,19 @@ var OpenerGenerator = {
 };
 
 function reset() {
-	OpenerGenerator.reset();
+	openerGenerator.reset();
 }
 
 function getNextMino(opener) {
-	var mino = OpenerGenerator.getNextMino(opener);
+	var mino = openerGenerator.getNextMino(opener);
 	return mino;
 }
 function getNextHint(opener) {
-	var mino = OpenerGenerator.getNextHint(opener);
+	var mino = openerGenerator.getNextHint(opener);
 	return mino;
 }
 function getLength() {
-	return OpenerGenerator.getLength();
+	return openerGenerator.getLength();
 }
 module.exports.getNextMino = getNextMino;
 module.exports.getNextHint = getNextHint;

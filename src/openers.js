@@ -3,7 +3,7 @@ var shapes = require("./shapes.js");
 
 // https://harddrop.com/wiki/Opener
 // https://four.lol/
-var OpenerGenerator = {
+var openerGenerator = {
 	shapeQueue: [],
 	hintQueue: [],
 	idx: 0,
@@ -407,19 +407,19 @@ var OpenerGenerator = {
 };
 
 function reset() {
-	OpenerGenerator.reset();
+	openerGenerator.reset();
 }
 
 function getNextMino(opener) {
-	var mino = OpenerGenerator.getNextMino(opener);
+	var mino = openerGenerator.getNextMino(opener);
 	return mino;
 }
 function getNextHint(opener) {
-	var mino = OpenerGenerator.getNextHint(opener);
+	var mino = openerGenerator.getNextHint(opener);
 	return mino;
 }
 function getLength() {
-	return OpenerGenerator.getLength();
+	return openerGenerator.getLength();
 }
 module.exports.getNextMino = getNextMino;
 module.exports.getNextHint = getNextHint;
