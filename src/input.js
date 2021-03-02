@@ -120,13 +120,13 @@ var UserInputs = {
 	},
 	// doing a lot of back and forth between strings and integers to represtent the same thing -- todo: fix
 	processKeys() {
-		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Harddrop")));		 //32);  // Space	- hard drop
-		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Rotate")));		//88);  // X		- rotate
-		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Rotateccw")));		//90);  // Z		- rotateccw
-		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Hold")));		//16);  // shift	- push hold stack
-		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Pophold")));	// ctrl	- pop hold stack
-		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Background")));  // q		- turn off background
-		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Reset"))); 		 // r		- reset
+		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Harddrop")));
+		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Rotate")));	
+		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Rotateccw")));
+		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Hold")));		
+		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Pophold")));	
+		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Background"))); 
+		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Reset"))); 		
 		//this.processKeyDown(this.settingsMap.get("Keyboard hold")));  // c		- pop hold stack
 	},
 
@@ -165,14 +165,14 @@ var UserInputs = {
 	},
 	// Process applicable key inputs
 	processKeyShift() {
-		this.processKeyboardArrowKeys(parseInt(this.settingsMap.get("Keyboard Left")));		//39);  // right
-		this.processKeyboardArrowKeys(parseInt(this.settingsMap.get("Keyboard Right")));		//37);	// left
-		this.processKeyboardArrowKeys(parseInt(this.settingsMap.get("Keyboard Down")));  // down
+		this.processKeyboardArrowKeys(parseInt(this.settingsMap.get("Keyboard Left")));	
+		this.processKeyboardArrowKeys(parseInt(this.settingsMap.get("Keyboard Right")));
+		this.processKeyboardArrowKeys(parseInt(this.settingsMap.get("Keyboard Down"))); 
 	},
 	// Direction arrows
     processKeyboardArrowKeys(key) {		
-		var DAS = parseInt(this.settingsMap.get("Keyboard DAS"));	//65.0;
-		var ARR = parseInt(this.settingsMap.get("Keyboard ARR"));	//20.0;
+		var DAS = parseInt(this.settingsMap.get("Keyboard DAS"));
+		var ARR = parseInt(this.settingsMap.get("Keyboard ARR"));
 
 		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key]) {
 			// Not being held yet
@@ -183,7 +183,6 @@ var UserInputs = {
 			if(this.keyboardKeys[key] == true)
 				this.inputQueue.push(key);
 		}
-		
 		
 		var deltaTime = (new Date()).getTime() - this.keyboardShiftTimer.getTime();
 		
@@ -202,7 +201,7 @@ var UserInputs = {
 		
     },
     keyDown(event) {
-		
+		if(event.keyCode != 38) 
 		if (! ((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105) || event.keyCode == 8)) 
 			event.preventDefault();
 		
