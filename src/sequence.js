@@ -46,6 +46,7 @@ var sequence = {
 	
 };
 
+/*
 var sequences = {
 	this.sequenceList = [];
 	this.currentMino = [];
@@ -63,6 +64,7 @@ var sequences = {
 		sequenceList = [];
 	}
 };
+*/
 
 function getNextMino() {
 	currentSequence.popMino();

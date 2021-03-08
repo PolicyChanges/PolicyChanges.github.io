@@ -146,11 +146,7 @@ function Tetris(id) {
 }
 
 Tetris.prototype = {
-
     init: function(options) {
-		
-		// this gameStates = {"
-		// this.state = 
         var cfg = this.config = utils.extend(options, defaults);
         this.interval = consts.DEFAULT_INTERVAL;
 
@@ -257,6 +253,7 @@ Tetris.prototype = {
 		this.shapeQueue = [];
 		this.hintQueue = [];
 		this.holdStack = [];
+		this.shape = shapes.getShape(0);
 		// gets set to false after mino has been popped from hold stack; set back to true on mino dropped
 		this.canPopFromHoldStack = false;
 		// manipulation counter for srs extended piece lockdown
@@ -349,14 +346,19 @@ Tetris.prototype = {
 					if(besttime == "" || deltaTime/1000.0 < parseFloat(besttime)) {	
 						document.getElementById("besttime").value = (deltaTime/1000.0).toString();
 					}
-					this.isSequenceCompleted = true;
 					
-				}				
+					
+				}	
+			
 				this.hintQueue = [];
 				this.shapeQueue = [];
 
+				this.isSequenceCompleted = true;
 				// Recursion warning
-				this._restartHandler();
+				this._restartHandler();	
+				// this.reset();
+				// this.start();
+				return;
 			}
 		} else {
 			while(this.shapeQueue.length <= 4)
@@ -419,20 +421,16 @@ Tetris.prototype = {
 
 
     },
+	
 	// tick input data -- wont have better than 4-15ms resolution since javascript is single theaded and any ARR or DAS below 15ms will likely be broken
 	_processTick: async function() {
 	
-	
-		//var deltaTime = (new Date()).getTime() - this.eventTimer.getTime();
-		//console.log("desync time: " + deltaTime);	
-
 	
 		if(this.isTimerOn) {
 			var deltaPlayTime = new Date().getTime() - this.sequencePrevTime;
 			document.getElementById("Time").value = (deltaPlayTime/1000).toString();
 			
 		}
-		
 		
 		// Don't process game related events if game over
 		if(this.isGameOver) return;
@@ -452,56 +450,52 @@ Tetris.prototype = {
 			// drain gamepad queue
 			// if( inputs.getTickCounter() > halfFrame)  // 8 millisecons
 			// {
-				while((inputs.gamepadQueue != undefined && inputs.gamepadQueue.length >= 1)){
-					var curkey = inputs.gamepadQueue.shift();
-					if(curkey == "DPad-Left") {
-						this.shape.goLeft(this.matrix);
-						this.resetLockdown();
-						this._draw();
-					}
-					if(curkey == "DPad-Right") {
-						this.shape.goRight(this.matrix);
-						this.resetLockdown();
-						this._draw();
-					}
-					if(curkey == "A") {
-						this.rotationCounter++;
-						this.shape.rotate(this.matrix);
-						this.resetLockdown();
-						this._draw();
-					}
-					if(curkey == "B") {
-						this.rotationCounter++;
-						this.shape.rotateClockwise(this.matrix);
-						this.resetLockdown();
-						this._draw();
-					}
-					if(curkey == "DPad-Down") {
-						 this.shape.goDown(this.matrix);
-						 this._draw();
-					}
-					if(curkey == "RB") {
-						this.shape.goBottom(this.matrix);
-						this.lockDownTimer = 5000;
-						this._update();
-					}
-					if(curkey == "LB") {
-						this.pushHoldStack();
-						this._draw();
-					}				
-					if(curkey == "DPad-Up") {
-						this.popHoldStack();
-						this._draw();
-					}
-					if(curkey == "Back") {
-						this._restartHandler();
-						return;
-					}
+			while((inputs.gamepadQueue != undefined && inputs.gamepadQueue.length >= 1)){
+				var curkey = inputs.gamepadQueue.shift();
+				if(inputs.settingsMap.get("Gamepad Left").includes(curkey)) {
+					this.shape.goLeft(this.matrix);
+					this.resetLockdown();
+					this._draw();
 				}
-				
-				inputs.gamepadQueue = [];
-			// }
-			//inputs.gamepadButtonClear();
+				else if(inputs.settingsMap.get("Gamepad Right").includes(curkey)) {
+					this.shape.goRight(this.matrix);
+					this.resetLockdown();
+					this._draw();
+				}
+				else if(inputs.settingsMap.get("Gamepad Rotateccw").includes(curkey)) {
+					this.shape.rotate(this.matrix);
+					this.resetLockdown();
+					this._draw();
+				}
+				else if(inputs.settingsMap.get("Gamepad Rotate").includes(curkey)) {
+					this.shape.rotateClockwise(this.matrix);
+					this.resetLockdown();
+					this._draw();
+				}
+				else if(inputs.settingsMap.get("Gamepad Down").includes(curkey)) {
+					 this.shape.goDown(this.matrix);
+					 this._draw();
+				}
+				else if(inputs.settingsMap.get("Gamepad Harddrop").includes(curkey)) {
+					this.shape.goBottom(this.matrix);
+					this.lockDownTimer = 5000;
+					this._update();
+				}
+				else if(inputs.settingsMap.get("Gamepad Hold").includes(curkey)) {
+					this.pushHoldStack();
+					this._draw();
+				}				
+				else if(inputs.settingsMap.get("Gamepad Pophold").includes(curkey)) {
+					this.popHoldStack();
+					this._draw();
+				}
+				else if(inputs.settingsMap.get("Gamepad Reset").includes(curkey)) {
+					this._restartHandler();
+					return;
+				}
+			}
+			inputs.saveButtons();
+			inputs.gamepadClear();
 		}
 		
 		
@@ -511,54 +505,51 @@ Tetris.prototype = {
 			// Keyboard inputs
 			while((inputs.inputQueue != undefined && inputs.inputQueue.length >= 1)){
 				var curkey = inputs.inputQueue.shift();
-				if(curkey == 37) {
-					this.debugTimer = new Date();
+				if(inputs.settingsMap.get("Keyboard Left").includes(curkey)) {
 					this.shape.goLeft(this.matrix);
 					this.resetLockdown();
 					this._draw();
 				}
-				if(curkey == 39){
+				else if(inputs.settingsMap.get("Keyboard Right").includes(curkey)) {
 					this.shape.goRight(this.matrix);
 					this.resetLockdown();
 					this._draw();
 				}
-				if(curkey == 40) {
+				else if(inputs.settingsMap.get("Keyboard Down").includes(curkey)) {
 					
 					 this.shape.goDown(this.matrix);
 					 this._draw();
 				}
-				if(curkey == 90) {
-					this.rotationCounter++;
+				else if(inputs.settingsMap.get("Keyboard Rotateccw").includes(curkey)) {
 					this.shape.rotate(this.matrix);
 					this.resetLockdown();
 					this._draw();
 				}
-				if(curkey == 88){
-					this.rotationCounter++;
+				else if(inputs.settingsMap.get("Keyboard Rotate").includes(curkey)) {
 					this.shape.rotateClockwise(this.matrix);
 					this.resetLockdown();
 					this._draw();
 				}
-				if(curkey == 32) {
+				else if(inputs.settingsMap.get("Keyboard Harddrop").includes(curkey)) {
 					this.shape.goBottom(this.matrix);
 					this.lockDownTimer = 5000;
 					this._update();
 				}
-				if(curkey == 16) {
+				else if(inputs.settingsMap.get("Keyboard Hold").includes(curkey)) {
 					this.pushHoldStack();
 					this._draw();
 				}
-				if(curkey == 17 || curkey == 67) {
+				else if(inputs.settingsMap.get("Keyboard Pophold").includes(curkey)) {
 					this.popHoldStack();
 					this._draw();
 				}
-				if(curkey == 81) {
+				else if(inputs.settingsMap.get("Keyboard Hold").includes(curkey)) {
 					if(document.getElementById("divbg").style.display == "none")
 						document.getElementById("divbg").style.display =  "initial";
 					else
 						document.getElementById("divbg").style.display="none";
 				}
-				if(curkey == 82) {
+				if(inputs.settingsMap.get("Keyboard Reset").includes(curkey)) {
 					this._restartHandler();
 					return;
 				}
@@ -694,7 +685,8 @@ Tetris.prototype = {
             views.setLevel(this.level);
             this.levelTime = currentTime;
         }
-    }
+    },
+
 }
 
 

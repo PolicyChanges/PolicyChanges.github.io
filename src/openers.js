@@ -144,6 +144,17 @@ var openerGenerator = {
 				shapes.getShape(5),
 				shapes.getShape(3));
 			break;
+				case 9:
+				// Pelican
+				this.shapeQueue = new Array(
+				shapes.getShape(5),
+				shapes.getShape(2),
+				shapes.getShape(4),
+				shapes.getShape(0),
+				shapes.getShape(6),
+				shapes.getShape(1),
+				shapes.getShape(3));
+			break;
 			default:
 				return;
 			}
@@ -171,6 +182,8 @@ var openerGenerator = {
 			
 			switch(opener) {
 			case 0:
+			this.hintQueue = [];
+			break;
 			case 1:
 				// Fonzie Variation
 				this.hintQueue = new Array(
@@ -363,6 +376,25 @@ var openerGenerator = {
 				shapes.getShape(3));
 				
 				var hintDataList = [3,18,0,  0,17,2,  0,16,0,  4,15,-1,  6,17,0,  8,16,-1,  3,17,-1];
+				
+				for(var i = 0; i < this.hintQueue.length; i++) {
+					this.hintQueue[i].x = hintDataList[i * 3];
+					this.hintQueue[i].y = hintDataList[i * 3 + 1];
+					this.hintQueue[i].state = this.hintQueue[i].nextState(hintDataList[i * 3 + 2]);
+				}
+			break;
+			case 9:
+				// Pelican
+				this.hintQueue = new Array(
+				shapes.getShape(5),
+				shapes.getShape(2),
+				shapes.getShape(4),
+				shapes.getShape(0),
+				shapes.getShape(6),
+				shapes.getShape(1),
+				shapes.getShape(3));
+			
+				var hintDataList = [0,17,-1,  1,16,2,  5,18,0,  5,16,-1,  8,16,-1,  5,17,0,  3,16,2];
 				
 				for(var i = 0; i < this.hintQueue.length; i++) {
 					this.hintQueue[i].x = hintDataList[i * 3];

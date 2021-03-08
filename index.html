@@ -39,27 +39,27 @@
 
 <div id="divbg">
 <!-- <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/4lBGDh?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe> -->
-
 <!-- <iframe width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/3tXBWj?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe> -->
-
 <!-- <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/Xlf3Rj?gui=true&t=10&paused=false&muted=false" allowfullscreen></iframe> -->
-
 <!-- <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/tdjyzz?gui=true&t=10&paused=false&muted=false" allowfullscreen></iframe> -->
 <!-- <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/3lVfDm?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe> -->
-
-
-
-<iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/WldfWX?gui=&paused=false&muted=false" ></iframe>
-
 <!-- <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/MlSSRt?gui=&paused=false&muted=false" allowfullscreen></iframe> -->
-
-
 
 <!-- <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/3sy3Wy?gui=true&t=10&paused=false&muted=false" ></iframe> -->
 
+<iframe id="bg" width="640" height="360" frameborder="0" src="" ></iframe>
 <script>
+
+if( (Math.floor(Math.random() * Math.floor(10)) % 10) == 0) {
+	document.getElementById("bg").src="https://www.shadertoy.com/embed/MlSSRt?gui=&paused=false&muted=false";
+	document.getElementById("bg").style.webkitFilter = "blur(4px)";
+}
+else
+	document.getElementById("bg").src="https://www.shadertoy.com/embed/WldfWX?gui=&paused=false&muted=false";
+
 document.getElementById("bg").width = window.innerWidth;
 document.getElementById("bg").height = window.innerHeight;
+
 
 document.getElementById("bg").removeAttribute("tabIndex");
 document.getElementById("divbg").removeAttribute("tabIndex");
@@ -124,7 +124,6 @@ document.getElementById("divbg").removeAttribute("tabIndex");
 						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setLnJVar">Neither L nor J </a></li>
 						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setLaJVar">Both L and J </a></li>
 						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setPCTPieceVar">T piece </a></li>
-						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setSAVar">see also </a></li>
 					</ul>
 				</ul>
 			</ul>
@@ -133,11 +132,11 @@ document.getElementById("divbg").removeAttribute("tabIndex");
 		<canvas style="border: 1px solid #6666;" id="hold"></canvas>
 		<br>
 		<br>
-		<input style="padding-left:12px;text-decoration:underline;overflow:visible;font-size:12px;background:rgba(40,40,40,0);color:dodgerblue;border:1px solid #6666;text-align:left;" type="button" id="Timer" value="Timer Off"/>
-		<input disabled=true style="padding:1px;overflow:visible;width:70px;font-size:12px;background:rgba(40,40,40,0);color:dodgerblue;border:1px solid #6666;text-align:left;" type="text" id="Time" value=""/>
+		<input style="padding-left:12px;text-decoration:underline;overflow:visible;font-size:12px;background:rgba(40,40,40,.5);color:powderblue;border:1px solid #6666;text-align:left;" type="button" id="Timer" value="Timer Off"/>
+		<input disabled=true style="padding:1px;overflow:visible;width:70px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" type="text" id="Time" value=""/>
 		
-		<input disabled=true style="overflow:visible;width:63px;font-size:12px;background:rgba(40,40,40,0);color:dodgerblue;border:1px solid #6666;text-align:left;" type="text" id="besttimetext" value="Best Time:"/>
-		<input disabled=true style="overflow:visible;width:68px;font-size:12px;background:rgba(40,40,40,0);color:dodgerblue;border:1px solid #6666;text-align:left;" type="text" id="besttime" value=""/>
+		<input disabled=true style="overflow:visible;width:63px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" type="text" id="besttimetext" value="Best Time:"/>
+		<input disabled=true style="overflow:visible;width:68px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" type="text" id="besttime" value=""/>
 	</div>
 	
 	<div id="gameOver">
@@ -155,14 +154,14 @@ document.getElementById("divbg").removeAttribute("tabIndex");
 			<canvas style="border: 1px solid #6666;" id="preview"></canvas>
 			
 			<br>
-			<select style="width:80px;font-size:13px;background:rgba(40,40,40,0);color:dodgerblue;border: 1px solid #6666;text-align:left;" id="settings" name="setting">
+			<select style="width:80px;font-size:13px;background:rgba(40,40,40,.5);color:dodgerblue;border: 1px solid #6666;text-align:left;" id="settings" name="setting">
 			  <option selected="">Settings:</option>
 			</select>
-			<input style="width:50px;font-size:13px;background:rgba(40,40,40,0);color:dodgerblue;border:1px solid #6666;text-align:left;" type="text" id="setting_value">		
-			<input style="width:45px;font-size:12px;background:rgba(40,40,40,0);color:dodgerblue;border:1px solid #6666;text-align:left;" id="submitsetting" type="submit" value="Set"></input>
+			<input style="width:50px;font-size:13px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" type="text" id="setting_value">		
+			<input style="width:45px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" id="submitsetting" type="submit" value="Set"></input>
 			<br>
-			<input style="width:70px;font-size:12px;background:rgba(40,40,40,0);color:dodgerblue;border:1px solid #6666;text-align:left;" id="test" type="submit" value="Hide Hints"></input>
-			<input style="width:110px;font-size:12px;background:rgba(40,40,40,0);color:dodgerblue;border:1px solid #6666;text-align:left;" id="enablegamepad" type="button" value="Enable Gamepad"/>
+			<input style="width:70px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" id="test" type="submit" value="Hide Hints"></input>
+			<input style="width:110px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" id="enablegamepad" type="button" value="Enable Gamepad"/>
 			
 		</div>
 			
@@ -185,6 +184,8 @@ document.getElementById("divbg").removeAttribute("tabIndex");
 		document.getElementById("setHachispinVar").addEventListener("click", function() { tetrion.setCurrentOpener(6); } );
 		document.getElementById("setAlbatrossVar").addEventListener("click", function() { tetrion.setCurrentOpener(7); } );
 		document.getElementById("setNumberOneVar").addEventListener("click", function() { tetrion.setCurrentOpener(8); } );
+		document.getElementById("setPelicanVar").addEventListener("click", function() { tetrion.setCurrentOpener(9); } );
+		
 		
 		document.getElementById("enablegamepad").addEventListener("click", function() { tetrion.toggleGamepad(); } );
 		
@@ -193,6 +194,8 @@ document.getElementById("divbg").removeAttribute("tabIndex");
 		document.getElementById("test").addEventListener("click", function() { tetrion.setDoTest(); } );
 		document.getElementById("settings").addEventListener("change", function() { tetrion.updateSettingTextBox(); } );
 		document.getElementById("submitsetting").addEventListener("click", function() { tetrion.setSettings(); } );
+		
+		
 		tetrion.start();
 	})();
 </script>

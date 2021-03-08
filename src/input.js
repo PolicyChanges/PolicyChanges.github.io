@@ -4,12 +4,16 @@ var utils = require('./utils.js');
 
 var UserInputs = {
 	init() {
+		
+		this.settingsList = this.keyboardKeySettings.concat(this.keyboardShiftEvents.concat(this.keyboardKeyEvents.concat(this.gamepadSettings.concat(this.gamepadShiftEvents.concat(this.gamepadButtonEvents)))));
+		//;["Soft Drop Rate [1 - 100]"].concat(this.keyboardSettings.concat(this.gamepadSettings));
 		this.gamepadShiftTimer = new Date();
 		this.gamepadButtonTimer = new Date();
 		this.keyboardKeyTimer = new Date();
 		this.keyboardShiftTimer  = new Date();
-		this.settingsMap = new Map();		
-		
+		this.settingsMap = new Map();
+		this.gamepadEventMap = new Map();
+		///this.gamepadEventMap = new Map();
 		// var init = utils.getCookie("init");
 		// if(init == "") 
 			for(var i in this.settingsList) 
@@ -21,6 +25,15 @@ var UserInputs = {
 		 for(var i in this.settingsList)
 			 this.settingsMap.set(this.settingsList[i], this.settingsDefault[i]);
 		
+		
+		this.gamepadEvents = this.gamepadShiftEvents.concat(this.gameButtonsEvents);
+		
+		var mapIdx = [14, 7, 13, 5, 4, 1, 2, 12, 8, 3];
+		for(var i in mapIdx) {
+			this.gamepadEventMap.set(this.gamepadEvents[i], gamepad.buttons[mapIdx[i]]);
+		}
+
+		
         document.addEventListener('keydown', this.keyDown.bind(this));
         document.addEventListener('keyup', this.keyUp.bind(this));
     },
@@ -31,25 +44,11 @@ var UserInputs = {
 	gamepadEnabled() {
 		return gamepad.controller || false;
 	},
-	
 	processGamepadInput() {
-		this.gamepadButtonsDown(this.settingsMap.get("Gamepad Harddrop"));	// hard drop
-		this.gamepadButtonsDown(this.settingsMap.get("Gamepad Hold"));	// hold
-		this.gamepadButtonsDown(this.settingsMap.get("Gamepad Rotateccw"));	// rotate counter
-		this.gamepadButtonsDown(this.settingsMap.get("Gamepad Rotate"));	// rotate cwise
-		this.gamepadButtonsDown(this.settingsMap.get("Gamepad Pophold")); // Pop hold stack
-		this.gamepadButtonsDown(this.settingsMap.get("Gamepad Reset"));	// reset
-
-		
-		return;
+		this.gamepadButtonEvents.forEach(gamepadButton => this.gamepadButtonsDown(this.settingsMap.get(gamepadButton)));
 	},
-	
 	processGamepadDPad()  {
-		this.gamepadDPadDown(this.settingsMap.get("Gamepad Left"));	// shift left
-		this.gamepadDPadDown(this.settingsMap.get("Gamepad Right"));	// shift right
-		this.gamepadDPadDown(this.settingsMap.get("Gamepad Down"));	// down
-		
-		return;
+		this.gamepadShiftEvents.forEach(dpadButton => this.gamepadDPadDown(this.settingsMap.get(dpadButton)));
 	},
 	// Single press gamepad buttons
 	gamepadButtonsDown(finds) {
@@ -88,6 +87,7 @@ var UserInputs = {
 	gamepadDPadDown(finds) {
 		var DAS = parseInt(this.settingsMap.get("Gamepad DAS"));	
 		var ARR = parseInt(this.settingsMap.get("Gamepad ARR"));
+		
 		var isContained = this.gpButtons.includes(finds);
 		var isPrevContained = this.prevGpButtons.includes(finds);
 		
@@ -114,20 +114,11 @@ var UserInputs = {
 				this.gamepadShiftTimer = new Date();
 			}
 		}
-		
-		
 		return;
 	},
-	// doing a lot of back and forth between strings and integers to represtent the same thing -- todo: fix
+
 	processKeys() {
-		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Harddrop")));
-		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Rotate")));	
-		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Rotateccw")));
-		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Hold")));		
-		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Pophold")));	
-		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Background"))); 
-		this.processKeyDown(parseInt(this.settingsMap.get("Keyboard Reset"))); 		
-		//this.processKeyDown(this.settingsMap.get("Keyboard hold")));  // c		- pop hold stack
+		this.keyboardKeyEvents.forEach( key => this.settingsMap.get(key).split(',').forEach( idx => this.processKeyDown( parseInt(idx) ) ) );
 	},
 
 	// keyboard keys z,x,space
@@ -159,15 +150,10 @@ var UserInputs = {
 				this.keyboardKeyTimer = new Date();
 			}
 		}
-		
-		
-		
 	},
 	// Process applicable key inputs
 	processKeyShift() {
-		this.processKeyboardArrowKeys(parseInt(this.settingsMap.get("Keyboard Left")));	
-		this.processKeyboardArrowKeys(parseInt(this.settingsMap.get("Keyboard Right")));
-		this.processKeyboardArrowKeys(parseInt(this.settingsMap.get("Keyboard Down"))); 
+		this.keyboardShiftEvents.forEach(arrowKey => arrowKey.split(',').forEach(option => this.processKeyboardArrowKeys(parseInt(this.settingsMap.get(option)))));	
 	},
 	// Direction arrows
     processKeyboardArrowKeys(key) {		
@@ -213,11 +199,9 @@ var UserInputs = {
 		this.keyboardKeys[event.keyCode] = false;
 		this.isKeyBoardKeyDown = false;
     },
-	gamepadButtonClear() {
-		gpButtons = [];
-		isGamepadDown = false;
-		isGamepadButtonDown = false;
-		gamepadQueue = [];
+	gamepadClear() {
+		//this.gpButtons = [];
+		//this.gamepadQueue = [];
 	},
 	saveButtons() {
 	this.prevGpButtons = this.gpButtons;
@@ -241,26 +225,24 @@ var UserInputs = {
 	// button pressed containers
 	inputQueue: [],
 	gamepadQueue: [],
-
-	settingsList: ["Soft Drop Rate [1 - 100]", 
-					"Keyboard DAS", "Keyboard ARR", "Keyboard Harddrop", "Keyboard Hold", 
-					"Keyboard Left", "Keyboard Right", "Keyboard Rotateccw", "Keyboard Rotate", 
-					"Keyboard Down", "Keyboard Pophold", "Keyboard Reset", "Keyboard Background",
+		
+	keyboardKeySettings:	["Keyboard DAS", "Keyboard ARR"],
+	keyboardShiftEvents:	["Keyboard Left", "Keyboard Right", "Keyboard Down"],
+	keyboardKeyEvents:		["Keyboard Harddrop", "Keyboard Hold", "Keyboard Rotateccw", "Keyboard Rotate", "Keyboard Pophold", "Keyboard Reset", "Keyboard Background"],
 					
-					"Gamepad DAS", "Gamepad ARR", "Gamepad Harddrop", "Gamepad Hold",
-					"Gamepad Left", "Gamepad Right", "Gamepad Rotateccw", "Gamepad Rotate", 
-					"Gamepad Down","Gamepad Pophold", "Gamepad Reset", "Gamepad Background", 
-					"path", "High Score"],
-	
-	settingsDefault: ["70", 
-						"167.0", "33.0", "32", "16",
-						"37", "39", "90", "88",
-						"40", "17", "82", "81",
-						
-						"167.0", "33.0", "RB", "LB",
-						"DPad-Left", "DPad-Right", "A", "B",
-						"DPad-Down", "DPad-Up", "Back", "", 
-						"=/",""],
+	gamepadSettings:		["Gamepad DAS", "Gamepad ARR"],
+	gamepadShiftEvents:		["Gamepad Left", "Gamepad Right","Gamepad Down"],
+	gamepadButtonEvents:	["Gamepad Harddrop", "Gamepad Hold", "Gamepad Rotateccw", "Gamepad Rotate", "Gamepad Pophold", "Gamepad Reset", "Gamepad Background"],
+				
+	settingsList: [],
+					
+	settingsDefault:	[	"167.0", "33.0", 
+							"37", "39", "40", 
+							"32", "16", "90", "88,38", "17", "82", "81",
+							
+							"167.0", "33.0", 
+							"DPad-Left", "DPad-Right",	"DPad-Down",
+							"RB", "LB", "A", "B", "DPad-Up", "Back", ""],
 	settingsMap: []
 };
 
