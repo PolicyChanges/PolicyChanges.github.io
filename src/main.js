@@ -630,15 +630,17 @@ Tetris.prototype = {
 		side4X = tPiece.x + 2;
 		side4Y = tPiece.y + 2;
 		
-		if(matrix[side1Y][side1X] != 0)
-			side1 = 1;
-		if(matrix[side2Y][side2X] != 0)
-			side2 = 1;
-		// TODO: figure out why this occasionally  is undefined
-		if(matrix[side3Y] != undefined && matrix[side3Y][side3X] != 0)
-			side3 = 1;
-		if(matrix[side4Y][side4X] != 0)
-			side4 = 1;
+		if(matrix[side4Y] != undefined && matrix[side3Y] != undefined) {
+			if(matrix[side1Y][side1X] != 0)
+				side1 = 1;
+			if(matrix[side2Y][side2X] != 0)
+				side2 = 1;
+			// TODO: figure out why this occasionally  is undefined
+			if(matrix[side3Y][side3X] != 0)
+				side3 = 1;
+			if(matrix[side4Y][side4X] != 0)
+				side4 = 1;
+		}
 		
 		console.log("sides: " + side1+side2+side3+side4);
 		// if Sides A and B + (C or D) are touching a Surface
