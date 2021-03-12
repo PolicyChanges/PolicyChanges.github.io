@@ -132,31 +132,46 @@ var openerGenerator = {
 					shapes.getShape(4),
 					shapes.getShape(2),
 					shapes.getShape(3));
-			break;
+				break;
 				case 8:
-				// Number One
-				this.shapeQueue = new Array(
-				shapes.getShape(1),
-				shapes.getShape(4),
-				shapes.getShape(6),
-				shapes.getShape(0),
-				shapes.getShape(2),
-				shapes.getShape(5),
-				shapes.getShape(3));
-			break;
+					// Number One
+					this.shapeQueue = new Array(
+					shapes.getShape(1),
+					shapes.getShape(4),
+					shapes.getShape(6),
+					shapes.getShape(0),
+					shapes.getShape(2),
+					shapes.getShape(5),
+					shapes.getShape(3));
+				break;
 				case 9:
-				// Pelican
-				this.shapeQueue = new Array(
-				shapes.getShape(5),
-				shapes.getShape(2),
-				shapes.getShape(4),
-				shapes.getShape(0),
-				shapes.getShape(6),
-				shapes.getShape(1),
-				shapes.getShape(3));
-			break;
-			default:
-				return;
+					// Pelican
+					this.shapeQueue = new Array(
+					shapes.getShape(5),
+					shapes.getShape(2),
+					shapes.getShape(4),
+					shapes.getShape(0),
+					shapes.getShape(6),
+					shapes.getShape(1),
+					shapes.getShape(3));
+				break;
+				case 10: 
+					// DT Cannon TSZ base
+					this.shapeQueue = new Array(
+					shapes.getShape(3),
+					shapes.getShape(1),
+					shapes.getShape(2),
+					shapes.getShape(6),
+					shapes.getShape(5),
+					shapes.getShape(0),
+					shapes.getShape(4),
+					shapes.getShape(4),
+					shapes.getShape(0),
+					shapes.getShape(3),
+					shapes.getShape(3));
+				break;
+				default:
+					return;
 			}
 		}
 		this.isInit = 1;
@@ -365,7 +380,7 @@ var openerGenerator = {
 				}
 			break;
 			case 8:
-				// Number One  // O - 1, I - 6, L - 0, S - 5, J - 4, Z - 2, T - 3
+				// Number One
 				this.hintQueue = new Array(
 				shapes.getShape(1),
 				shapes.getShape(4),
@@ -395,6 +410,29 @@ var openerGenerator = {
 				shapes.getShape(3));
 			
 				var hintDataList = [0,17,-1,  1,16,2,  5,18,0,  5,16,-1,  8,16,-1,  5,17,0,  3,16,2];
+				
+				for(var i = 0; i < this.hintQueue.length; i++) {
+					this.hintQueue[i].x = hintDataList[i * 3];
+					this.hintQueue[i].y = hintDataList[i * 3 + 1];
+					this.hintQueue[i].state = this.hintQueue[i].nextState(hintDataList[i * 3 + 2]);
+				}
+			break;
+			case 10:  // O - 1, I - 6, L - 0, S - 5, J - 4, Z - 2, T - 3
+				// DT Cannon TSZ base
+				this.hintQueue = new Array(
+				shapes.getShape(3),
+				shapes.getShape(1),
+				shapes.getShape(2),
+				shapes.getShape(6),
+				shapes.getShape(5),
+				shapes.getShape(0),
+				shapes.getShape(4),
+				shapes.getShape(4),
+				shapes.getShape(0),
+				shapes.getShape(3),
+				shapes.getShape(3));
+			
+				var hintDataList = [4,18,0,  -2,18,0,  2,17,1,  8,16,-1,  6,17,-1,  7,17,-1,  3,15,2,  -1,15,1,  2,13,-1,  1,16,2,  1,17,3];
 				
 				for(var i = 0; i < this.hintQueue.length; i++) {
 					this.hintQueue[i].x = hintDataList[i * 3];
