@@ -1,4 +1,5 @@
 var shapes = require("./shapes.js");
+var utils = require("./utils.js");
 // import * as shapes from './shapes.js';
 
 // https://harddrop.com/wiki/Opener
@@ -171,6 +172,7 @@ var openerGenerator = {
 					shapes.getShape(3));
 				break;
 				default:
+					this.shapeQueue.unshift(utils.deepClone(shapes.randomShape()));
 					return;
 			}
 		}
@@ -185,7 +187,9 @@ var openerGenerator = {
 		this.idx++;
 		if(this.idx == this.shapeQueue.length) {
 			this.idx = 0;
-			this.isInit = 0;
+			if(opener < 1000)
+				this.isInit = 0;
+			else this.isInit = 1;
 		}
 
 		return mino;
@@ -441,6 +445,7 @@ var openerGenerator = {
 				}
 			break;
 			default:
+				this.hintQueue.unshift(utils.deepClone(shapes.randomShape()));
 					return;
 			}
 		
@@ -458,7 +463,9 @@ var openerGenerator = {
 		this.hintIdx++;
 		if(this.hintIdx == this.hintQueue.length) {
 			this.hintIdx = 0;
-			this.isHintInit = 0;
+			if(opener < 1000)
+				this.isHintInit = 0;
+			else this.isHintInit = 1;
 		}
 		return mino;
 	},
@@ -473,6 +480,27 @@ var openerGenerator = {
 	},
 	getLength() {
 		return this.hintQueue.length;
+	},
+	addSequence(sequence) {
+		//this.reset();
+		//this.shapeQueue = utils.deepClone(sequence);
+		//this.hintQueue = utils.deepClone(sequence);
+		for(var i in sequence)
+		{
+			var shape;
+			shape = sequence[i];
+			shape.x = sequence[i].x;
+			shape.y = sequence[i].y;
+			shape.state = sequence[i].state;
+			this.hintQueue.unshift(utils.deepClone(shape));
+			shape.x = shape.originX;
+			shape.y = shape.originY;
+			this.shapeQueue.unshift(utils.deepClone(shape));
+			this.isInit = 1;
+			this.isHintInit = 1;
+			this.idx = 0;
+			this.hintIdx = 0;
+		}
 	}
 };
 
@@ -491,6 +519,12 @@ function getNextHint(opener) {
 function getLength() {
 	return openerGenerator.getLength();
 }
+
+function addSequence(sequence) {
+	openerGenerator.addSequence(sequence);
+}
+
+module.exports.addSequence = addSequence;
 module.exports.getNextMino = getNextMino;
 module.exports.getNextHint = getNextHint;
 module.exports.getLength = getLength;

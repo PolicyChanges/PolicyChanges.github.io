@@ -660,7 +660,7 @@ var UserInputs = {
 	gamepadQueue: [],
 		
 	keyboardKeySettings:	["Keyboard DAS", "Keyboard ARR"],
-	keyboardShiftEvents:	["Keyboard Left", "Keyboard Right", "Keyboard Down"],
+	keyboardShiftEvents:	["Keyboard Left", "Keyboard Right", "Keyboard Down", "Keyboard Up"],
 	keyboardKeyEvents:		["Keyboard Harddrop", "Keyboard Hold", "Keyboard Rotateccw", "Keyboard Rotate", "Keyboard Pophold", "Keyboard Reset", "Keyboard Background"],
 					
 	gamepadSettings:		["Gamepad DAS", "Gamepad ARR"],
@@ -670,8 +670,8 @@ var UserInputs = {
 	settingsList: [],
 					
 	settingsDefault:	[	"167.0", "33.0", 
-							"37", "39", "40", 
-							"32", "16", "90", "88,38", "17", "82", "81",
+							"37", "39", "40", "38",
+							"32", "16", "90", "88", "17", "82", "81",
 							
 							"167.0", "33.0", 
 							"DPad-Left", "DPad-Right",	"DPad-Down",
@@ -865,6 +865,7 @@ Tetris.prototype = {
 	toggleGamepad: function(){
 		document.getElementById("enablegamepad").value = ((this.gamepadEnabled = !this.gamepadEnabled) ? "Disable Gamepad" : "Enable Gamepad");
 	},
+	// Gamestate 1
 	setFreePlay: function()
 	{
 		
@@ -882,6 +883,7 @@ Tetris.prototype = {
 		this.currentOpener = 0;
 
 	},
+	// Gamestate 2
 	setCurrentOpener(opener)
 	{
 		document.getElementById("besttime").value = "";
@@ -891,6 +893,7 @@ Tetris.prototype = {
 		this._restartHandler();
 
 	},
+	// Gamestate 3
 	setDoTest: function()
 	{
 
@@ -898,8 +901,24 @@ Tetris.prototype = {
 		
 		// set game state to do test
 		this.gameState = consts.GAMESTATES[2];
+		
 		this._restartHandler();
 	},
+	// Gamestate 4
+	setGameStateSequenceEditor: function()
+	{
+		document.getElementById("side").display = "none";
+		
+		// change to editor gamestate
+		this.gameState = consts.GAMESTATES[3];
+		this.hintQueue = [];
+		this.shapeQueue = [];
+		this.hintMino = 0;
+		this._restartHandler();
+		this.currentOpener = 0;
+		this.pushHoldStack();
+	},
+
 	createSettings: function () {
 		var list = document.getElementById("settings");
 		var settings = inputs.settingsList;
@@ -926,6 +945,30 @@ Tetris.prototype = {
 		inputs.settingsMap.get(inputs.settingsList[document.getElementById("settings").selectedIndex-1]);
 		
 		
+	},
+	addOpener: function() {
+
+		var newOpener = document.createElement('li');
+		//<li style="font-size:12px;padding-left:1em";><a href="#" id="setMrTSpinsSTDreversedVar">Mr. T-Spin's STD (reversed) </a></li>
+		//newOpener.text = "New Sequence";
+		//newOpener.id = this.currentMinoInx;
+		newOpener.style="color:powderblue;text-decoration:underline;font-size:12px;padding-left:1em";
+		
+		
+		newOpener.appendChild(document.createTextNode("New Sequence: " + this.currentMinoInx));
+		document.getElementById("Openers").appendChild(newOpener);
+		
+		
+		openers.addSequence(this.shapeQueue);
+		//this.setFreePlay();
+		 this.gameState = consts.GAMESTATES[1];
+		 this.currentMinoInx = 0;
+		//this.setCurrentOpener(99999);//this.currentMinoInx);
+		 clearMatrix(this.matrix);
+		 this.currentOpener = 9999;
+		 this.shapeQueue = [];
+		 this.hintQueue = [];
+		 this._recurseGameState();
 	},
 	setSettings: function() {
 		var newVal = document.getElementById("setting_value").value;
@@ -987,6 +1030,13 @@ Tetris.prototype = {
     },
 	pushHoldStack: function()
 	{
+		if(this.gameState == consts.GAMESTATES[3]) {
+			while(this.holdStack.length < 7)
+				this.holdStack.unshift(utils.deepClone(shapes.getShape(this.currentMinoInx++%7)));
+			this.shape = this.holdStack.pop();
+			this._draw();
+			return;
+		}
 		// 1 shape hold queue
 		if(this.holdStack.length > 0) {
 			this.canPopFromHoldStack = false;
@@ -1012,6 +1062,19 @@ Tetris.prototype = {
 	},
 	popHoldStack: function()
 	{
+		if(this.gameState == consts.GAMESTATES[3]) {
+			if(this.holdStack.length < 7)
+				while(this.holdStack.length < 7)
+					this.holdStack.unshift(utils.deepClone(shapes.getShape(this.currentMinoInx++%7)));
+			// piece needs to be able to be placed
+			if(this.shape.canDown(this.matrix)) return;
+			this.shape.copyTo(this.matrix);
+			this.shapeQueue.unshift(utils.deepClone(this.shape));
+			this.shape = this.holdStack.pop();
+			this._check();
+			this._draw();
+			return;
+		}
 		// todo: disable if 1 shape hold queue
 		if(this.holdStack.length >= 1 && this.canPopFromHoldStack)
 		{
@@ -1067,7 +1130,7 @@ Tetris.prototype = {
 			
 	   //  Opener sequence completed
 		if(this.currentMinoInx > openers.getLength()) {
-			new Audio("./dist/sound/Affirm.ogg").play();
+			//new Audio("./dist/sound/Affirm2.ogg").play();
 			if(this.isTimerOn) {
 				var besttime = document.getElementById("besttime").value;
 				var deltaTime = new Date().getTime() - this.sequencePrevTime;
@@ -1082,14 +1145,22 @@ Tetris.prototype = {
 			this.shapeQueue = [];
 
 			this.isSequenceCompleted = true;
+			
 			// Recursion warning
-			this._restartHandler();	
+			if(this.currentOpener < 1000) // getting real hacky
+				this._restartHandler();
+			else clearMatrix(this.matrix);
 			// this.reset();
 			// this.start();
 			return;
 		}
 	},
-    // Fill next queue and set next shape
+    // Process sequence editor
+	_processSequenceEditor: function () {
+		return;
+	},
+	
+	// Fill next queue and set next shape
     _fireShape: function() {
 		//todo:should be in shapes.js
 		this.landed = false;
@@ -1111,6 +1182,8 @@ Tetris.prototype = {
 		case consts.GAMESTATES[2]:
 			this._processOpenerTrainerQueue();
 			this._fireShape();
+		case consts.GAMESTATES[3]:
+			this._processSequenceEditor();
 			break;
 		
 		default:
@@ -1172,18 +1245,10 @@ Tetris.prototype = {
 		
 		
 		if(this.gamepadEnabled && inputs.gamepadEnabled()) {
-			var tenthOfFrame = 1.0  //1.6; // 1.6ms = 1 fram
-			var halfFrame = 5.0		//8.0;
-			var halfFramePlus = 10.0;
-			
-
 			inputs.updateGamepad();
 			inputs.processGamepadDPad();
 			inputs.processGamepadInput();
 			
-			// drain gamepad queue
-			// if( inputs.getTickCounter() > halfFrame)  // 8 millisecons
-			// {
 			while((inputs.gamepadQueue != undefined && inputs.gamepadQueue.length >= 1)){
 				var curkey = inputs.gamepadQueue.shift();
 				if(inputs.settingsMap.get("Gamepad Left").includes(curkey)) {
@@ -1211,9 +1276,15 @@ Tetris.prototype = {
 					 this._draw();
 				}
 				else if(inputs.settingsMap.get("Gamepad Harddrop").includes(curkey)) {
+					// if editor
+					if(this.gameState == consts.GAMESTATES[3]) {
+						this.popHoldStack();
+						this._draw();
+					}else {
 					this.shape.goBottom(this.matrix);
 					this.lockDownTimer = 5000;
 					this._update();
+					}
 				}
 				else if(inputs.settingsMap.get("Gamepad Hold").includes(curkey)) {
 					this.pushHoldStack();
@@ -1254,6 +1325,11 @@ Tetris.prototype = {
 					 this.shape.goDown(this.matrix);
 					 this._draw();
 				}
+				else if(this.gameState == consts.GAMESTATES[3] && inputs.settingsMap.get("Keyboard Up").includes(curkey)) {
+					
+					 this.shape.goUp(this.matrix);
+					 this._draw();
+				}
 				else if(inputs.settingsMap.get("Keyboard Rotateccw").includes(curkey)) {
 					this.shape.rotate(this.matrix);
 					this.resetLockdown();
@@ -1265,9 +1341,15 @@ Tetris.prototype = {
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Keyboard Harddrop").includes(curkey)) {
-					this.shape.goBottom(this.matrix);
-					this.lockDownTimer = 5000;
-					this._update();
+										// if editor
+					if(this.gameState == consts.GAMESTATES[3]) {
+						this.popHoldStack();
+						this._draw();
+					}else {
+						this.shape.goBottom(this.matrix);
+						this.lockDownTimer = 5000;
+						this._update();
+					}
 				}
 				else if(inputs.settingsMap.get("Keyboard Hold").includes(curkey)) {
 					this.pushHoldStack();
@@ -1330,25 +1412,36 @@ Tetris.prototype = {
     // Update game data
     _update: function() {
 		
-        if (this.shape.canDown(this.matrix)) {
-            this.shape.goDown(this.matrix);
-        } else if(this.isPieceLocked()){
-			this.canPopFromHoldStack = true;
-            this.shape.copyTo(this.matrix);
-            this._check();
-			if(this._checkHint()) return;
-            //this._fireShape();
-			this._recurseGameState();
-			 new Audio('./dist/sound/Blop2.ogg').play();
-        }
-        this._draw();
-        this.isGameOver = checkGameOver(this.matrix);
-		
-		// if game over and gamestate is free play
-        views.setGameOver(this.gameState == consts.GAMESTATES[0] && this.isGameOver);
-		
-        if (this.isGameOver) 
-            views.setFinalScore(this.score);
+		switch(this.gameState) {
+			case consts.GAMESTATES[0]:
+			case consts.GAMESTATES[1]:
+			case consts.GAMESTATES[2]:
+				if(this.shape == undefined) break;
+				if (this.shape.canDown(this.matrix)) {
+					this.shape.goDown(this.matrix);
+				} else if(this.isPieceLocked()){
+					this.canPopFromHoldStack = true;
+					this.shape.copyTo(this.matrix);
+					this._check();
+					if(this._checkHint()) return;
+					//this._fireShape();
+					this._recurseGameState();
+					 new Audio('./dist/sound/Blop2.ogg').play();
+				}
+				this._draw();
+				this.isGameOver = checkGameOver(this.matrix);
+				
+				// if game over and gamestate is free play
+				views.setGameOver(this.gameState == consts.GAMESTATES[0] && this.isGameOver);
+				
+				if (this.isGameOver) 
+					views.setFinalScore(this.score);
+			break;
+			case consts.GAMESTATES[3]:
+			break;
+			default:
+			break;
+		}
 
     },
 	// 0 - none, 1 - mini, 2 - tspin
@@ -1434,6 +1527,7 @@ window.Tetris = Tetris;
 // export {Tetris};
 },{"./canvas.js":1,"./consts.js":2,"./input.js":4,"./openers.js":6,"./shapes.js":7,"./utils.js":8,"./views.js":9}],6:[function(require,module,exports){
 var shapes = require("./shapes.js");
+var utils = require("./utils.js");
 // import * as shapes from './shapes.js';
 
 // https://harddrop.com/wiki/Opener
@@ -1606,6 +1700,7 @@ var openerGenerator = {
 					shapes.getShape(3));
 				break;
 				default:
+					this.shapeQueue.unshift(utils.deepClone(shapes.randomShape()));
 					return;
 			}
 		}
@@ -1620,7 +1715,9 @@ var openerGenerator = {
 		this.idx++;
 		if(this.idx == this.shapeQueue.length) {
 			this.idx = 0;
-			this.isInit = 0;
+			if(opener < 1000)
+				this.isInit = 0;
+			else this.isInit = 1;
 		}
 
 		return mino;
@@ -1876,6 +1973,7 @@ var openerGenerator = {
 				}
 			break;
 			default:
+				this.hintQueue.unshift(utils.deepClone(shapes.randomShape()));
 					return;
 			}
 		
@@ -1893,7 +1991,9 @@ var openerGenerator = {
 		this.hintIdx++;
 		if(this.hintIdx == this.hintQueue.length) {
 			this.hintIdx = 0;
-			this.isHintInit = 0;
+			if(opener < 1000)
+				this.isHintInit = 0;
+			else this.isHintInit = 1;
 		}
 		return mino;
 	},
@@ -1908,6 +2008,27 @@ var openerGenerator = {
 	},
 	getLength() {
 		return this.hintQueue.length;
+	},
+	addSequence(sequence) {
+		//this.reset();
+		//this.shapeQueue = utils.deepClone(sequence);
+		//this.hintQueue = utils.deepClone(sequence);
+		for(var i in sequence)
+		{
+			var shape;
+			shape = sequence[i];
+			shape.x = sequence[i].x;
+			shape.y = sequence[i].y;
+			shape.state = sequence[i].state;
+			this.hintQueue.unshift(utils.deepClone(shape));
+			shape.x = shape.originX;
+			shape.y = shape.originY;
+			this.shapeQueue.unshift(utils.deepClone(shape));
+			this.isInit = 1;
+			this.isHintInit = 1;
+			this.idx = 0;
+			this.hintIdx = 0;
+		}
 	}
 };
 
@@ -1926,6 +2047,12 @@ function getNextHint(opener) {
 function getLength() {
 	return openerGenerator.getLength();
 }
+
+function addSequence(sequence) {
+	openerGenerator.addSequence(sequence);
+}
+
+module.exports.addSequence = addSequence;
 module.exports.getNextMino = getNextMino;
 module.exports.getNextHint = getNextHint;
 module.exports.getLength = getLength;
@@ -1937,7 +2064,7 @@ module.exports.reset = reset;
 
 
 
-},{"./shapes.js":7}],7:[function(require,module,exports){
+},{"./shapes.js":7,"./utils.js":8}],7:[function(require,module,exports){
 var consts = require('./consts.js');
 var utils = require('./utils.js');
 // import * as consts from './const.js';
@@ -2011,6 +2138,7 @@ function ShapeL() {
     this.states = [state1, state2, state3, state4];
     this.x = 3;
     this.y = -3;
+	this.originX = 3;
 	this.originY = -3;
     this.flag = 'L';
 }
@@ -2077,6 +2205,7 @@ function ShapeLR() {
     this.states = [state1, state2, state3, state4];
     this.x = 3;
     this.y = -3;
+	this.originX = 3;
 	this.originY = -3;
     this.flag = 'LR';
 }
@@ -2141,6 +2270,7 @@ function ShapeO() {
     this.states = [state1, state2, state3, state4];
     this.x = 2;
     this.y = -2;
+	this.originX = 2;
 	this.originY = -2;
     this.flag = 'O';
 }
@@ -2245,6 +2375,7 @@ function ShapeI() {
 
     this.x = 3;
     this.y = -4;
+	this.originX = 3;
 	this.originY = -4;
     this.flag = 'I';
 }
@@ -2311,6 +2442,7 @@ function ShapeT() {
 	
     this.x = 3;
     this.y = -2;
+	this.originX = 3;
 	this.originY = -2;
     this.flag = 'T';
 }
@@ -2376,6 +2508,7 @@ function ShapeZ() {
     this.states = [state1, state2, state3, state4];
     this.x = 3;
     this.y = -2;
+	this.originX = 3;
 	this.originY = -2;
     this.flag = 'Z';
 }
@@ -2441,6 +2574,7 @@ function ShapeZR() {
     this.states = [state1, state2, state3, state4];
     this.x = 3;
     this.y = -2
+	this.originX = 3;
 	this.originY = -2;
     this.flag = 'ZR';
 }
@@ -2545,6 +2679,9 @@ var isShapeCanMove = function(shape, matrix, action) {
         } else if (action === 'right') {
             x += 1;
             return x >= 0 && x < cols && matrix[y][x] == 0;
+        } else if (action === 'up') {
+            y -= 1;
+            return y >= 0 && matrix[y][x] == 0;
         } else if (action === 'down') {
             y += 1;
             return y < rows && matrix[y][x] == 0;
@@ -2713,6 +2850,12 @@ ShapeZR.prototype = {
 	goDown: function(matrix) {
 		if (isShapeCanMove(this, matrix, 'down')) {
 			this.y += 1;
+		}
+	},
+	//Move the shape up 
+	goUp: function(matrix) {
+		if (isShapeCanMove(this, matrix, 'up')) {
+			this.y -= 1;
 		}
 	},
 	//Move the shape to the Bottommost

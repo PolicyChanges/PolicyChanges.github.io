@@ -181,6 +181,7 @@ Tetris.prototype = {
 	toggleGamepad: function(){
 		document.getElementById("enablegamepad").value = ((this.gamepadEnabled = !this.gamepadEnabled) ? "Disable Gamepad" : "Enable Gamepad");
 	},
+	// Gamestate 1
 	setFreePlay: function()
 	{
 		
@@ -198,6 +199,7 @@ Tetris.prototype = {
 		this.currentOpener = 0;
 
 	},
+	// Gamestate 2
 	setCurrentOpener(opener)
 	{
 		document.getElementById("besttime").value = "";
@@ -207,6 +209,7 @@ Tetris.prototype = {
 		this._restartHandler();
 
 	},
+	// Gamestate 3
 	setDoTest: function()
 	{
 
@@ -214,8 +217,24 @@ Tetris.prototype = {
 		
 		// set game state to do test
 		this.gameState = consts.GAMESTATES[2];
+		
 		this._restartHandler();
 	},
+	// Gamestate 4
+	setGameStateSequenceEditor: function()
+	{
+		document.getElementById("side").display = "none";
+		
+		// change to editor gamestate
+		this.gameState = consts.GAMESTATES[3];
+		this.hintQueue = [];
+		this.shapeQueue = [];
+		this.hintMino = 0;
+		this._restartHandler();
+		this.currentOpener = 0;
+		this.pushHoldStack();
+	},
+
 	createSettings: function () {
 		var list = document.getElementById("settings");
 		var settings = inputs.settingsList;
@@ -242,6 +261,30 @@ Tetris.prototype = {
 		inputs.settingsMap.get(inputs.settingsList[document.getElementById("settings").selectedIndex-1]);
 		
 		
+	},
+	addOpener: function() {
+
+		var newOpener = document.createElement('li');
+		//<li style="font-size:12px;padding-left:1em";><a href="#" id="setMrTSpinsSTDreversedVar">Mr. T-Spin's STD (reversed) </a></li>
+		//newOpener.text = "New Sequence";
+		//newOpener.id = this.currentMinoInx;
+		newOpener.style="color:powderblue;text-decoration:underline;font-size:12px;padding-left:1em";
+		
+		
+		newOpener.appendChild(document.createTextNode("New Sequence: " + this.currentMinoInx));
+		document.getElementById("Openers").appendChild(newOpener);
+		
+		
+		openers.addSequence(this.shapeQueue);
+		//this.setFreePlay();
+		 this.gameState = consts.GAMESTATES[1];
+		 this.currentMinoInx = 0;
+		//this.setCurrentOpener(99999);//this.currentMinoInx);
+		 clearMatrix(this.matrix);
+		 this.currentOpener = 9999;
+		 this.shapeQueue = [];
+		 this.hintQueue = [];
+		 this._recurseGameState();
 	},
 	setSettings: function() {
 		var newVal = document.getElementById("setting_value").value;
@@ -303,6 +346,13 @@ Tetris.prototype = {
     },
 	pushHoldStack: function()
 	{
+		if(this.gameState == consts.GAMESTATES[3]) {
+			while(this.holdStack.length < 7)
+				this.holdStack.unshift(utils.deepClone(shapes.getShape(this.currentMinoInx++%7)));
+			this.shape = this.holdStack.pop();
+			this._draw();
+			return;
+		}
 		// 1 shape hold queue
 		if(this.holdStack.length > 0) {
 			this.canPopFromHoldStack = false;
@@ -328,6 +378,19 @@ Tetris.prototype = {
 	},
 	popHoldStack: function()
 	{
+		if(this.gameState == consts.GAMESTATES[3]) {
+			if(this.holdStack.length < 7)
+				while(this.holdStack.length < 7)
+					this.holdStack.unshift(utils.deepClone(shapes.getShape(this.currentMinoInx++%7)));
+			// piece needs to be able to be placed
+			if(this.shape.canDown(this.matrix)) return;
+			this.shape.copyTo(this.matrix);
+			this.shapeQueue.unshift(utils.deepClone(this.shape));
+			this.shape = this.holdStack.pop();
+			this._check();
+			this._draw();
+			return;
+		}
 		// todo: disable if 1 shape hold queue
 		if(this.holdStack.length >= 1 && this.canPopFromHoldStack)
 		{
@@ -383,7 +446,7 @@ Tetris.prototype = {
 			
 	   //  Opener sequence completed
 		if(this.currentMinoInx > openers.getLength()) {
-			new Audio("./dist/sound/Affirm.ogg").play();
+			//new Audio("./dist/sound/Affirm2.ogg").play();
 			if(this.isTimerOn) {
 				var besttime = document.getElementById("besttime").value;
 				var deltaTime = new Date().getTime() - this.sequencePrevTime;
@@ -398,14 +461,22 @@ Tetris.prototype = {
 			this.shapeQueue = [];
 
 			this.isSequenceCompleted = true;
+			
 			// Recursion warning
-			this._restartHandler();	
+			if(this.currentOpener < 1000) // getting real hacky
+				this._restartHandler();
+			else clearMatrix(this.matrix);
 			// this.reset();
 			// this.start();
 			return;
 		}
 	},
-    // Fill next queue and set next shape
+    // Process sequence editor
+	_processSequenceEditor: function () {
+		return;
+	},
+	
+	// Fill next queue and set next shape
     _fireShape: function() {
 		//todo:should be in shapes.js
 		this.landed = false;
@@ -427,6 +498,8 @@ Tetris.prototype = {
 		case consts.GAMESTATES[2]:
 			this._processOpenerTrainerQueue();
 			this._fireShape();
+		case consts.GAMESTATES[3]:
+			this._processSequenceEditor();
 			break;
 		
 		default:
@@ -488,18 +561,10 @@ Tetris.prototype = {
 		
 		
 		if(this.gamepadEnabled && inputs.gamepadEnabled()) {
-			var tenthOfFrame = 1.0  //1.6; // 1.6ms = 1 fram
-			var halfFrame = 5.0		//8.0;
-			var halfFramePlus = 10.0;
-			
-
 			inputs.updateGamepad();
 			inputs.processGamepadDPad();
 			inputs.processGamepadInput();
 			
-			// drain gamepad queue
-			// if( inputs.getTickCounter() > halfFrame)  // 8 millisecons
-			// {
 			while((inputs.gamepadQueue != undefined && inputs.gamepadQueue.length >= 1)){
 				var curkey = inputs.gamepadQueue.shift();
 				if(inputs.settingsMap.get("Gamepad Left").includes(curkey)) {
@@ -527,9 +592,15 @@ Tetris.prototype = {
 					 this._draw();
 				}
 				else if(inputs.settingsMap.get("Gamepad Harddrop").includes(curkey)) {
+					// if editor
+					if(this.gameState == consts.GAMESTATES[3]) {
+						this.popHoldStack();
+						this._draw();
+					}else {
 					this.shape.goBottom(this.matrix);
 					this.lockDownTimer = 5000;
 					this._update();
+					}
 				}
 				else if(inputs.settingsMap.get("Gamepad Hold").includes(curkey)) {
 					this.pushHoldStack();
@@ -570,6 +641,11 @@ Tetris.prototype = {
 					 this.shape.goDown(this.matrix);
 					 this._draw();
 				}
+				else if(this.gameState == consts.GAMESTATES[3] && inputs.settingsMap.get("Keyboard Up").includes(curkey)) {
+					
+					 this.shape.goUp(this.matrix);
+					 this._draw();
+				}
 				else if(inputs.settingsMap.get("Keyboard Rotateccw").includes(curkey)) {
 					this.shape.rotate(this.matrix);
 					this.resetLockdown();
@@ -581,9 +657,15 @@ Tetris.prototype = {
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Keyboard Harddrop").includes(curkey)) {
-					this.shape.goBottom(this.matrix);
-					this.lockDownTimer = 5000;
-					this._update();
+										// if editor
+					if(this.gameState == consts.GAMESTATES[3]) {
+						this.popHoldStack();
+						this._draw();
+					}else {
+						this.shape.goBottom(this.matrix);
+						this.lockDownTimer = 5000;
+						this._update();
+					}
 				}
 				else if(inputs.settingsMap.get("Keyboard Hold").includes(curkey)) {
 					this.pushHoldStack();
@@ -646,25 +728,36 @@ Tetris.prototype = {
     // Update game data
     _update: function() {
 		
-        if (this.shape.canDown(this.matrix)) {
-            this.shape.goDown(this.matrix);
-        } else if(this.isPieceLocked()){
-			this.canPopFromHoldStack = true;
-            this.shape.copyTo(this.matrix);
-            this._check();
-			if(this._checkHint()) return;
-            //this._fireShape();
-			this._recurseGameState();
-			 new Audio('./dist/sound/Blop2.ogg').play();
-        }
-        this._draw();
-        this.isGameOver = checkGameOver(this.matrix);
-		
-		// if game over and gamestate is free play
-        views.setGameOver(this.gameState == consts.GAMESTATES[0] && this.isGameOver);
-		
-        if (this.isGameOver) 
-            views.setFinalScore(this.score);
+		switch(this.gameState) {
+			case consts.GAMESTATES[0]:
+			case consts.GAMESTATES[1]:
+			case consts.GAMESTATES[2]:
+				if(this.shape == undefined) break;
+				if (this.shape.canDown(this.matrix)) {
+					this.shape.goDown(this.matrix);
+				} else if(this.isPieceLocked()){
+					this.canPopFromHoldStack = true;
+					this.shape.copyTo(this.matrix);
+					this._check();
+					if(this._checkHint()) return;
+					//this._fireShape();
+					this._recurseGameState();
+					 new Audio('./dist/sound/Blop2.ogg').play();
+				}
+				this._draw();
+				this.isGameOver = checkGameOver(this.matrix);
+				
+				// if game over and gamestate is free play
+				views.setGameOver(this.gameState == consts.GAMESTATES[0] && this.isGameOver);
+				
+				if (this.isGameOver) 
+					views.setFinalScore(this.score);
+			break;
+			case consts.GAMESTATES[3]:
+			break;
+			default:
+			break;
+		}
 
     },
 	// 0 - none, 1 - mini, 2 - tspin

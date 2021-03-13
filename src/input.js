@@ -227,7 +227,7 @@ var UserInputs = {
 	gamepadQueue: [],
 		
 	keyboardKeySettings:	["Keyboard DAS", "Keyboard ARR"],
-	keyboardShiftEvents:	["Keyboard Left", "Keyboard Right", "Keyboard Down"],
+	keyboardShiftEvents:	["Keyboard Left", "Keyboard Right", "Keyboard Down", "Keyboard Up"],
 	keyboardKeyEvents:		["Keyboard Harddrop", "Keyboard Hold", "Keyboard Rotateccw", "Keyboard Rotate", "Keyboard Pophold", "Keyboard Reset", "Keyboard Background"],
 					
 	gamepadSettings:		["Gamepad DAS", "Gamepad ARR"],
@@ -237,8 +237,8 @@ var UserInputs = {
 	settingsList: [],
 					
 	settingsDefault:	[	"167.0", "33.0", 
-							"37", "39", "40", 
-							"32", "16", "90", "88,38", "17", "82", "81",
+							"37", "39", "40", "38",
+							"32", "16", "90", "88", "17", "82", "81",
 							
 							"167.0", "33.0", 
 							"DPad-Left", "DPad-Right",	"DPad-Down",

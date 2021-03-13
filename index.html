@@ -47,9 +47,8 @@
 
 <!-- <iframe id="bg" width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/3sy3Wy?gui=true&t=10&paused=false&muted=false" ></iframe> -->
 
-<iframe id="bg" width="640" height="360" frameborder="0" src="" ></iframe>
+<iframe id="bg" width="640" height="360"  frameborder="0" src="" ></iframe>
 <script>
-
 
 if( (Math.floor(Math.random() * Math.floor(10)) % 10) == 0) {
 	document.getElementById("bg").src="https://www.shadertoy.com/embed/MlSSRt?gui=&paused=false&muted=false";
@@ -58,12 +57,14 @@ if( (Math.floor(Math.random() * Math.floor(10)) % 10) == 0) {
 else
 	document.getElementById("bg").src="https://www.shadertoy.com/embed/WldfWX?gui=&paused=false&muted=false";
 
+var resizebg = function() {
 document.getElementById("bg").width = window.innerWidth;
 document.getElementById("bg").height = window.innerHeight;
-
-
+};
+window.addEventListener("resize", function() { this.resizebg(); } );
 document.getElementById("bg").removeAttribute("tabIndex");
 document.getElementById("divbg").removeAttribute("tabIndex");
+this.resizebg();
 </script>
 </div>
 
@@ -163,9 +164,11 @@ document.getElementById("divbg").removeAttribute("tabIndex");
 			<br>
 			<input style="width:70px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" id="test" type="submit" value="Hide Hints"></input>
 			<input style="width:110px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" id="enablegamepad" type="button" value="Enable Gamepad"/>
-			
+			<input style="width:100px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" id="sequenceeditor" type="button" value="Opener Editor"/>
+			<input style="width:80px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" id="addopener" type="button" value="Add Opener"/>
 		</div>
-			
+		<div id="editor" style="visibility:hidden">
+		</div>
 
 	</div>
 </div>
@@ -195,8 +198,8 @@ document.getElementById("divbg").removeAttribute("tabIndex");
 		document.getElementById("test").addEventListener("click", function() { tetrion.setDoTest(); } );
 		document.getElementById("settings").addEventListener("change", function() { tetrion.updateSettingTextBox(); } );
 		document.getElementById("submitsetting").addEventListener("click", function() { tetrion.setSettings(); } );
-		
-		
+		document.getElementById("sequenceeditor").addEventListener("click", function() { tetrion.setGameStateSequenceEditor(); } );
+		document.getElementById("addopener").addEventListener("click", function() { tetrion.addOpener(); } );
 		tetrion.start();
 	})();
 </script>

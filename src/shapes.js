@@ -71,6 +71,7 @@ function ShapeL() {
     this.states = [state1, state2, state3, state4];
     this.x = 3;
     this.y = -3;
+	this.originX = 3;
 	this.originY = -3;
     this.flag = 'L';
 }
@@ -137,6 +138,7 @@ function ShapeLR() {
     this.states = [state1, state2, state3, state4];
     this.x = 3;
     this.y = -3;
+	this.originX = 3;
 	this.originY = -3;
     this.flag = 'LR';
 }
@@ -201,6 +203,7 @@ function ShapeO() {
     this.states = [state1, state2, state3, state4];
     this.x = 2;
     this.y = -2;
+	this.originX = 2;
 	this.originY = -2;
     this.flag = 'O';
 }
@@ -305,6 +308,7 @@ function ShapeI() {
 
     this.x = 3;
     this.y = -4;
+	this.originX = 3;
 	this.originY = -4;
     this.flag = 'I';
 }
@@ -371,6 +375,7 @@ function ShapeT() {
 	
     this.x = 3;
     this.y = -2;
+	this.originX = 3;
 	this.originY = -2;
     this.flag = 'T';
 }
@@ -436,6 +441,7 @@ function ShapeZ() {
     this.states = [state1, state2, state3, state4];
     this.x = 3;
     this.y = -2;
+	this.originX = 3;
 	this.originY = -2;
     this.flag = 'Z';
 }
@@ -501,6 +507,7 @@ function ShapeZR() {
     this.states = [state1, state2, state3, state4];
     this.x = 3;
     this.y = -2
+	this.originX = 3;
 	this.originY = -2;
     this.flag = 'ZR';
 }
@@ -605,6 +612,9 @@ var isShapeCanMove = function(shape, matrix, action) {
         } else if (action === 'right') {
             x += 1;
             return x >= 0 && x < cols && matrix[y][x] == 0;
+        } else if (action === 'up') {
+            y -= 1;
+            return y >= 0 && matrix[y][x] == 0;
         } else if (action === 'down') {
             y += 1;
             return y < rows && matrix[y][x] == 0;
@@ -773,6 +783,12 @@ ShapeZR.prototype = {
 	goDown: function(matrix) {
 		if (isShapeCanMove(this, matrix, 'down')) {
 			this.y += 1;
+		}
+	},
+	//Move the shape up 
+	goUp: function(matrix) {
+		if (isShapeCanMove(this, matrix, 'up')) {
+			this.y -= 1;
 		}
 	},
 	//Move the shape to the Bottommost
