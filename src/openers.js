@@ -11,7 +11,8 @@ var openerGenerator = {
 	hintIdx: 0,
 	isInit: 0,
 	isHintInit: 0,
-	
+	customShapeQueue: [],
+	customHintQueue: [],
 	// O - 1, I - 6, L - 0, S - 5, J - 4, Z - 2, T - 3
 	// Current Tetriminos
 	init(opener) {
@@ -182,10 +183,11 @@ var openerGenerator = {
 	},
 		
 	getNextMino(opener) {
+		if(this.customShapeQueue.length > 0) return this.customShapeQueue[this.idx++%this.customShapeQueue.length];
 		this.init(opener);
 		var mino = this.shapeQueue[this.idx];
 		this.idx++;
-		if(this.idx == this.shapeQueue.length) {
+		if(this.idx >= this.shapeQueue.length) {
 			this.idx = 0;
 			if(opener < 1000)
 				this.isInit = 0;
@@ -458,10 +460,11 @@ var openerGenerator = {
 	// End initHint
 
 	getNextHint(opener) {
+		if(this.customHintQueue.length > 0) return this.customHintQueue[this.hintIdx++%this.customHintQueue.length];
 		this.initHint(opener);
 		var mino = this.hintQueue[this.hintIdx];
 		this.hintIdx++;
-		if(this.hintIdx == this.hintQueue.length) {
+		if(this.hintIdx >= this.hintQueue.length) {
 			this.hintIdx = 0;
 			if(opener < 1000)
 				this.isHintInit = 0;
@@ -479,7 +482,7 @@ var openerGenerator = {
 		this.isHintInit = 0;
 	},
 	getLength() {
-		return this.hintQueue.length;
+		return this.customHintQueue.length || this.hintQueue.length;
 	},
 	addSequence(sequence) {
 		//this.reset();
@@ -492,10 +495,10 @@ var openerGenerator = {
 			shape.x = sequence[i].x;
 			shape.y = sequence[i].y;
 			shape.state = sequence[i].state;
-			this.hintQueue.unshift(utils.deepClone(shape));
+			this.customHintQueue.unshift(utils.deepClone(shape));
 			shape.x = shape.originX;
 			shape.y = shape.originY;
-			this.shapeQueue.unshift(utils.deepClone(shape));
+			this.customShapeQueue.unshift(utils.deepClone(shape));
 			this.isInit = 1;
 			this.isHintInit = 1;
 			this.idx = 0;

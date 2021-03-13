@@ -1,0 +1,1 @@
+browserify ./src/main.js -o ./dist/tetrion.js

@@ -309,7 +309,8 @@ Tetris.prototype = {
         this.levelTime = this.startTime;
 		this.prevInputTime = this.startTime;
 		// current tetrino index gets set to 0 at the end of opener sequence
-		this.currentMinoInx = 0;
+		//if(this.currentMinoInx == undefined || this.currentMinoInx < 1000)  // todo: refactor -- seppuku worthy
+			this.currentMinoInx = 0;
 		this.shapeQueue = [];
 		this.hintQueue = [];
 		this.holdStack = [];
@@ -357,7 +358,7 @@ Tetris.prototype = {
 		if(this.holdStack.length > 0) {
 			this.canPopFromHoldStack = false;
 			this.shapeQueue.unshift(utils.deepClone(this.shape));
-			this.shape = this.holdStack.pop();
+			this.shape = utils.deepClone(this.holdStack.pop());
 			this.shape.resetOrigin();
 			this._draw();
 		}else if(this.holdStack.length < 4) {
@@ -386,7 +387,7 @@ Tetris.prototype = {
 			if(this.shape.canDown(this.matrix)) return;
 			this.shape.copyTo(this.matrix);
 			this.shapeQueue.unshift(utils.deepClone(this.shape));
-			this.shape = this.holdStack.pop();
+			this.shape = utils.deepClone(this.holdStack.pop());
 			this._check();
 			this._draw();
 			return;
@@ -430,12 +431,12 @@ Tetris.prototype = {
 	_processOpenerTrainerQueue: function() {
 		while(this.shapeQueue.length <= 4)
 		{
-			this.preparedShape = openers.getNextMino(this.currentOpener);
+			this.preparedShape = utils.deepClone(openers.getNextMino(this.currentOpener));
 			this.shapeQueue.push(this.preparedShape);
 		}
 		while(this.hintQueue.length <= 4)
 		{
-			this.preparedShape = openers.getNextHint(this.currentOpener);
+			this.preparedShape = utils.deepClone(openers.getNextHint(this.currentOpener));
 			this.hintQueue.push(this.preparedShape);
 		}
 		
@@ -453,8 +454,6 @@ Tetris.prototype = {
 				if(besttime == "" || deltaTime/1000.0 < parseFloat(besttime)) {	
 					document.getElementById("besttime").value = (deltaTime/1000.0).toString();
 				}
-				
-				
 			}	
 		
 			this.hintQueue = [];

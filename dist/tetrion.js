@@ -993,7 +993,8 @@ Tetris.prototype = {
         this.levelTime = this.startTime;
 		this.prevInputTime = this.startTime;
 		// current tetrino index gets set to 0 at the end of opener sequence
-		this.currentMinoInx = 0;
+		//if(this.currentMinoInx == undefined || this.currentMinoInx < 1000)  // todo: refactor -- seppuku worthy
+			this.currentMinoInx = 0;
 		this.shapeQueue = [];
 		this.hintQueue = [];
 		this.holdStack = [];
@@ -1041,7 +1042,7 @@ Tetris.prototype = {
 		if(this.holdStack.length > 0) {
 			this.canPopFromHoldStack = false;
 			this.shapeQueue.unshift(utils.deepClone(this.shape));
-			this.shape = this.holdStack.pop();
+			this.shape = utils.deepClone(this.holdStack.pop());
 			this.shape.resetOrigin();
 			this._draw();
 		}else if(this.holdStack.length < 4) {
@@ -1070,7 +1071,7 @@ Tetris.prototype = {
 			if(this.shape.canDown(this.matrix)) return;
 			this.shape.copyTo(this.matrix);
 			this.shapeQueue.unshift(utils.deepClone(this.shape));
-			this.shape = this.holdStack.pop();
+			this.shape = utils.deepClone(this.holdStack.pop());
 			this._check();
 			this._draw();
 			return;
@@ -1114,12 +1115,12 @@ Tetris.prototype = {
 	_processOpenerTrainerQueue: function() {
 		while(this.shapeQueue.length <= 4)
 		{
-			this.preparedShape = openers.getNextMino(this.currentOpener);
+			this.preparedShape = utils.deepClone(openers.getNextMino(this.currentOpener));
 			this.shapeQueue.push(this.preparedShape);
 		}
 		while(this.hintQueue.length <= 4)
 		{
-			this.preparedShape = openers.getNextHint(this.currentOpener);
+			this.preparedShape = utils.deepClone(openers.getNextHint(this.currentOpener));
 			this.hintQueue.push(this.preparedShape);
 		}
 		
@@ -1137,8 +1138,6 @@ Tetris.prototype = {
 				if(besttime == "" || deltaTime/1000.0 < parseFloat(besttime)) {	
 					document.getElementById("besttime").value = (deltaTime/1000.0).toString();
 				}
-				
-				
 			}	
 		
 			this.hintQueue = [];
@@ -1539,7 +1538,8 @@ var openerGenerator = {
 	hintIdx: 0,
 	isInit: 0,
 	isHintInit: 0,
-	
+	customShapeQueue: [],
+	customHintQueue: [],
 	// O - 1, I - 6, L - 0, S - 5, J - 4, Z - 2, T - 3
 	// Current Tetriminos
 	init(opener) {
@@ -1710,10 +1710,11 @@ var openerGenerator = {
 	},
 		
 	getNextMino(opener) {
+		if(this.customShapeQueue.length > 0) return this.customShapeQueue[this.idx++%this.customShapeQueue.length];
 		this.init(opener);
 		var mino = this.shapeQueue[this.idx];
 		this.idx++;
-		if(this.idx == this.shapeQueue.length) {
+		if(this.idx >= this.shapeQueue.length) {
 			this.idx = 0;
 			if(opener < 1000)
 				this.isInit = 0;
@@ -1986,10 +1987,11 @@ var openerGenerator = {
 	// End initHint
 
 	getNextHint(opener) {
+		if(this.customHintQueue.length > 0) return this.customHintQueue[this.hintIdx++%this.customHintQueue.length];
 		this.initHint(opener);
 		var mino = this.hintQueue[this.hintIdx];
 		this.hintIdx++;
-		if(this.hintIdx == this.hintQueue.length) {
+		if(this.hintIdx >= this.hintQueue.length) {
 			this.hintIdx = 0;
 			if(opener < 1000)
 				this.isHintInit = 0;
@@ -2007,7 +2009,7 @@ var openerGenerator = {
 		this.isHintInit = 0;
 	},
 	getLength() {
-		return this.hintQueue.length;
+		return this.customHintQueue.length || this.hintQueue.length;
 	},
 	addSequence(sequence) {
 		//this.reset();
@@ -2020,10 +2022,10 @@ var openerGenerator = {
 			shape.x = sequence[i].x;
 			shape.y = sequence[i].y;
 			shape.state = sequence[i].state;
-			this.hintQueue.unshift(utils.deepClone(shape));
+			this.customHintQueue.unshift(utils.deepClone(shape));
 			shape.x = shape.originX;
 			shape.y = shape.originY;
-			this.shapeQueue.unshift(utils.deepClone(shape));
+			this.customShapeQueue.unshift(utils.deepClone(shape));
 			this.isInit = 1;
 			this.isHintInit = 1;
 			this.idx = 0;
