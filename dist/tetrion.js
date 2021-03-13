@@ -1067,7 +1067,7 @@ Tetris.prototype = {
 			
 	   //  Opener sequence completed
 		if(this.currentMinoInx > openers.getLength()) {
-			new Audio("./dist/Affirm.ogg").play();
+			new Audio("./dist/sound/Affirm.ogg").play();
 			if(this.isTimerOn) {
 				var besttime = document.getElementById("besttime").value;
 				var deltaTime = new Date().getTime() - this.sequencePrevTime;
@@ -1339,7 +1339,7 @@ Tetris.prototype = {
 			if(this._checkHint()) return;
             //this._fireShape();
 			this._recurseGameState();
-			 new Audio('./dist/Blop2.ogg').play();
+			 new Audio('./dist/sound/Blop2.ogg').play();
         }
         this._draw();
         this.isGameOver = checkGameOver(this.matrix);
@@ -2735,14 +2735,14 @@ ShapeZR.prototype = {
 	//Move the shape to the left
 	goLeft: function(matrix) {
 		if (isShapeCanMove(this, matrix, 'left')) {
-			new Audio('./dist/Click.ogg').play();
+			new Audio('./dist/sound/Click.ogg').play();
 			this.x -= 1;
 		}
 	},
 	//Move the shape to the right
 	goRight: function(matrix) {
 		if (isShapeCanMove(this, matrix, 'right')) {
-			new Audio('./dist/Click.ogg').play();
+			new Audio('./dist/sound/Click.ogg').play();
 			this.x += 1;
 		}
 	},
