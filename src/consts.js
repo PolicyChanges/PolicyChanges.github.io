@@ -4,6 +4,11 @@ var colors = ['#ef7a21','#f7d308','#ef2029','#ad4d9c','#5a658f','#42b642','#31c7
 //['#ef7a21','#f7d308','#42b642','#ef2029','#ad4d9c','#5a658f','#31c7ef'];
 //['#00af9d','#ffb652','#cd66cc','#66bc29','#0096db','#3a7dda','#ffe100'];
 
+
+// Gamestates
+var gameStates = ["freePlayState", "trainerState", "testTrainerStates", "sequenceEditorState"];
+var defaultGameState = "freePlayState";
+
 //sidebar width
 var sideWidth = 120;
 
@@ -48,6 +53,10 @@ var levelInterval = 120 * 1000;
 
 
 var exports = module.exports = {};
+
+exports.GAMESTATES = gameStates;
+
+exports.DEFAULT_GAMESTATE = defaultGameState;
 
 exports.COLORS =  colors;
 

@@ -266,6 +266,11 @@ var colors = ['#ef7a21','#f7d308','#ef2029','#ad4d9c','#5a658f','#42b642','#31c7
 //['#ef7a21','#f7d308','#42b642','#ef2029','#ad4d9c','#5a658f','#31c7ef'];
 //['#00af9d','#ffb652','#cd66cc','#66bc29','#0096db','#3a7dda','#ffe100'];
 
+
+// Gamestates
+var gameStates = ["freePlayState", "trainerState", "testTrainerStates", "sequenceEditorState"];
+var defaultGameState = "freePlayState";
+
 //sidebar width
 var sideWidth = 120;
 
@@ -310,6 +315,10 @@ var levelInterval = 120 * 1000;
 
 
 var exports = module.exports = {};
+
+exports.GAMESTATES = gameStates;
+
+exports.DEFAULT_GAMESTATE = defaultGameState;
 
 exports.COLORS =  colors;
 
@@ -689,6 +698,9 @@ var openers = require('./openers.js');
 // import * as openers from './openers.js';
 //import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
 
+
+
+
 /**
 	Init game matrix
 */
@@ -824,17 +836,17 @@ Tetris.prototype = {
     init: function(options) {
         var cfg = this.config = utils.extend(options, defaults);
         this.interval = consts.DEFAULT_INTERVAL;
-
-
+		
         views.init(this.id, cfg.maxWidth, cfg.maxHeight);
         canvas.init(views.scene, views.preview, views.hold);
 		inputs.init();
 		this.createSettings();
+		
 		// if true no openers.  just random tetrinos
-		this.isFreePlay = true;
+		this.gameState = consts.DEFAULT_GAMESTATE;
+
 		this.isTimerOn = false;
 		this.currentOpener = 0;
-		this.doTest = false;
         this.matrix = initMatrix(consts.ROW_COUNT, consts.COLUMN_COUNT);
 		this.eventTimer = new Date();
 		this.debugTimer = new Date();
@@ -842,7 +854,9 @@ Tetris.prototype = {
         this.reset();
         
 		this._initEvents();
-        this._fireShape();
+        //this._fireShape();
+		// ewww
+		this._recurseGameState();
 
     },
 	toggleTimer: function() {
@@ -853,12 +867,14 @@ Tetris.prototype = {
 	},
 	setFreePlay: function()
 	{
+		
+		this.gameState = consts.GAMESTATES[0];
+		
 		document.getElementById("Timer").value = "Timer Off";
 		document.getElementById("Time").value = "";
 		document.getElementById("besttime").value = "";
 		this.isTimerOn = false;
-		this.isFreePlay = true;
-		this.doTest = false;
+
 		this.hintQueue = [];
 		this.shapeQueue = [];
 		this.hintMino = 0;
@@ -869,16 +885,19 @@ Tetris.prototype = {
 	setCurrentOpener(opener)
 	{
 		document.getElementById("besttime").value = "";
-		this.isFreePlay = false;
-		this.doTest = false;
+		
+		this.gameState = consts.GAMESTATES[1];
 		this.currentOpener = opener;
 		this._restartHandler();
 
 	},
 	setDoTest: function()
 	{
-		if(this.isFreePlay) return;
-		this.doTest = true;
+
+		if(this.gameState != consts.GAMESTATES[1]) return;
+		
+		// set game state to do test
+		this.gameState = consts.GAMESTATES[2];
 		this._restartHandler();
 	},
 	createSettings: function () {
@@ -895,10 +914,17 @@ Tetris.prototype = {
 		});
 	},
 	updateSettingTextBox: function() {
+		// var setting = inputs.settingsList[document.getElementById("settings").selectedIndex-1];
+		// var doKeyToAlpha = inputs.keyboardShiftEvents.included(setting) || inputs.keyboardKeyEvents.included(setting);
+		
+		// if(doKeyToAlpha) 
+			// document.getElementById("setting_value").value = inputs.settingsMap.get(setting).fromCharCode();
+		// else
+			// document.getElementById("setting_value").value = inputs.settingsMap.get(setting);
+		
 		document.getElementById("setting_value").value = 
 		inputs.settingsMap.get(inputs.settingsList[document.getElementById("settings").selectedIndex-1]);
 		
-		//inputs.settingsDefault[document.getElementById("settings").selectedIndex-1];
 		
 	},
 	setSettings: function() {
@@ -941,7 +967,7 @@ Tetris.prototype = {
         clearMatrix(this.matrix);
         views.setLevel(this.level);
         views.setScore(this.score);
-        views.setGameOver(this.isGameOver);
+        views.setGameOver(this.gameState == consts.GAMESTATES[0] && this.isGameOver);
 		openers.reset();
 		shapes.resetMinoRNG();
 		
@@ -961,16 +987,32 @@ Tetris.prototype = {
     },
 	pushHoldStack: function()
 	{
-		if(this.holdStack.length < 4) {
+		// 1 shape hold queue
+		if(this.holdStack.length > 0) {
+			this.canPopFromHoldStack = false;
+			this.shapeQueue.unshift(utils.deepClone(this.shape));
+			this.shape = this.holdStack.pop();
+			this.shape.resetOrigin();
+			this._draw();
+		}else if(this.holdStack.length < 4) {
 			this.holdStack.push(utils.deepClone(this.shape));
 			this.shape = this.shapeQueue.shift();
 			this.canPopFromHoldStack = false;
 			this.shape.resetOrigin();
 			this._draw(); 
 		}
+		/* 4 shape hold queue
+		if(this.holdStack.length < 4) {
+			this.holdStack.push(utils.deepClone(this.shape));
+			this.shape = this.shapeQueue.shift();
+			this.canPopFromHoldStack = false;
+			this.shape.resetOrigin();
+			this._draw(); 
+		}*/
 	},
 	popHoldStack: function()
 	{
+		// todo: disable if 1 shape hold queue
 		if(this.holdStack.length >= 1 && this.canPopFromHoldStack)
 		{
 			this.canPopFromHoldStack = false;
@@ -985,7 +1027,8 @@ Tetris.prototype = {
     _restartHandler: function() {
         this.reset();
         this.start();
-		this._fireShape();
+		//this._fireShape();
+		this._recurseGameState();
     },
     // Bind game events
     _initEvents: function() {
@@ -993,71 +1036,87 @@ Tetris.prototype = {
 		setInterval(() => {this.lockDownTimer++;}, 100 );
         views.btnRestart.addEventListener('click', utils.proxy(this._restartHandler, this), false);
     },
-
-    // Fill next queue and set next shape
-    _fireShape: function() {
-		if(this.isFreePlay == false) {
-			while(this.shapeQueue.length <= 4)
-			{
-				this.preparedShape = openers.getNextMino(this.currentOpener);
-				this.shapeQueue.push(this.preparedShape);
-			}
-			while(this.hintQueue.length <= 4)
-			{
-				this.preparedShape = openers.getNextHint(this.currentOpener);
-				this.hintQueue.push(this.preparedShape);
-			}
-			
-			this.hintMino = this.hintQueue.shift();
-			this.shape = this.shapeQueue.shift();
-		   
-		   this.currentMinoInx++;
-				
-		   //  Opener sequence completed
-			if(this.currentMinoInx > openers.getLength()) {
-				if(this.isTimerOn) {
-					var besttime = document.getElementById("besttime").value;
-					var deltaTime = new Date().getTime() - this.sequencePrevTime;
-					if(besttime == "" || deltaTime/1000.0 < parseFloat(besttime)) {	
-						document.getElementById("besttime").value = (deltaTime/1000.0).toString();
-					}
-					
-					
-				}	
-			
-				this.hintQueue = [];
-				this.shapeQueue = [];
-
-				this.isSequenceCompleted = true;
-				// Recursion warning
-				this._restartHandler();	
-				// this.reset();
-				// this.start();
-				return;
-			}
-		} else {
-			while(this.shapeQueue.length <= 4)
-			{
-				this.preparedShape = shapes.randomShape();
-				this.shapeQueue.push(this.preparedShape);
-			}
-			
-			this.shape = this.shapeQueue.shift();// || shapes.randomShape();
-			this.currentMinoInx++;
+	// Process freeplay queue
+	_processFreeplayQueue: function() {
+		while(this.shapeQueue.length <= 4)
+		{
+			this.preparedShape = shapes.randomShape();
+			this.shapeQueue.push(this.preparedShape);
 		}
 		
+		this.shape = this.shapeQueue.shift();// || shapes.randomShape();
+		this.currentMinoInx++;
+	},
+	// Process opener trainer queue
+	_processOpenerTrainerQueue: function() {
+		while(this.shapeQueue.length <= 4)
+		{
+			this.preparedShape = openers.getNextMino(this.currentOpener);
+			this.shapeQueue.push(this.preparedShape);
+		}
+		while(this.hintQueue.length <= 4)
+		{
+			this.preparedShape = openers.getNextHint(this.currentOpener);
+			this.hintQueue.push(this.preparedShape);
+		}
+		
+		this.hintMino = this.hintQueue.shift();
+		this.shape = this.shapeQueue.shift();
+	   
+	   this.currentMinoInx++;
+			
+	   //  Opener sequence completed
+		if(this.currentMinoInx > openers.getLength()) {
+			new Audio("./dist/Affirm.ogg").play();
+			if(this.isTimerOn) {
+				var besttime = document.getElementById("besttime").value;
+				var deltaTime = new Date().getTime() - this.sequencePrevTime;
+				if(besttime == "" || deltaTime/1000.0 < parseFloat(besttime)) {	
+					document.getElementById("besttime").value = (deltaTime/1000.0).toString();
+				}
+				
+				
+			}	
+		
+			this.hintQueue = [];
+			this.shapeQueue = [];
+
+			this.isSequenceCompleted = true;
+			// Recursion warning
+			this._restartHandler();	
+			// this.reset();
+			// this.start();
+			return;
+		}
+	},
+    // Fill next queue and set next shape
+    _fireShape: function() {
 		//todo:should be in shapes.js
 		this.landed = false;
 		this.manipulationCounter = 0;
-		// Reset matrix at successful end of opener
-		//if(this.shapeQueue.length == openers.length) {
-		//	this.matrix = [];
-		//	new Audio("Tetris.ogg");
-		//}
-		
+
 		this._draw();
         
     },
+	_recurseGameState: function (){
+		switch(this.gameState) {
+		case consts.GAMESTATES[0]:
+			this._processFreeplayQueue();
+			this._fireShape();
+			break;
+		case consts.GAMESTATES[1]:
+			this._processOpenerTrainerQueue();
+			this._fireShape();
+			break;
+		case consts.GAMESTATES[2]:
+			this._processOpenerTrainerQueue();
+			this._fireShape();
+			break;
+		
+		default:
+			break;
+		}
+	},
 	// lockdown timer with centisecond resolution
 	resetLockdown: function() {
 
@@ -1083,7 +1142,7 @@ Tetris.prototype = {
         canvas.drawShape(this.shape);
 		canvas.drawHoldShape(this.holdStack);
 		canvas.drawPreviewShape(this.shapeQueue);
-		if(this.doTest != true)
+		if(this.gameState != consts.GAMESTATES[2])
 			canvas.drawHintShape(this.hintMino);
 		
 		if(this.shape != undefined) {
@@ -1257,8 +1316,9 @@ Tetris.prototype = {
 	// check if the current piece is in the same location as the hint piece
 	_checkHint: function() {
 		
-		if(this.isFreePlay)
+		if(this.gameState == consts.GAMESTATES[0])
 			return;
+
 		if(!this.shape.isSameSRS(this.hintMino))
 		{
 			//new Audio('./dist/Failed.ogg').play();
@@ -1277,12 +1337,15 @@ Tetris.prototype = {
             this.shape.copyTo(this.matrix);
             this._check();
 			if(this._checkHint()) return;
-            this._fireShape();
+            //this._fireShape();
+			this._recurseGameState();
 			 new Audio('./dist/Blop2.ogg').play();
         }
         this._draw();
         this.isGameOver = checkGameOver(this.matrix);
-        views.setGameOver(this.isGameOver);
+		
+		// if game over and gamestate is free play
+        views.setGameOver(this.gameState == consts.GAMESTATES[0] && this.isGameOver);
 		
         if (this.isGameOver) 
             views.setFinalScore(this.score);
