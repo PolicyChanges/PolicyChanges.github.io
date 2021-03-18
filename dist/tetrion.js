@@ -959,6 +959,17 @@ Tetris.prototype = {
 		document.getElementById("Openers").appendChild(newOpener);
 		
 		
+		// Print Sequence Data to console
+		console.log("this.hintQueue = new Array(");
+		this.shapeQueue.slice().reverse().forEach( function(shape, idx) { console.log("shapes.getShape("+shape.nType()+"),"); } );
+		
+		console.log("var hintDataList = ["); 
+		var shapes = [];
+		this.shapeQueue.slice().reverse().forEach( function(shape, idx) {  shapes.push(shape.x); shapes.push(shape.y); shapes.push(shape.state); } );
+		
+		console.log(shapes.join(",") + "];");
+		console.log("this.createHintQueue(hintDataList);");
+		
 		openers.addSequence(this.shapeQueue);
 		//this.setFreePlay();
 		 this.gameState = consts.GAMESTATES[1];
@@ -1699,6 +1710,46 @@ var openerGenerator = {
 					shapes.getShape(3),
 					shapes.getShape(3));
 				break;
+				case 11:
+					this.shapeQueue = new Array(
+				shapes.getShape(0),
+				shapes.getShape(1),
+				shapes.getShape(4),
+				shapes.getShape(5),
+				shapes.getShape(6),
+				shapes.getShape(2),
+				shapes.getShape(3),
+				shapes.getShape(4),
+				shapes.getShape(5),
+				shapes.getShape(6),
+				shapes.getShape(0),
+				shapes.getShape(1),
+				shapes.getShape(2),
+				shapes.getShape(3),
+				shapes.getShape(4),
+				shapes.getShape(5),
+				shapes.getShape(6),
+				shapes.getShape(3),
+				shapes.getShape(0),
+				shapes.getShape(2),
+				shapes.getShape(3),
+				shapes.getShape(4),
+				shapes.getShape(5),
+				shapes.getShape(3),
+				shapes.getShape(4),
+				shapes.getShape(1),
+				shapes.getShape(3),
+				shapes.getShape(4),
+				shapes.getShape(0),
+				shapes.getShape(6));
+				 break;
+				 case 12:
+					this.shapeQueue = new Array(
+					shapes.getShape(0),
+					shapes.getShape(1),
+					shapes.getShape(2),
+					shapes.getShape(3));
+				break;
 				default:
 					this.shapeQueue.unshift(utils.deepClone(shapes.randomShape()));
 					return;
@@ -1724,6 +1775,13 @@ var openerGenerator = {
 		return mino;
 	},
 	
+	createHintQueue(hintDataList) {
+		for(var i = 0; i < this.hintQueue.length; i++) {
+			this.hintQueue[i].x = hintDataList[i * 3];
+			this.hintQueue[i].y = hintDataList[i * 3 + 1];
+			this.hintQueue[i].state = this.hintQueue[i].nextState(hintDataList[i * 3 + 2]);
+		}
+	},
 	// Hint Tetrimions
 	initHint(opener) {
 		if(!this.isHintInit || this.hintQueue == undefined) {
@@ -1746,11 +1804,7 @@ var openerGenerator = {
 				// position x, position y, orientation, position x,...
 				var hintDataList = [-1,17,1,  3,18,0,  6,18,0,  5,17,1,  3,17,0,  7,16,0,  1,17,2];
 				
-				for(var i = 0; i < this.hintQueue.length; i++) {
-					this.hintQueue[i].x = hintDataList[i * 3];
-					this.hintQueue[i].y = hintDataList[i * 3 + 1];
-					this.hintQueue[i].state = this.hintQueue[i].nextState(hintDataList[i * 3 + 2]);
-				}
+				this.createHintQueue(hintDataList);
 
 			break;
 			case 2:
@@ -1972,6 +2026,50 @@ var openerGenerator = {
 					this.hintQueue[i].y = hintDataList[i * 3 + 1];
 					this.hintQueue[i].state = this.hintQueue[i].nextState(hintDataList[i * 3 + 2]);
 				}
+			break;
+			case 11:
+				this.hintQueue = new Array(
+				shapes.getShape(0),
+				shapes.getShape(1),
+				shapes.getShape(4),
+				shapes.getShape(5),
+				shapes.getShape(6),
+				shapes.getShape(2),
+				shapes.getShape(3),
+				shapes.getShape(4),
+				shapes.getShape(5),
+				shapes.getShape(6),
+				shapes.getShape(0),
+				shapes.getShape(1),
+				shapes.getShape(2),
+				shapes.getShape(3),
+				shapes.getShape(4),
+				shapes.getShape(5),
+				shapes.getShape(6),
+				shapes.getShape(3),
+				shapes.getShape(0),
+				shapes.getShape(2),
+				shapes.getShape(3),
+				shapes.getShape(4),
+				shapes.getShape(5),
+				shapes.getShape(3),
+				shapes.getShape(4),
+				shapes.getShape(1),
+				shapes.getShape(3),
+				shapes.getShape(4),
+				shapes.getShape(0),
+				shapes.getShape(6));
+				var hintDataList = [3,17,1,6,18,0,1,17,3,5,17,3,2,16,3,-1,17,1,4,15,0,5,13,1,3,14,0,-1,14,3,8,15,3,-1,15,0,0,13,0,6,16,2,0,13,2,4,14,0,2,13,3,6,17,1,7,18,0,3,16,1,7,17,2,6,18,0,1,18,0,-1,17,1,2,16,2,5,17,0,0,15,2,3,15,2,6,15,2,8,16,3];
+				this.createHintQueue(hintDataList);
+			break
+			 case 12:
+				this.hintQueue = new Array(
+				shapes.getShape(0),
+				shapes.getShape(1),
+				shapes.getShape(2),
+				shapes.getShape(3));
+				var hintDataList = [3,17,1,6,18,0,5,17,2,1,18,0];
+				this.createHintQueue(hintDataList);
 			break;
 			default:
 				this.hintQueue.unshift(utils.deepClone(shapes.randomShape()));
@@ -2913,6 +3011,39 @@ ShapeZR.prototype = {
 	},
 	resetOrigin: function() {
 		this.y = this.originY + 1;
+	},
+	nType: function() {
+		
+		switch (this.flag) {
+			case 'L':
+				// shape = new ShapeL();
+				return 0;
+				break;
+			case 'O':
+				//shape = new ShapeO();
+				return 1;
+				break;
+			case 'Z':
+				// shape = new ShapeZ();
+				return 2;
+				break;
+			case 'T':
+				// shape = new ShapeT();
+				return 3;
+				break;
+			case 'LR':
+				// shape = new ShapeLR();
+				return 4;
+				break;
+			case 'ZR':
+				// shape = new ShapeZR();
+				return 5;
+				break;
+			case 'I':
+				// shape = new ShapeI();
+				return 6;
+				break;
+		}
 	}
 }
 

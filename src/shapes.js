@@ -844,6 +844,39 @@ ShapeZR.prototype = {
 	},
 	resetOrigin: function() {
 		this.y = this.originY + 1;
+	},
+	nType: function() {
+		
+		switch (this.flag) {
+			case 'L':
+				// shape = new ShapeL();
+				return 0;
+				break;
+			case 'O':
+				//shape = new ShapeO();
+				return 1;
+				break;
+			case 'Z':
+				// shape = new ShapeZ();
+				return 2;
+				break;
+			case 'T':
+				// shape = new ShapeT();
+				return 3;
+				break;
+			case 'LR':
+				// shape = new ShapeLR();
+				return 4;
+				break;
+			case 'ZR':
+				// shape = new ShapeZR();
+				return 5;
+				break;
+			case 'I':
+				// shape = new ShapeI();
+				return 6;
+				break;
+		}
 	}
 }
 

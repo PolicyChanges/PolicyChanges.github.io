@@ -275,6 +275,17 @@ Tetris.prototype = {
 		document.getElementById("Openers").appendChild(newOpener);
 		
 		
+		// Print Sequence Data to console
+		console.log("this.hintQueue = new Array(");
+		this.shapeQueue.slice().reverse().forEach( function(shape, idx) { console.log("shapes.getShape("+shape.nType()+"),"); } );
+		
+		console.log("var hintDataList = ["); 
+		var shapes = [];
+		this.shapeQueue.slice().reverse().forEach( function(shape, idx) {  shapes.push(shape.x); shapes.push(shape.y); shapes.push(shape.state); } );
+		
+		console.log(shapes.join(",") + "];");
+		console.log("this.createHintQueue(hintDataList);");
+		
 		openers.addSequence(this.shapeQueue);
 		//this.setFreePlay();
 		 this.gameState = consts.GAMESTATES[1];
