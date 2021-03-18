@@ -961,13 +961,12 @@ Tetris.prototype = {
 		
 		// Print Sequence Data to console
 		console.log("this.hintQueue = new Array(");
-		this.shapeQueue.slice().reverse().forEach( function(shape, idx) { console.log("shapes.getShape("+shape.nType()+"),"); } );
+		this.shapeQueue.slice().reverse().forEach( function(shape, idx, arr) { console.log("shapes.getShape("+shape.nType()+ ((idx === arr.length-1) ? "));" : "),") ); } );
 		
-		console.log("var hintDataList = ["); 
 		var shapes = [];
 		this.shapeQueue.slice().reverse().forEach( function(shape, idx) {  shapes.push(shape.x); shapes.push(shape.y); shapes.push(shape.state); } );
 		
-		console.log(shapes.join(",") + "];");
+		console.log("var hintDataList = [" + shapes.join(",") + "];");
 		console.log("this.createHintQueue(hintDataList);");
 		
 		openers.addSequence(this.shapeQueue);
