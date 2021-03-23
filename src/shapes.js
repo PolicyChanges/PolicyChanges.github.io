@@ -209,38 +209,7 @@ function ShapeO() {
 }
 
 function ShapeI() {
-/*	// North
-    var state1 = [
-        [1, 0, 0, 0],
-        [1, 0, 0, 0],
-        [1, 0, 0, 0],
-        [1, 0, 0, 0]
-    ];
 
-	// East
-    var state2 = [
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-		[1, 1, 1, 1],
-        [0, 0, 0, 0]
-    ];
-	
-	// South
-    var state3 = [
-        [0, 0, 1, 0],
-        [0, 0, 1, 0],
-		[0, 0, 1, 0],
-        [0, 0, 1, 0]
-    ];
-	
-	// West
-    var state4 = [
-        [0, 0, 0, 0],
-        [1, 1, 1, 1],
-		[0, 0, 0, 0],
-        [0, 0, 0, 0]
-    ];
-	*/
 	// North
     var state1 = [
         [0, 0, 0, 0],
@@ -953,8 +922,6 @@ function randomShape() {
     return shape;
 	
 }
-
-
 
 function getShape(shapei) {
     var result = shapei

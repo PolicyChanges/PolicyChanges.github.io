@@ -275,26 +275,40 @@ Tetris.prototype = {
 		document.getElementById("Openers").appendChild(newOpener);
 		
 		
+		
 		// Print Sequence Data to console
-		console.log("this.hintQueue = new Array(");
-		this.shapeQueue.slice().reverse().forEach( function(shape, idx, arr) { console.log("shapes.getShape("+shape.nType()+ ((idx === arr.length-1) ? "));" : "),") ); } );
+		// console.log("this.hintQueue = new Array(");
+		// this.shapeQueue.slice().reverse().forEach( function(shape, idx, arr) { console.log("shapes.getShape("+shape.nType()+ ((idx === arr.length-1) ? "));" : "),") ); } );
+
 		
-		var shapes = [];
-		this.shapeQueue.slice().reverse().forEach( function(shape, idx) {  shapes.push(shape.x); shapes.push(shape.y); shapes.push(shape.state); } );
+		 var shapes = [];
+		 this.shapeQueue.slice().reverse().forEach( function(shape, idx) {  shapes.push(shape.x); shapes.push(shape.y); shapes.push(shape.state); } );
 		
-		console.log("var hintDataList = [" + shapes.join(",") + "];");
-		console.log("this.createHintQueue(hintDataList);");
+		// console.log("var hintDataList = [" + shapes.join(",") + "];");
+		// console.log("this.createHintQueue(hintDataList);");
 		
-		openers.addSequence(this.shapeQueue);
+		var sequenceCode = [];
+		
+		var shapeArrayStr = [];
+		this.shapeQueue.slice().reverse().forEach( function(shape, idx, arr) { shapeArrayStr += "shapes.getShape("+shape.nType() + ((idx === arr.length-1) ? "));" : "), ") } );
+		sequenceCode += "case :\n\tthis.shapeQueue = new Array(" + shapeArrayStr + "\nbreak;" + "\n\n";
+		
+		sequenceCode += "case :\n\tthis.hintQueue = new Array(" + shapeArrayStr;
+		sequenceCode += "\n\nvar hintDataList = [" + shapes.join(",") + "];" + "\nthis.createHintQueue(hintDataList);" + "\nbreak;";
+		
+		prompt("Generated Code:", sequenceCode);
+		
+		
+		//openers.addSequence(this.shapeQueue);
 		//this.setFreePlay();
-		 this.gameState = consts.GAMESTATES[1];
+		 //this.gameState = consts.GAMESTATES[1];
 		 this.currentMinoInx = 0;
 		//this.setCurrentOpener(99999);//this.currentMinoInx);
 		 clearMatrix(this.matrix);
 		 this.currentOpener = 9999;
 		 this.shapeQueue = [];
 		 this.hintQueue = [];
-		 this._recurseGameState();
+		 //this._recurseGameState();
 	},
 	setSettings: function() {
 		var newVal = document.getElementById("setting_value").value;
@@ -319,8 +333,7 @@ Tetris.prototype = {
         this.levelTime = this.startTime;
 		this.prevInputTime = this.startTime;
 		// current tetrino index gets set to 0 at the end of opener sequence
-		//if(this.currentMinoInx == undefined || this.currentMinoInx < 1000)  // todo: refactor -- seppuku worthy
-			this.currentMinoInx = 0;
+		this.currentMinoInx = 0;
 		this.shapeQueue = [];
 		this.hintQueue = [];
 		this.holdStack = [];

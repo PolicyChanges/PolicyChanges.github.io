@@ -174,36 +174,36 @@ var openerGenerator = {
 				break;
 				case 11:
 					this.shapeQueue = new Array(
-				shapes.getShape(0),
-				shapes.getShape(1),
-				shapes.getShape(4),
-				shapes.getShape(5),
-				shapes.getShape(6),
-				shapes.getShape(2),
-				shapes.getShape(3),
-				shapes.getShape(4),
-				shapes.getShape(5),
-				shapes.getShape(6),
-				shapes.getShape(0),
-				shapes.getShape(1),
-				shapes.getShape(2),
-				shapes.getShape(3),
-				shapes.getShape(4),
-				shapes.getShape(5),
-				shapes.getShape(6),
-				shapes.getShape(3),
-				shapes.getShape(0),
-				shapes.getShape(2),
-				shapes.getShape(3),
-				shapes.getShape(4),
-				shapes.getShape(5),
-				shapes.getShape(3),
-				shapes.getShape(4),
-				shapes.getShape(1),
-				shapes.getShape(3),
-				shapes.getShape(4),
-				shapes.getShape(0),
-				shapes.getShape(6));
+					shapes.getShape(0),
+					shapes.getShape(1),
+					shapes.getShape(4),
+					shapes.getShape(5),
+					shapes.getShape(6),
+					shapes.getShape(2),
+					shapes.getShape(3),
+					shapes.getShape(4),
+					shapes.getShape(5),
+					shapes.getShape(6),
+					shapes.getShape(0),
+					shapes.getShape(1),
+					shapes.getShape(2),
+					shapes.getShape(3),
+					shapes.getShape(4),
+					shapes.getShape(5),
+					shapes.getShape(6),
+					shapes.getShape(3),
+					shapes.getShape(0),
+					shapes.getShape(2),
+					shapes.getShape(3),
+					shapes.getShape(4),
+					shapes.getShape(5),
+					shapes.getShape(3),
+					shapes.getShape(4),
+					shapes.getShape(1),
+					shapes.getShape(3),
+					shapes.getShape(4),
+					shapes.getShape(0),
+					shapes.getShape(6));
 				 break;
 				 case 12:
 					this.shapeQueue = new Array(
@@ -212,6 +212,10 @@ var openerGenerator = {
 					shapes.getShape(2),
 					shapes.getShape(3));
 				break;
+				case 13:
+					this.shapeQueue = new Array(shapes.getShape(4), shapes.getShape(6), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(5), shapes.getShape(0), shapes.getShape(1), shapes.getShape(0), shapes.getShape(6), shapes.getShape(0), shapes.getShape(5), shapes.getShape(4), shapes.getShape(3), shapes.getShape(4), shapes.getShape(3), shapes.getShape(4));
+				break;
+
 				default:
 					this.shapeQueue.unshift(utils.deepClone(shapes.randomShape()));
 					return;
@@ -532,6 +536,12 @@ var openerGenerator = {
 				shapes.getShape(3));
 				var hintDataList = [3,17,1,6,18,0,5,17,2,1,18,0];
 				this.createHintQueue(hintDataList);
+			break;
+			case 13:
+				this.hintQueue = new Array(shapes.getShape(4), shapes.getShape(6), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(5), shapes.getShape(0), shapes.getShape(1), shapes.getShape(0), shapes.getShape(6), shapes.getShape(0), shapes.getShape(5), shapes.getShape(4), shapes.getShape(3), shapes.getShape(4), shapes.getShape(3), shapes.getShape(4));
+
+			var hintDataList = [0,18,0,3,18,0,-1,17,0,7,18,0,3,17,0,8,16,3,0,15,2,-2,14,0,3,15,2,3,14,0,1,13,3,8,14,3,7,12,2,5,16,2,3,14,3,6,17,3,5,18,0];
+			this.createHintQueue(hintDataList);
 			break;
 			default:
 				this.hintQueue.unshift(utils.deepClone(shapes.randomShape()));
