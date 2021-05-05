@@ -1674,16 +1674,8 @@ var openerGenerator = {
 					shapes.getShape(0),
 					shapes.getShape(3));
 				break;
-				case 7:
-					// Albatross
-					this.shapeQueue = new Array(
-					shapes.getShape(1),
-					shapes.getShape(5),
-					shapes.getShape(6),
-					shapes.getShape(0),
-					shapes.getShape(4),
-					shapes.getShape(2),
-					shapes.getShape(3));
+				case 7: // Albatross
+					this.shapeQueue = new Array(shapes.getShape(1), shapes.getShape(5), shapes.getShape(6), shapes.getShape(0), shapes.getShape(4), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(1), shapes.getShape(6), shapes.getShape(0), shapes.getShape(2), shapes.getShape(3));
 				break;
 				case 8:
 					// Number One
@@ -1765,6 +1757,14 @@ var openerGenerator = {
 				case 13:
 					this.shapeQueue = new Array(shapes.getShape(4), shapes.getShape(6), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(5), shapes.getShape(0), shapes.getShape(1), shapes.getShape(0), shapes.getShape(6), shapes.getShape(0), shapes.getShape(5), shapes.getShape(4), shapes.getShape(3), shapes.getShape(4), shapes.getShape(3), shapes.getShape(4));
 				break;
+				case 14:
+					this.shapeQueue = new Array(shapes.getShape(0), shapes.getShape(6), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(0), shapes.getShape(4), shapes.getShape(6), shapes.getShape(0), shapes.getShape(0), shapes.getShape(3), shapes.getShape(5));
+				break;
+				case 15:
+					this.shapeQueue = new Array(shapes.getShape(0), shapes.getShape(2), shapes.getShape(5), shapes.getShape(6), shapes.getShape(1), shapes.getShape(3), shapes.getShape(4), shapes.getShape(2), shapes.getShape(5), shapes.getShape(0), shapes.getShape(1), shapes.getShape(6), shapes.getShape(4), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(6), shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(1), shapes.getShape(3), shapes.getShape(4), shapes.getShape(3));
+				break;
+
+
 
 				default:
 					this.shapeQueue.unshift(utils.deepClone(shapes.randomShape()));
@@ -1963,24 +1963,11 @@ var openerGenerator = {
 					this.hintQueue[i].state = this.hintQueue[i].nextState(hintDataList[i * 3 + 2]);
 				}
 			break;
-			case 7:
-				// Albatross
-				this.hintQueue = new Array(
-				shapes.getShape(1),
-				shapes.getShape(5),
-				shapes.getShape(6),
-				shapes.getShape(0),
-				shapes.getShape(4),
-				shapes.getShape(2),
-				shapes.getShape(3));
-				
-				var hintDataList = [1,18,0,  0,17,-1,  8,16,-1,  5,17,2,  6,16,2,  3,16,0,  1,16,2];
-				
-				for(var i = 0; i < this.hintQueue.length; i++) {
-					this.hintQueue[i].x = hintDataList[i * 3];
-					this.hintQueue[i].y = hintDataList[i * 3 + 1];
-					this.hintQueue[i].state = this.hintQueue[i].nextState(hintDataList[i * 3 + 2]);
-				}
+			case 7:  // Albatross
+				this.hintQueue = new Array(shapes.getShape(1), shapes.getShape(5), shapes.getShape(6), shapes.getShape(0), shapes.getShape(4), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(1), shapes.getShape(6), shapes.getShape(0), shapes.getShape(2), shapes.getShape(3));
+
+			var hintDataList = [1,18,0,0,17,3,8,16,3,5,17,2,6,16,2,3,16,0,1,16,2,-1,17,1,5,17,3,5,18,0,6,16,0,2,15,3,3,15,1,1,17,3];
+			this.createHintQueue(hintDataList);
 			break;
 			case 8:
 				// Number One
@@ -2093,6 +2080,18 @@ var openerGenerator = {
 			var hintDataList = [0,18,0,3,18,0,-1,17,0,7,18,0,3,17,0,8,16,3,0,15,2,-2,14,0,3,15,2,3,14,0,1,13,3,8,14,3,7,12,2,5,16,2,3,14,3,6,17,3,5,18,0];
 			this.createHintQueue(hintDataList);
 			break;
+			case 14:
+				this.hintQueue = new Array(shapes.getShape(0), shapes.getShape(6), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(0), shapes.getShape(4), shapes.getShape(6), shapes.getShape(0), shapes.getShape(0), shapes.getShape(3), shapes.getShape(5));
+
+				var hintDataList = [-1,17,1,3,18,0,3,17,0,7,18,0,6,16,3,8,16,3,0,16,3,0,14,0,8,13,3,4,15,1,6,14,2,1,17,1,2,17,2];
+				this.createHintQueue(hintDataList);
+			break;
+			case 15:
+					this.hintQueue = new Array(shapes.getShape(0), shapes.getShape(2), shapes.getShape(5), shapes.getShape(6), shapes.getShape(1), shapes.getShape(3), shapes.getShape(4), shapes.getShape(2), shapes.getShape(5), shapes.getShape(0), shapes.getShape(1), shapes.getShape(6), shapes.getShape(4), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(6), shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(1), shapes.getShape(3), shapes.getShape(4), shapes.getShape(3));
+
+				var hintDataList = [-1,17,1,2,18,0,4,17,3,6,18,0,6,17,0,2,15,2,-1,14,1,5,17,0,4,14,3,5,14,3,6,15,0,6,14,3,8,12,3,0,16,1,6,15,0,0,15,0,-1,12,3,6,13,1,2,15,0,3,13,0,1,17,2,5,14,1,6,15,0,2,17,3,3,15,2,1,17,2];
+				this.createHintQueue(hintDataList);
+				break;
 			default:
 				this.hintQueue.unshift(utils.deepClone(shapes.randomShape()));
 					return;

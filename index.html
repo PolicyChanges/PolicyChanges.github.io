@@ -87,6 +87,7 @@ this.resizebg();
 				<ul style="font-size:14px;color:dodgerblue;text-align:left;" id="TSpinOpeners">T-Spin Openers:	
 					<ul style="font-size:13px;color:dodgerblue;text-align:left;padding-left:1em;" id="EarlyIPiece">Early I Piece:
 						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setTKIFonzieVar">TKI 3 (Fonzie variation) </a></li>
+						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setTKITSDMorphVar">TKI 3 TSD Morph </a></li>
 						<!--<li style="font-size:12px;padding-left:1em;";><a href="#" id="setTKIFTVar">TKI 3 (Flat Top variation) </a></li>
 						<li style="font-size:12px;padding-left:1em";><a href="#" id="setTKICTVar">TKI 3 (Castle Top variation) </a></li>
 						<li style="font-size:12px;padding-left:1em";><a href="#" id="setAjanbaTSDVar">Ajanba TSD </a></li>-->
@@ -111,6 +112,10 @@ this.resizebg();
 						<li style="font-size:12px;padding-left:1em";><a href="#" id="setCSpinVar">C-Spin </a></li>
 						<li style="font-size:12px;padding-left:1em";><a href="#" id="setHummingbirdVar">Hummingbird</a></li>
 					</ul>
+				</ul>
+				
+				<ul style="font-size:14px;color:dodgerblue;text-align:left;" id="TSpinTripleSetups">T-Spin Triple Setups:
+				
 				</ul>
 				
 				<!--
@@ -196,7 +201,8 @@ this.resizebg();
 		document.getElementById("TestSequence").addEventListener("click", function() { tetrion.setCurrentOpener(12); } );
 		//document.getElementById("setStdPCOpenerVar").addEventListener("click", function() { tetrion.setCurrentOpener(13); } );
 		document.getElementById("setBTCannonVar").addEventListener("click", function() { tetrion.setCurrentOpener(13); } );
-		
+		document.getElementById("setTKITSDMorphVar").addEventListener("click", function() { tetrion.setCurrentOpener(14); } );
+		document.getElementById("setCSpinVar").addEventListener("click", function() { tetrion.setCurrentOpener(15); } );
 		
 		
 		document.getElementById("enablegamepad").addEventListener("click", function() { tetrion.toggleGamepad(); } );
