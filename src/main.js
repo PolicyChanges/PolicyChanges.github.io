@@ -866,7 +866,7 @@ Tetris.prototype = {
     _checkLevel: function() {
         var currentTime = new Date().getTime();
         if (currentTime - this.levelTime > consts.LEVEL_INTERVAL) {
-            this.level += 1;
+            //this.level += 1;
             this.interval = calcIntervalByLevel(this.level);
             views.setLevel(this.level);
             this.levelTime = currentTime;
