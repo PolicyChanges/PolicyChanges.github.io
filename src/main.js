@@ -161,6 +161,7 @@ Tetris.prototype = {
 		// if true no openers.  just random tetrinos
 		this.gameState = consts.DEFAULT_GAMESTATE;
 
+		this.isPaused = false;
 		this.isTimerOn = false;
 		this.currentOpener = 0;
         this.matrix = initMatrix(consts.ROW_COUNT, consts.COLUMN_COUNT);
@@ -318,6 +319,7 @@ Tetris.prototype = {
 	},
     //Reset game
     reset: function() {
+		this.pause = false;
 		this.numlefts = 0;
         this.running = false;
         this.isGameOver = false;
@@ -363,11 +365,11 @@ Tetris.prototype = {
 
     },
     //Pause game
-    pause: function() {
+    /*pause: function() {
         this.running = false;
         this.currentTime =  new Date().getTime();
         this.prevTime = this.currentTime;
-    },
+    },*/
 	pushHoldStack: function()
 	{
 		if(this.gameState == consts.GAMESTATES[3]) {
@@ -505,22 +507,24 @@ Tetris.prototype = {
 		this.manipulationCounter = 0;
 
 		this._draw();
+		
         
     },
 	_recurseGameState: function (){
 		switch(this.gameState) {
-		case consts.GAMESTATES[0]:
+		case consts.GAMESTATES[0]:				// Free play
 			this._processFreeplayQueue();
 			this._fireShape();
 			break;
-		case consts.GAMESTATES[1]:
+		case consts.GAMESTATES[1]:				// Trainer
+				this._processOpenerTrainerQueue();
+				this._fireShape();
+				break;
+			
+		case consts.GAMESTATES[2]:				// Test
 			this._processOpenerTrainerQueue();
 			this._fireShape();
-			break;
-		case consts.GAMESTATES[2]:
-			this._processOpenerTrainerQueue();
-			this._fireShape();
-		case consts.GAMESTATES[3]:
+		case consts.GAMESTATES[3]:				// Sequence Test
 			this._processSequenceEditor();
 			break;
 		
@@ -531,8 +535,10 @@ Tetris.prototype = {
 	// lockdown timer with centisecond resolution
 	resetLockdown: function() {
 
-		if(this.shape.canDown(this.matrix) == false)	
+		if(this.shape.canDown(this.matrix) == false) {	
 			this.landed = true;
+			this.manipulationCounter = 0;
+		}
 			
 		this.lockDownTimer = 0;
 		
@@ -549,11 +555,13 @@ Tetris.prototype = {
 	},
     // Draw game data
     _draw: function() {
+		if(this.isPaused)
+			return;
         canvas.drawScene();
         canvas.drawShape(this.shape);
 		canvas.drawHoldShape(this.holdStack);
 		canvas.drawPreviewShape(this.shapeQueue);
-		if(this.gameState != consts.GAMESTATES[2])
+		if(this.gameState != consts.GAMESTATES[2]) // || this.gameState != consts.GAMESTATES[4] quiz mode
 			canvas.drawHintShape(this.hintMino);
 		
 		if(this.shape != undefined) {
@@ -703,6 +711,12 @@ Tetris.prototype = {
 					else
 						document.getElementById("divbg").style.display="none";
 				}
+				
+				else if(inputs.settingsMap.get("Keyboard Background").includes(curkey)) {
+					//setInterval(() => { this.isPaused = !this.isPaused; }, 300) ;
+					this.isPaused = !this.isPaused;
+				}
+				
 				if(inputs.settingsMap.get("Keyboard Reset").includes(curkey)) {
 					this._restartHandler();
 					return;
@@ -749,7 +763,8 @@ Tetris.prototype = {
 	},
     // Update game data
     _update: function() {
-		
+		if(this.isPaused)
+			return;
 		switch(this.gameState) {
 			case consts.GAMESTATES[0]:
 			case consts.GAMESTATES[1]:
