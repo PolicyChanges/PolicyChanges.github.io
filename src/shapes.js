@@ -878,7 +878,7 @@ var RandomGenerator = {
 			newBag.push(minoes[mino]);
 			newBag = newBag.filter(this.onlyUnique);
 		}
-		
+		console.log("New bag: " + newBag.toString());
         return newBag;
     },
 	reset() {

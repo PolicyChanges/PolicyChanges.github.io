@@ -595,7 +595,7 @@ var UserInputs = {
 
 		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key]) {
 			// Not being held yet
-			this.isPassedDelayKeyboardShift = false;
+			this.isDelayAutoShiftStarted = false;
 			this.keyboardShiftTimer = new Date();
 			
 			// Do shift if key has been pushed down
@@ -605,11 +605,11 @@ var UserInputs = {
 		
 		var deltaTime = (new Date()).getTime() - this.keyboardShiftTimer.getTime();
 		
-            if (!this.isPassedDelayKeyboardShift) {
+            if (!this.isDelayAutoShiftStarted) {
 				
                 if (deltaTime >= DAS) {
 					this.keyboardShiftTimer = new Date();
-                    this.isPassedDelayKeyboardShift = true;
+                    this.isDelayAutoShiftStarted = true;
                 }
             } 
 			else if(deltaTime >= ARR && this.keyboardKeys[key] == true) {
@@ -644,7 +644,7 @@ var UserInputs = {
 		this.prevKeyboardKeys = {...this.keyboardKeys};
 	},
 	// button states
-    isPassedDelayKeyboardShift: false,
+    isDelayAutoShiftStarted: false,
 	isPassedDelayKeyboardKey: false,
 	isPassedDelayGamepadShift: false,
 	isPassedDelayGamepadButton: false,
@@ -1171,7 +1171,7 @@ Tetris.prototype = {
 			this.isSequenceCompleted = true;
 			
 			// Recursion warning
-			if(this.currentOpener < 1000) // getting real hacky
+			if(this.currentOpener < 1000/*magic num*/)			// getting real hacky
 				this._restartHandler();
 			else clearMatrix(this.matrix);
 			// this.reset();
@@ -1219,7 +1219,7 @@ Tetris.prototype = {
 	// lockdown timer with centisecond resolution
 	resetLockdown: function() {
 
-		if(this.shape.canDown(this.matrix) == false) {	
+		if(this.landed == false && this.shape.canDown(this.matrix) == false) {	
 			this.landed = true;
 			this.manipulationCounter = 0;
 		}
@@ -1227,13 +1227,14 @@ Tetris.prototype = {
 		this.lockDownTimer = 0;
 		
 		if(this.landed)
-			this.manipulationCounter++;		
+			//if(UserInput.isPreDelayAutoShiftKeyboardKeyPressed() == false)
+				this.manipulationCounter++;		
 	},
 	// Return if the piece can be shifted or rotated
 	isPieceLocked: function() {
 		
 		if(this.manipulationCounter > 15) return true;
-		if(this.lockDownTimer >= 5) return true;
+		if(this.lockDownTimer >= 30) {console.log("lockdown timer >= 30"); return true;}
 		
 		return false;
 	},
@@ -1635,10 +1636,10 @@ var openerGenerator = {
 				case 11:
 					this.shapeQueue = new Array(
 					shapes.getShape(0), shapes.getShape(1), shapes.getShape(4), shapes.getShape(5), shapes.getShape(6), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(6), shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(6), shapes.getShape(3), shapes.getShape(0), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(3), shapes.getShape(4), shapes.getShape(1), shapes.getShape(3), shapes.getShape(4), shapes.getShape(0), shapes.getShape(6));
-				 break;
-				 case 12:
+				break;
+				case 12:
 					this.shapeQueue = new Array(
-					shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3));
+					shapes.getShape(6), shapes.getShape(2), shapes.getShape(4), shapes.getShape(1), shapes.getShape(3), shapes.getShape(0), shapes.getShape(5), shapes.getShape(6), shapes.getShape(0), shapes.getShape(2), shapes.getShape(0), shapes.getShape(3), shapes.getShape(4), shapes.getShape(3));
 				break;
 				case 13:
 					this.shapeQueue = new Array(
@@ -1828,12 +1829,15 @@ var openerGenerator = {
 				var hintDataList = [3,17,1,6,18,0,1,17,3,5,17,3,2,16,3,-1,17,1,4,15,0,5,13,1,3,14,0,-1,14,3,8,15,3,-1,15,0,0,13,0,6,16,2,0,13,2,4,14,0,2,13,3,6,17,1,7,18,0,3,16,1,7,17,2,6,18,0,1,18,0,-1,17,1,2,16,2,5,17,0,0,15,2,3,15,2,6,15,2,8,16,3];
 				this.createHintQueue(hintDataList);
 			break
-			 case 12:
+
+			case 12:
 				this.hintQueue = new Array(
-					shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3));
-				var hintDataList = [3,17,1,6,18,0,5,17,2,1,18,0];
-				this.createHintQueue(hintDataList);
+					shapes.getShape(6), shapes.getShape(2), shapes.getShape(4), shapes.getShape(1), shapes.getShape(3), shapes.getShape(0), shapes.getShape(5), shapes.getShape(6), shapes.getShape(0), shapes.getShape(2), shapes.getShape(0), shapes.getShape(3), shapes.getShape(4), shapes.getShape(3));
+
+			var hintDataList = [0,18,0,4,18,0,7,18,0,6,17,0,0,17,0,0,15,2,5,16,3,0,14,0,4,13,3,5,14,1,7,15,2,2,16,2,8,15,3,3,17,3];
+			this.createHintQueue(hintDataList);
 			break;
+
 			case 13:
 				this.hintQueue = new Array(
 					shapes.getShape(4), shapes.getShape(6), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(5), shapes.getShape(0), shapes.getShape(1), shapes.getShape(0), shapes.getShape(6), shapes.getShape(0), shapes.getShape(5), shapes.getShape(4), shapes.getShape(3), shapes.getShape(4), shapes.getShape(3), shapes.getShape(4));
@@ -2831,7 +2835,7 @@ var RandomGenerator = {
 			newBag.push(minoes[mino]);
 			newBag = newBag.filter(this.onlyUnique);
 		}
-		
+		console.log("New bag: " + newBag.toString());
         return newBag;
     },
 	reset() {

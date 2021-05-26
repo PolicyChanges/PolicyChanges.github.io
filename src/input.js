@@ -162,7 +162,7 @@ var UserInputs = {
 
 		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key]) {
 			// Not being held yet
-			this.isPassedDelayKeyboardShift = false;
+			this.isDelayAutoShiftStarted = false;
 			this.keyboardShiftTimer = new Date();
 			
 			// Do shift if key has been pushed down
@@ -172,11 +172,11 @@ var UserInputs = {
 		
 		var deltaTime = (new Date()).getTime() - this.keyboardShiftTimer.getTime();
 		
-            if (!this.isPassedDelayKeyboardShift) {
+            if (!this.isDelayAutoShiftStarted) {
 				
                 if (deltaTime >= DAS) {
 					this.keyboardShiftTimer = new Date();
-                    this.isPassedDelayKeyboardShift = true;
+                    this.isDelayAutoShiftStarted = true;
                 }
             } 
 			else if(deltaTime >= ARR && this.keyboardKeys[key] == true) {
@@ -211,7 +211,7 @@ var UserInputs = {
 		this.prevKeyboardKeys = {...this.keyboardKeys};
 	},
 	// button states
-    isPassedDelayKeyboardShift: false,
+    isDelayAutoShiftStarted: false,
 	isPassedDelayKeyboardKey: false,
 	isPassedDelayGamepadShift: false,
 	isPassedDelayGamepadButton: false,

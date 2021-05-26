@@ -487,7 +487,7 @@ Tetris.prototype = {
 			this.isSequenceCompleted = true;
 			
 			// Recursion warning
-			if(this.currentOpener < 1000) // getting real hacky
+			if(this.currentOpener < 1000/*magic num*/)			// getting real hacky
 				this._restartHandler();
 			else clearMatrix(this.matrix);
 			// this.reset();
@@ -535,7 +535,7 @@ Tetris.prototype = {
 	// lockdown timer with centisecond resolution
 	resetLockdown: function() {
 
-		if(this.shape.canDown(this.matrix) == false) {	
+		if(this.landed == false && this.shape.canDown(this.matrix) == false) {	
 			this.landed = true;
 			this.manipulationCounter = 0;
 		}
@@ -543,13 +543,14 @@ Tetris.prototype = {
 		this.lockDownTimer = 0;
 		
 		if(this.landed)
-			this.manipulationCounter++;		
+			//if(UserInput.isPreDelayAutoShiftKeyboardKeyPressed() == false)
+				this.manipulationCounter++;		
 	},
 	// Return if the piece can be shifted or rotated
 	isPieceLocked: function() {
 		
 		if(this.manipulationCounter > 15) return true;
-		if(this.lockDownTimer >= 5) return true;
+		if(this.lockDownTimer >= 30) {console.log("lockdown timer >= 30"); return true;}
 		
 		return false;
 	},
