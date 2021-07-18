@@ -472,7 +472,7 @@ Tetris.prototype = {
 			
 	   //  Opener sequence completed
 		if(this.currentMinoInx > openers.getLength()) {
-			new Audio("./dist/sound/horse1.ogg").play();
+			//new Audio("./dist/sound/horse1.ogg").play();
 			if(this.isTimerOn) {
 				var besttime = document.getElementById("besttime").value;
 				var deltaTime = new Date().getTime() - this.sequencePrevTime;

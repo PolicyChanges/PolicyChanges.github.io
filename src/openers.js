@@ -88,6 +88,15 @@ var openerGenerator = {
 					shapes.getShape(0), shapes.getShape(2), shapes.getShape(5), shapes.getShape(6), shapes.getShape(1), shapes.getShape(3), shapes.getShape(4), shapes.getShape(2), shapes.getShape(5), shapes.getShape(0), shapes.getShape(1), shapes.getShape(6), shapes.getShape(4), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(6), shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(1), shapes.getShape(3), shapes.getShape(4), shapes.getShape(3));
 				break;
 
+				case 16:
+					this.shapeQueue = new Array(shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(1), shapes.getShape(6), shapes.getShape(0), shapes.getShape(0), shapes.getShape(6), shapes.getShape(3), shapes.getShape(6));
+				break;
+
+				case 17:
+					this.shapeQueue = new Array(shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(6), shapes.getShape(1), shapes.getShape(0), shapes.getShape(4), shapes.getShape(3), shapes.getShape(6));
+				break;
+
+
 
 
 				default:
@@ -295,6 +304,22 @@ var openerGenerator = {
 				
 				this.createHintQueue(hintDataList);
 				break;
+			
+			case 16:
+				this.hintQueue = new Array(shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(1), shapes.getShape(6), shapes.getShape(0), shapes.getShape(0), shapes.getShape(6), shapes.getShape(3), shapes.getShape(6));
+
+			var hintDataList = [7,18,0,8,16,3,0,18,0,-1,17,0,2,16,3,0,15,2,5,17,1,3,16,3,6,15,2,4,16,3];
+			this.createHintQueue(hintDataList);
+			break;
+			
+			case 17:
+				this.hintQueue = new Array(shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(6), shapes.getShape(1), shapes.getShape(0), shapes.getShape(4), shapes.getShape(3), shapes.getShape(6));
+
+			var hintDataList = [6,18,0,8,17,3,0,18,0,7,16,0,2,16,3,-1,17,0,0,15,2,4,18,0,4,17,2,4,18,0];
+			this.createHintQueue(hintDataList);
+			break;			
+				
+				
 			default:
 				this.hintQueue.unshift(utils.deepClone(shapes.randomShape()));
 					return;

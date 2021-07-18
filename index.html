@@ -135,8 +135,8 @@ this.resizebg();
 				-->
 				<ul style="font-size:16px;color:dodgerblue;text-align:left;" > 
 					<ul style="font-size:13px;color:dodgerblue;text-align:left;padding-left:1em;" id="setPCOpenersVar">Perfect Clear Openers:
-						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setStdPCOpenerVar">The Standard PC Opener </a></li>
-						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setSecondPCVar">Second Perfect Clear </a></li>
+						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setStdPCOpenerVar">PC Opener Impossible Variation </a></li>
+						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setSecondPCVar">Perfect Clear Variation 2</a></li>
 						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setLoJVar">Either L or J </a></li>
 						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setLnJVar">Neither L nor J </a></li>
 						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setLaJVar">Both L and J </a></li>
@@ -211,6 +211,8 @@ this.resizebg();
 		document.getElementById("setBTCannonVar").addEventListener("click", function() { tetrion.setCurrentOpener(13); } );
 		document.getElementById("setTKITSDMorphVar").addEventListener("click", function() { tetrion.setCurrentOpener(14); } );
 		document.getElementById("setCSpinVar").addEventListener("click", function() { tetrion.setCurrentOpener(15); } );
+		document.getElementById("setStdPCOpenerVar").addEventListener("click", function() { tetrion.setCurrentOpener(16); } );
+		document.getElementById("setSecondPCVar").addEventListener("click", function() { tetrion.setCurrentOpener(17); } );
 		
 		
 		document.getElementById("enablegamepad").addEventListener("click", function() { tetrion.toggleGamepad(); } );
