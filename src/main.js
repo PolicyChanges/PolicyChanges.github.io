@@ -472,7 +472,7 @@ Tetris.prototype = {
 			
 	   //  Opener sequence completed
 		if(this.currentMinoInx > openers.getLength()) {
-			new Audio("./dist/sound/horse1.ogg").play();
+			//new Audio("./dist/sound/horse1.ogg").play();
 			if(this.isTimerOn) {
 				var besttime = document.getElementById("besttime").value;
 				var deltaTime = new Date().getTime() - this.sequencePrevTime;
@@ -831,7 +831,7 @@ Tetris.prototype = {
 		// if Sides A and B + (C or D) are touching a Surface
 		//considered a T-Spin
 		if((side1+side2+side3+side4) >= 3) {
-			new Audio("./dist/sound/horse1.ogg").play();
+			//new Audio("./dist/sound/horse1.ogg").play();
 			return 2;
 		}
 		

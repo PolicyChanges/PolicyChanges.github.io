@@ -1,9 +1,19 @@
 # Tetrion Opening Trainer   
-# PolicyChanges (2021) 
+# PolicyChanges (2022) 
 
 # MIT Liecense
 
 # [Tetrion](http://policychanges.github.io)
+
+To get started modifying Tetrion, install node.js then browserify using 
+the command "npm install -g browserify". 
+
+You can use delpoy.sh to browserify the js files to the dist directory and startserver.sh 
+to start a simple python webserver for testing.
+
+
+
+
 
 Tetris
 
