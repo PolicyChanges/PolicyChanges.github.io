@@ -78,8 +78,18 @@ this.resizebg();
 
 
 <div id="tetris">
-	<canvas id="scene"></canvas>
 	
+	<!--
+	<div id="exitPCO" >
+	<li style="font-size:12px;cdolor:powderblue;"><a href="#" id="togglePCOActive">PC Openers </a></li>
+	</div>
+
+	-->
+	
+
+	
+	<div id="nonPCO">
+	<canvas id="scene"></canvas>
 	<div id="leftSide">
 		<div id="leftInfo">
 			
@@ -91,7 +101,10 @@ this.resizebg();
 			}</style>
 			
 			<ul style="font-size:16px;color:dodgerblue;text-align:left;" id="Openers">Openers:
-			<li style="font-size:12px;cdolor:powderblue;"><a href="#" id="setFreePlay">No Opener </a></li>
+			
+			<li style="font-size:12px;color:powderblue;"><a href="#" id="setFreePlay">No Opener </a></li>
+			<li style="font-size:12px;color:powderblue;"><a href="src/ttpc-master-eng/index.html" id="togglePCOActive">PC Openers </a></li>
+			
 				<ul style="font-size:14px;color:dodgerblue;text-align:left;" id="TSpinOpeners">T-Spin Openers:	
 					<ul style="font-size:13px;color:dodgerblue;text-align:left;padding-left:1em;" id="EarlyIPiece">Early I Piece:
 						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setTKIFonzieVar">TKI 3 (Fonzie variation) </a></li>
@@ -133,6 +146,7 @@ this.resizebg();
 					<li style="font-size:12px;padding-left:1em;"><a href="#" id="setTKIFonzieVar">6 Residuals </a></li>
 				</ul>
 				-->
+				<!--
 				<ul style="font-size:16px;color:dodgerblue;text-align:left;" > 
 					<ul style="font-size:13px;color:dodgerblue;text-align:left;padding-left:1em;" id="setPCOpenersVar">Perfect Clear Openers:
 						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setStdPCOpenerVar">PC Opener Impossible Variation </a></li>
@@ -142,7 +156,7 @@ this.resizebg();
 						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setLaJVar">Both L and J </a></li>
 						<li style="font-size:12px;padding-left:1em;"><a href="#" id="setPCTPieceVar">T piece </a></li>
 					</ul>
-				</ul>
+				</ul>-->
 			</ul>
 		</div>
 	
@@ -186,8 +200,14 @@ this.resizebg();
 		</div>
 
 	</div>
-</div>
+	</div>
 
+
+
+</div>
+	<!--<div id="pco">
+	<iframe src="src/ttpc-master-eng/index.html" allowfullscreen="allowfullscreen" style="width: 560px;height 800px;"></iframe>
+	</div>-->
 
 </body>
 <script src="dist/tetrion.js"></script>
@@ -195,6 +215,8 @@ this.resizebg();
 	(function(){
 		var tetrion = new Tetris('tetris');
 		document.getElementById("setFreePlay").addEventListener("click", function() { tetrion.setFreePlay(); } );
+		document.getElementById("togglePCOActive").addEventListener("click", function() { tetrion.togglePCO(); } );
+		
 		document.getElementById("setTKIFonzieVar").addEventListener("click", function() { tetrion.setCurrentOpener(1); } );
 		document.getElementById("setDTCannonVar").addEventListener("click", function() { tetrion.setCurrentOpener(2); } );
 		document.getElementById("setMKOStackingVar").addEventListener("click", function() { tetrion.setCurrentOpener(3); } );
@@ -211,8 +233,8 @@ this.resizebg();
 		document.getElementById("setBTCannonVar").addEventListener("click", function() { tetrion.setCurrentOpener(13); } );
 		document.getElementById("setTKITSDMorphVar").addEventListener("click", function() { tetrion.setCurrentOpener(14); } );
 		document.getElementById("setCSpinVar").addEventListener("click", function() { tetrion.setCurrentOpener(15); } );
-		document.getElementById("setStdPCOpenerVar").addEventListener("click", function() { tetrion.setCurrentOpener(16); } );
-		document.getElementById("setSecondPCVar").addEventListener("click", function() { tetrion.setCurrentOpener(17); } );
+		//document.getElementById("setStdPCOpenerVar").addEventListener("click", function() { tetrion.setCurrentOpener(16); } );
+		//document.getElementById("setSecondPCVar").addEventListener("click", function() { tetrion.setCurrentOpener(17); } );
 		
 		
 		document.getElementById("enablegamepad").addEventListener("click", function() { tetrion.toggleGamepad(); } );

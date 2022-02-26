@@ -1,0 +1,78 @@
+/* 基本設定 */
+body{
+	font-family: Arial, "メイリオ", "ＭＳ ゴシック", monospace;
+	font-size: 16px;
+	background-color:black;
+	height:100%;
+}
+select{
+	align: center;
+	font-family: Arial, "メイリオ", "ＭＳ ゴシック", monospace;
+	font-size: 16px;
+	background-color:black;
+}
+
+#list_sections input{
+	font-family: Arial,"メイリオ", "ＭＳ ゴシック", monospace;
+	font-size: 12px;
+	height: 24px;
+	background-color: black;
+	color:powderblue;
+	text-decoration: none;
+	border:1px solid #6666;
+}
+
+textarea{
+  font-family: Arial,"メイリオ", "ＭＳ ゴシック", monospace;
+  font-size: 14px;
+  background-color:dodgerblue;
+  border: 1px solid #6666;
+}
+
+/* レイヤー */
+.layer{
+  visibility: hidden;
+  position: absolute;
+  left: 8px; top: 80px;
+  width: 720px; height: 640px;
+  border: 1px #cccccc solid;
+  padding: 8px 12px;
+  color:powderblue;
+}
+/* 中央揃え */
+.center{
+  text-align: center;
+}
+/* 小さい文字 */
+.small{
+  font-size: 12px;
+}
+
+#title{
+  font-size: 24px;
+  font-weight: bold;
+  font-family: Arial, "メイリオ", "ＭＳ ゴシック", monospace;
+  color:blue;
+}
+#list_sections{
+	left:25%;
+	background:rgba(20,20,20,.5);
+  #background-color: black;
+  color:dodgerblue;
+  height: 1720px;
+}
+#list_problems{
+  background-color: black;
+}
+#perform{
+  background-color: black;
+}
+#preferences{
+  background-color: black;
+}
+
+.clear{
+  display:none;
+  width:17px;
+  height:17px;
+}

@@ -150,6 +150,8 @@ function Tetris(id) {
 
 Tetris.prototype = {
     init: function(options) {
+		//document.getElementById("pco").style.visibility = "hidden";
+		
         var cfg = this.config = utils.extend(options, defaults);
         this.interval = consts.DEFAULT_INTERVAL;
 		
@@ -181,6 +183,12 @@ Tetris.prototype = {
 	},
 	toggleGamepad: function(){
 		document.getElementById("enablegamepad").value = ((this.gamepadEnabled = !this.gamepadEnabled) ? "Disable Gamepad" : "Enable Gamepad");
+	},
+	togglePCO: function (){
+		this.isPCOActive = !this.isPCOActive;
+		//document.getElementById("nonPCO").style.visibility = !this.isPCOActive ? "visible" : "hidden";
+		//document.getElementById("pco").style.visibility = this.isPCOActive ? "visible" : "hidden";
+		//document.getElementById("pco").style.display = ((this.isPCOActive = !this.isPCOActive) ? "none" : "");
 	},
 	// Gamestate 1
 	setFreePlay: function()
@@ -224,7 +232,7 @@ Tetris.prototype = {
 	// Gamestate 4
 	setGameStateSequenceEditor: function()
 	{
-		document.getElementById("side").display = "none";
+		//document.getElementById("side").display = "none";
 		
 		// change to editor gamestate
 		this.gameState = consts.GAMESTATES[3];
@@ -311,7 +319,7 @@ Tetris.prototype = {
 		 this.hintQueue = [];
 		 //this._recurseGameState();
 	},
-	setSettings: function() {
+	setSettings: function() {  // TODO rename to init
 		var newVal = document.getElementById("setting_value").value;
 		var key = inputs.settingsList[document.getElementById("settings").selectedIndex-1];
 		utils.setCookie(key, newVal, 30);
@@ -345,7 +353,8 @@ Tetris.prototype = {
 		// manipulation counter for srs extended piece lockdown
 		this.manipulationCounter = 0;
 		// timer for srs extened piece lockdown
-		this.lockdownTimer = 0;
+		this.lockdownTimer = 5000;
+		this.isPCOActive = false;
 		this.landed = false;
 		this.isSequenceCompleted = false;
 		
@@ -380,7 +389,7 @@ Tetris.prototype = {
 			return;
 		}
 		// 1 shape hold queue
-		if(this.holdStack.length > 0) {
+		/*if(this.holdStack.length > 0) {
 			this.canPopFromHoldStack = false;
 			this.shapeQueue.unshift(utils.deepClone(this.shape));
 			this.shape = utils.deepClone(this.holdStack.pop());
@@ -392,15 +401,15 @@ Tetris.prototype = {
 			this.canPopFromHoldStack = false;
 			this.shape.resetOrigin();
 			this._draw(); 
-		}
-		/* 4 shape hold queue
+		}*/
+		// 4 shape hold queue
 		if(this.holdStack.length < 4) {
 			this.holdStack.push(utils.deepClone(this.shape));
 			this.shape = this.shapeQueue.shift();
 			this.canPopFromHoldStack = false;
 			this.shape.resetOrigin();
 			this._draw(); 
-		}*/
+		}
 	},
 	popHoldStack: function()
 	{
@@ -443,14 +452,24 @@ Tetris.prototype = {
     },
 	// Process freeplay queue
 	_processFreeplayQueue: function() {
-		while(this.shapeQueue.length <= 4)
-		{
-			this.preparedShape = shapes.randomShape();
-			this.shapeQueue.push(this.preparedShape);
-		}
+		// while(this.shapeQueue.length <= 4)
+		// {
+			// this.preparedShape = shapes.randomShape();
+			// this.shapeQueue.push(this.preparedShape);
+		// }
 		
-		this.shape = this.shapeQueue.shift();// || shapes.randomShape();
-		this.currentMinoInx++;
+		// this.shape = this.shapeQueue.shift();// || shapes.randomShape();
+		
+		//T S Z J I  O L
+		this.shapeMap = [3,5,2,4,6,1,0];
+		while(this.shapeQueue.length <= 7)
+		{
+			this.prepareShape = shapes.getShape(this.shapeMap[this.currentMinoInx++%7]);
+			this.shapeQueue.push(this.prepareShape);
+		}
+		this.shape = this.shapeQueue.shift();
+		
+		//this.currentMinoInx++;
 	},
 	// Process opener trainer queue
 	_processOpenerTrainerQueue: function() {
@@ -568,8 +587,8 @@ Tetris.prototype = {
 		if(this.shape != undefined) {
 		let clone = Object.assign(Object.create(Object.getPrototypeOf(this.shape)), this.shape);
 		
-		var bottomY = clone.bottomAt(this.matrix);
-		canvas.drawGhostShape(clone, bottomY);
+		//var bottomY = clone.bottomAt(this.matrix);
+		//canvas.drawGhostShape(clone, bottomY);
 		}
         canvas.drawMatrix(this.matrix);
 
@@ -629,7 +648,7 @@ Tetris.prototype = {
 						this._draw();
 					}else {
 					this.shape.goBottom(this.matrix);
-					this.lockDownTimer = 5000;
+					this.lockDownTimer = 5000;  // Currently at 5 seconds
 					this._update();
 					}
 				}
@@ -688,7 +707,7 @@ Tetris.prototype = {
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Keyboard Harddrop").includes(curkey)) {
-										// if editor
+					// if editor
 					if(this.gameState == consts.GAMESTATES[3]) {
 						this.popHoldStack();
 						this._draw();
@@ -706,7 +725,7 @@ Tetris.prototype = {
 					this.popHoldStack();
 					this._draw();
 				}
-				else if(inputs.settingsMap.get("Keyboard Hold").includes(curkey)) {
+				else if(inputs.settingsMap.get("Keyboard Hold").includes(curkey)) {//something got goofd here
 					if(document.getElementById("divbg").style.display == "none")
 						document.getElementById("divbg").style.display =  "initial";
 					else

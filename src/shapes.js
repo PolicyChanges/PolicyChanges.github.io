@@ -483,57 +483,21 @@ function ShapeZR() {
 
 
 /**
-doesShapeOverlap
-@param shape: tetris shape
-@param matrix: game matrix
-*/
-var doesShapeOverlap = function(shape, matrix) {	
-    var rows = matrix.length;
-    var cols = matrix[0].length;
-	var rotationDirection = 0;
-	
-    var isBoxInMatrix = function(box) {
-
-		
-        var x = shape.x + box.x;
-        var y = shape.y + box.y;
-		if(isNaN(x))return true;
-		if(isNaN(y))return true;
-		if(x < 0) return true;
-		if(x > matrix.cols)return true;
-		if(y > rows) return true;
-		// todo: why is matrix not defined when piece popped from hold stack
-		if(matrix[y] == undefined) return true;
-        //console.log("matrix X Y: " + " " + x + " "+ y);
-		return (matrix[y][x] != 0)
-    };
-
-	boxes = shape.getBoxes(shape.state);
-	
-	
-	for (var i in boxes)
-        if (isBoxInMatrix(boxes[i]))
-            return true;
-    
-    return false;
-};
-
-/**
 Is same on matrix
 @param shape: tetris shape
-@param hintPiece: hintPiece shape
+@param currentPiece: currentPiece shape
 @param matrix: game matrix
 @param action:  'left','right','down','rotate'
 */
-var isBoxesSame = function(shape, hintPiece) {	
-    var isBoxSame = function(shapeBox, hintPieceBox) {
+var isBoxesSame = function(shape, currentPiece) {	
+    var isBoxSame = function(shapeBox, currentPieceBox) {
 
         var shapeX = shape.x + shapeBox.x;
         var shapeY = shape.y + shapeBox.y;
-		var hintPieceX = hintPiece.x + hintPieceBox.x;
-		var hintPieceY = hintPiece.y + hintPieceBox.y;
+		var currentPieceX = currentPiece.x + currentPieceBox.x;
+		var currentPieceY = currentPiece.y + currentPieceBox.y;
 
-		if(shapeX == hintPieceX && shapeY == hintPieceY)
+		if(shapeX == currentPieceX && shapeY == currentPieceY)
 			return true;
 		
 		return false;
@@ -542,77 +506,85 @@ var isBoxesSame = function(shape, hintPiece) {
     //var boxes =  action === 'rotate'?shape.getBoxes(shape.nextState()) : shape.getBoxes(shape.state);
     
 	var boxes;
-	var hintPieceBoxes;
+	var currentPieceBoxes;
 	
 
 	boxes = shape.getBoxes(shape.state);
 	
-	hintPieceBoxes = hintPiece.getBoxes(hintPiece.state);
+	currentPieceBoxes = currentPiece.getBoxes(currentPiece.state);
 	
 	for (var i in boxes) {
-        if (!isBoxSame(boxes[i], hintPieceBoxes[i])) {
+        if (!isBoxSame(boxes[i], currentPieceBoxes[i])) {
             return false;
         }
     }
     return true;
 };
-
 /**
-Is shape can move
+doesShapeOverlap
 @param shape: tetris shape
 @param matrix: game matrix
-@param action:  'left','right','down','rotate'
 */
-var isShapeCanMove = function(shape, matrix, action) {
+var canMoveTo = function(shape, matrix) {	
     var rows = matrix.length;
     var cols = matrix[0].length;
-	var rotationDirection = 0;
 	
-    var isBoxCanMove = function(box) {
+	
+    var canBoxMoveTo = function(box) {
 
         var x = shape.x + box.x;
         var y = shape.y + box.y;
-        if (y < 0) {
-            return true;
-        }
-        if (action === 'left') {
-            x -= 1;
-            return x >= 0 && x < cols && matrix[y][x] == 0;
-        } else if (action === 'right') {
-            x += 1;
-            return x >= 0 && x < cols && matrix[y][x] == 0;
-        } else if (action === 'up') {
-            y -= 1;
-            return y >= 0 && matrix[y][x] == 0;
-        } else if (action === 'down') {
-            y += 1;
-            return y < rows && matrix[y][x] == 0;
-        } else if (action === 'rotate') {
-			rotationDirection = 1;
-            return y < rows && !matrix[y][x];
-        } else if (action === 'rotateclockwise') {
-			rotationDirection = -1;
-            return y < rows && !matrix[y][x];
-        }
+		console.log("matrix X Y: " + " " + x + " "+ y + "\n"
+					+"Shape X Y: " + " " + shape.x + " " + shape.y + "\n"
+					+"Box X Y: " + " " + box.x + " " + box.y + "\n"
+					+"Rows Cols: " + rows + " " + cols);
+		if(isNaN(x))return false;
+		if(isNaN(y))return false;
+		if(x < 0) return false;
+		if(x > cols)return false;
+		if(y > rows) return false;
+		
+		if(matrix[y] == undefined) return false; //ghost piece
+        
+		return matrix[y][x]==0;
     };
+
+	var canMove = true;
+	var boxes = shape.getBoxes(shape.state);
 	
-    //var boxes =  action === 'rotate'?shape.getBoxes(shape.nextState()) : shape.getBoxes(shape.state);
-    
-	var boxes;
+	//for (var i in boxes) {
+    boxes.forEach(function (box){
+		if (!canBoxMoveTo(box))
+			canMove = false; 
+		}
+	);
 	
-	if(rotationDirection != 0)
-		boxes = shape.getBoxes(shape.nextState(rotationDirection));
-	else
-		boxes = shape.getBoxes(shape.state);
+	//for (var i in matrix)
+	//	var row = matrix[i];
+	//	for(var j in row) {
+			
 	
+/* 	var smatrix = this.matrix();
+	for (var i = 0; i < smatrix.length; i++) {
+		var row = smatrix[i];
+		for (var j = 0; j < row.length; j++) {
+			if (row[j] === 1) {
+				var x = this.x + j;
+				var y = this.y + i;
+				if (x >= 0 && x < matrix[0].length && y >= 0 && y < matrix.length) {
+					matrix[y][x] = this.color;
+				}
+			}
+		}
+	} */
+		
+/* 	for (var i in matrix)
+		for(var j in matrix[i])
+		if(isBoxCollided(boxes[i] */
 	
-	for (var i in boxes) {
-        if (!isBoxCanMove(boxes[i])) {
-            return false;
-        }
-    }
-    return true;
+    return canMove;
 };
+
 
 /**
  All shapes shares the same method, use prototype for memory optimized
@@ -659,12 +631,6 @@ ShapeZR.prototype = {
 		var st = state !== undefined ? state : this.state;
 		return this.states[st];
 	}, 
-
-	canMoveTo: function(shape, matrix) {
-		if(!doesShapeOverlap(shape, matrix))
-			return true;
-		return false;
-	},
 	// 0 - no, 1 - up,left, 2 - up,right, 3 - down,left, 4 - down, right
 	kickShape: function(matrix, rotationDirection) {
 
@@ -683,7 +649,7 @@ ShapeZR.prototype = {
 				if(!isNaN(shiftY) && !isNaN(shiftX)) {
 					clone.x = this.x + shiftX;
 					clone.y = this.y - shiftY;
-					if(this.canMoveTo(clone, matrix) == true) {
+					if(canMoveTo(clone, matrix) == true) {
 						this.state = clone.state;
 						this.x = clone.x;
 						this.y = clone.y;
@@ -699,15 +665,12 @@ ShapeZR.prototype = {
 	},
 	//Rotate shape
 	rotate: function(matrix) {
-
 			this.kickShape(matrix, -1);
 
 	},
 	//Rotate shape clockwise
 	rotateClockwise: function(matrix) {
-		
 			this.kickShape(matrix, 1);
-
 	},
 	//Caculate the max column of the shape
 	getColumnCount: function() {
@@ -721,16 +684,6 @@ ShapeZR.prototype = {
 	//Caculate the max row of the shape
 	getRowCount: function() {
 		return this.matrix().length;
-	},
-	//Get the right pos of the shape
-	getRight: function() {
-		var boxes = this.getBoxes(this.state);
-		var right = 0;
-
-		for (var i in boxes) {
-			right = Math.max(boxes[i].x, right);
-		}
-		return this.x + right;
 	},
 
 	//Return the next state of the shape
@@ -746,49 +699,59 @@ ShapeZR.prototype = {
 
 	//Check if the shape can move down
 	canDown: function(matrix) {
-		return isShapeCanMove(this, matrix, 'down');
+		let clone = utils.deepClone(this);
+		clone.y++;
+		return canMoveTo(clone, matrix);
 	},
 	//Move the shape down 
 	goDown: function(matrix) {
-		if (isShapeCanMove(this, matrix, 'down')) {
-			this.y += 1;
-		}
+		let clone = utils.deepClone(this);
+		clone.y++;
+		if (canMoveTo(clone, matrix)) 
+			this.y++;
+		
 	},
 	//Move the shape up 
 	goUp: function(matrix) {
-		if (isShapeCanMove(this, matrix, 'up')) {
-			this.y -= 1;
+		let clone = utils.deepClone(this);
+		clone.y--;
+		if (canMoveTo(clone, matrix)){
+			this.y--;
+		
 		}
 	},
 	//Move the shape to the Bottommost
-	bottomAt: function(matrix) {
-		var save = this.y;
-		var ret;
-		while (isShapeCanMove(this, matrix, 'down')) {
-			this.y += 1;
-		}
-		ret = this.y;
-		this.y = save;
-		return ret;
+	bottomAt: function(matrix) { // for ghost piece
+		while (canMoveTo(this, matrix)) 
+			this.y++;
+		
+		return this.y-1;
 	},
 	//Move the shape to the Bottommost
 	goBottom: function(matrix) {
-		while (isShapeCanMove(this, matrix, 'down')) {
-			this.y += 1;
+		//let clone = utils.deepClone(this);
+		//clone.y+=1;
+		while (canMoveTo(this, matrix)) {
+			this.y++;
 		}
+		this.y--; //one too many need to unify when we do rows - 1
 	},
 	//Move the shape to the left
 	goLeft: function(matrix) {
-		if (isShapeCanMove(this, matrix, 'left')) {
+		let clone = utils.deepClone(this);
+		clone.x--;
+		if (canMoveTo(clone, matrix)){
 			new Audio('./dist/sound/Click.ogg').play();
-			this.x -= 1;
+			this.x--;
 		}
 	},
 	//Move the shape to the right
 	goRight: function(matrix) {
-		if (isShapeCanMove(this, matrix, 'right')) {
+		let clone = utils.deepClone(this);
+		clone.x++;
+		if (canMoveTo(clone, matrix)) {
 			new Audio('./dist/sound/Click.ogg').play();
-			this.x += 1;
+			this.x++;
 		}
 	},
 	//Copy the shape data to the game data

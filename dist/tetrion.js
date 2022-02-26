@@ -834,6 +834,8 @@ function Tetris(id) {
 
 Tetris.prototype = {
     init: function(options) {
+		//document.getElementById("pco").style.visibility = "hidden";
+		
         var cfg = this.config = utils.extend(options, defaults);
         this.interval = consts.DEFAULT_INTERVAL;
 		
@@ -865,6 +867,12 @@ Tetris.prototype = {
 	},
 	toggleGamepad: function(){
 		document.getElementById("enablegamepad").value = ((this.gamepadEnabled = !this.gamepadEnabled) ? "Disable Gamepad" : "Enable Gamepad");
+	},
+	togglePCO: function (){
+		this.isPCOActive = !this.isPCOActive;
+		//document.getElementById("nonPCO").style.visibility = !this.isPCOActive ? "visible" : "hidden";
+		//document.getElementById("pco").style.visibility = this.isPCOActive ? "visible" : "hidden";
+		//document.getElementById("pco").style.display = ((this.isPCOActive = !this.isPCOActive) ? "none" : "");
 	},
 	// Gamestate 1
 	setFreePlay: function()
@@ -908,7 +916,7 @@ Tetris.prototype = {
 	// Gamestate 4
 	setGameStateSequenceEditor: function()
 	{
-		document.getElementById("side").display = "none";
+		//document.getElementById("side").display = "none";
 		
 		// change to editor gamestate
 		this.gameState = consts.GAMESTATES[3];
@@ -995,7 +1003,7 @@ Tetris.prototype = {
 		 this.hintQueue = [];
 		 //this._recurseGameState();
 	},
-	setSettings: function() {
+	setSettings: function() {  // TODO rename to init
 		var newVal = document.getElementById("setting_value").value;
 		var key = inputs.settingsList[document.getElementById("settings").selectedIndex-1];
 		utils.setCookie(key, newVal, 30);
@@ -1029,7 +1037,8 @@ Tetris.prototype = {
 		// manipulation counter for srs extended piece lockdown
 		this.manipulationCounter = 0;
 		// timer for srs extened piece lockdown
-		this.lockdownTimer = 0;
+		this.lockdownTimer = 5000;
+		this.isPCOActive = false;
 		this.landed = false;
 		this.isSequenceCompleted = false;
 		
@@ -1064,7 +1073,7 @@ Tetris.prototype = {
 			return;
 		}
 		// 1 shape hold queue
-		if(this.holdStack.length > 0) {
+		/*if(this.holdStack.length > 0) {
 			this.canPopFromHoldStack = false;
 			this.shapeQueue.unshift(utils.deepClone(this.shape));
 			this.shape = utils.deepClone(this.holdStack.pop());
@@ -1076,15 +1085,15 @@ Tetris.prototype = {
 			this.canPopFromHoldStack = false;
 			this.shape.resetOrigin();
 			this._draw(); 
-		}
-		/* 4 shape hold queue
+		}*/
+		// 4 shape hold queue
 		if(this.holdStack.length < 4) {
 			this.holdStack.push(utils.deepClone(this.shape));
 			this.shape = this.shapeQueue.shift();
 			this.canPopFromHoldStack = false;
 			this.shape.resetOrigin();
 			this._draw(); 
-		}*/
+		}
 	},
 	popHoldStack: function()
 	{
@@ -1127,14 +1136,24 @@ Tetris.prototype = {
     },
 	// Process freeplay queue
 	_processFreeplayQueue: function() {
-		while(this.shapeQueue.length <= 4)
-		{
-			this.preparedShape = shapes.randomShape();
-			this.shapeQueue.push(this.preparedShape);
-		}
+		// while(this.shapeQueue.length <= 4)
+		// {
+			// this.preparedShape = shapes.randomShape();
+			// this.shapeQueue.push(this.preparedShape);
+		// }
 		
-		this.shape = this.shapeQueue.shift();// || shapes.randomShape();
-		this.currentMinoInx++;
+		// this.shape = this.shapeQueue.shift();// || shapes.randomShape();
+		
+		//T S Z J I  O L
+		this.shapeMap = [3,5,2,4,6,1,0];
+		while(this.shapeQueue.length <= 7)
+		{
+			this.prepareShape = shapes.getShape(this.shapeMap[this.currentMinoInx++%7]);
+			this.shapeQueue.push(this.prepareShape);
+		}
+		this.shape = this.shapeQueue.shift();
+		
+		//this.currentMinoInx++;
 	},
 	// Process opener trainer queue
 	_processOpenerTrainerQueue: function() {
@@ -1252,8 +1271,8 @@ Tetris.prototype = {
 		if(this.shape != undefined) {
 		let clone = Object.assign(Object.create(Object.getPrototypeOf(this.shape)), this.shape);
 		
-		var bottomY = clone.bottomAt(this.matrix);
-		canvas.drawGhostShape(clone, bottomY);
+		//var bottomY = clone.bottomAt(this.matrix);
+		//canvas.drawGhostShape(clone, bottomY);
 		}
         canvas.drawMatrix(this.matrix);
 
@@ -1313,7 +1332,7 @@ Tetris.prototype = {
 						this._draw();
 					}else {
 					this.shape.goBottom(this.matrix);
-					this.lockDownTimer = 5000;
+					this.lockDownTimer = 5000;  // Currently at 5 seconds
 					this._update();
 					}
 				}
@@ -1372,7 +1391,7 @@ Tetris.prototype = {
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Keyboard Harddrop").includes(curkey)) {
-										// if editor
+					// if editor
 					if(this.gameState == consts.GAMESTATES[3]) {
 						this.popHoldStack();
 						this._draw();
@@ -1390,7 +1409,7 @@ Tetris.prototype = {
 					this.popHoldStack();
 					this._draw();
 				}
-				else if(inputs.settingsMap.get("Keyboard Hold").includes(curkey)) {
+				else if(inputs.settingsMap.get("Keyboard Hold").includes(curkey)) {//something got goofd here
 					if(document.getElementById("divbg").style.display == "none")
 						document.getElementById("divbg").style.display =  "initial";
 					else
@@ -2467,57 +2486,21 @@ function ShapeZR() {
 
 
 /**
-doesShapeOverlap
-@param shape: tetris shape
-@param matrix: game matrix
-*/
-var doesShapeOverlap = function(shape, matrix) {	
-    var rows = matrix.length;
-    var cols = matrix[0].length;
-	var rotationDirection = 0;
-	
-    var isBoxInMatrix = function(box) {
-
-		
-        var x = shape.x + box.x;
-        var y = shape.y + box.y;
-		if(isNaN(x))return true;
-		if(isNaN(y))return true;
-		if(x < 0) return true;
-		if(x > matrix.cols)return true;
-		if(y > rows) return true;
-		// todo: why is matrix not defined when piece popped from hold stack
-		if(matrix[y] == undefined) return true;
-        //console.log("matrix X Y: " + " " + x + " "+ y);
-		return (matrix[y][x] != 0)
-    };
-
-	boxes = shape.getBoxes(shape.state);
-	
-	
-	for (var i in boxes)
-        if (isBoxInMatrix(boxes[i]))
-            return true;
-    
-    return false;
-};
-
-/**
 Is same on matrix
 @param shape: tetris shape
-@param hintPiece: hintPiece shape
+@param currentPiece: currentPiece shape
 @param matrix: game matrix
 @param action:  'left','right','down','rotate'
 */
-var isBoxesSame = function(shape, hintPiece) {	
-    var isBoxSame = function(shapeBox, hintPieceBox) {
+var isBoxesSame = function(shape, currentPiece) {	
+    var isBoxSame = function(shapeBox, currentPieceBox) {
 
         var shapeX = shape.x + shapeBox.x;
         var shapeY = shape.y + shapeBox.y;
-		var hintPieceX = hintPiece.x + hintPieceBox.x;
-		var hintPieceY = hintPiece.y + hintPieceBox.y;
+		var currentPieceX = currentPiece.x + currentPieceBox.x;
+		var currentPieceY = currentPiece.y + currentPieceBox.y;
 
-		if(shapeX == hintPieceX && shapeY == hintPieceY)
+		if(shapeX == currentPieceX && shapeY == currentPieceY)
 			return true;
 		
 		return false;
@@ -2526,77 +2509,85 @@ var isBoxesSame = function(shape, hintPiece) {
     //var boxes =  action === 'rotate'?shape.getBoxes(shape.nextState()) : shape.getBoxes(shape.state);
     
 	var boxes;
-	var hintPieceBoxes;
+	var currentPieceBoxes;
 	
 
 	boxes = shape.getBoxes(shape.state);
 	
-	hintPieceBoxes = hintPiece.getBoxes(hintPiece.state);
+	currentPieceBoxes = currentPiece.getBoxes(currentPiece.state);
 	
 	for (var i in boxes) {
-        if (!isBoxSame(boxes[i], hintPieceBoxes[i])) {
+        if (!isBoxSame(boxes[i], currentPieceBoxes[i])) {
             return false;
         }
     }
     return true;
 };
-
 /**
-Is shape can move
+doesShapeOverlap
 @param shape: tetris shape
 @param matrix: game matrix
-@param action:  'left','right','down','rotate'
 */
-var isShapeCanMove = function(shape, matrix, action) {
+var canMoveTo = function(shape, matrix) {	
     var rows = matrix.length;
     var cols = matrix[0].length;
-	var rotationDirection = 0;
 	
-    var isBoxCanMove = function(box) {
+	
+    var canBoxMoveTo = function(box) {
 
         var x = shape.x + box.x;
         var y = shape.y + box.y;
-        if (y < 0) {
-            return true;
-        }
-        if (action === 'left') {
-            x -= 1;
-            return x >= 0 && x < cols && matrix[y][x] == 0;
-        } else if (action === 'right') {
-            x += 1;
-            return x >= 0 && x < cols && matrix[y][x] == 0;
-        } else if (action === 'up') {
-            y -= 1;
-            return y >= 0 && matrix[y][x] == 0;
-        } else if (action === 'down') {
-            y += 1;
-            return y < rows && matrix[y][x] == 0;
-        } else if (action === 'rotate') {
-			rotationDirection = 1;
-            return y < rows && !matrix[y][x];
-        } else if (action === 'rotateclockwise') {
-			rotationDirection = -1;
-            return y < rows && !matrix[y][x];
-        }
+		console.log("matrix X Y: " + " " + x + " "+ y + "\n"
+					+"Shape X Y: " + " " + shape.x + " " + shape.y + "\n"
+					+"Box X Y: " + " " + box.x + " " + box.y + "\n"
+					+"Rows Cols: " + rows + " " + cols);
+		if(isNaN(x))return false;
+		if(isNaN(y))return false;
+		if(x < 0) return false;
+		if(x > cols)return false;
+		if(y > rows) return false;
+		
+		if(matrix[y] == undefined) return false; //ghost piece
+        
+		return matrix[y][x]==0;
     };
+
+	var canMove = true;
+	var boxes = shape.getBoxes(shape.state);
 	
-    //var boxes =  action === 'rotate'?shape.getBoxes(shape.nextState()) : shape.getBoxes(shape.state);
-    
-	var boxes;
+	//for (var i in boxes) {
+    boxes.forEach(function (box){
+		if (!canBoxMoveTo(box))
+			canMove = false; 
+		}
+	);
 	
-	if(rotationDirection != 0)
-		boxes = shape.getBoxes(shape.nextState(rotationDirection));
-	else
-		boxes = shape.getBoxes(shape.state);
+	//for (var i in matrix)
+	//	var row = matrix[i];
+	//	for(var j in row) {
+			
 	
+/* 	var smatrix = this.matrix();
+	for (var i = 0; i < smatrix.length; i++) {
+		var row = smatrix[i];
+		for (var j = 0; j < row.length; j++) {
+			if (row[j] === 1) {
+				var x = this.x + j;
+				var y = this.y + i;
+				if (x >= 0 && x < matrix[0].length && y >= 0 && y < matrix.length) {
+					matrix[y][x] = this.color;
+				}
+			}
+		}
+	} */
+		
+/* 	for (var i in matrix)
+		for(var j in matrix[i])
+		if(isBoxCollided(boxes[i] */
 	
-	for (var i in boxes) {
-        if (!isBoxCanMove(boxes[i])) {
-            return false;
-        }
-    }
-    return true;
+    return canMove;
 };
+
 
 /**
  All shapes shares the same method, use prototype for memory optimized
@@ -2643,12 +2634,6 @@ ShapeZR.prototype = {
 		var st = state !== undefined ? state : this.state;
 		return this.states[st];
 	}, 
-
-	canMoveTo: function(shape, matrix) {
-		if(!doesShapeOverlap(shape, matrix))
-			return true;
-		return false;
-	},
 	// 0 - no, 1 - up,left, 2 - up,right, 3 - down,left, 4 - down, right
 	kickShape: function(matrix, rotationDirection) {
 
@@ -2667,7 +2652,7 @@ ShapeZR.prototype = {
 				if(!isNaN(shiftY) && !isNaN(shiftX)) {
 					clone.x = this.x + shiftX;
 					clone.y = this.y - shiftY;
-					if(this.canMoveTo(clone, matrix) == true) {
+					if(canMoveTo(clone, matrix) == true) {
 						this.state = clone.state;
 						this.x = clone.x;
 						this.y = clone.y;
@@ -2683,15 +2668,12 @@ ShapeZR.prototype = {
 	},
 	//Rotate shape
 	rotate: function(matrix) {
-
 			this.kickShape(matrix, -1);
 
 	},
 	//Rotate shape clockwise
 	rotateClockwise: function(matrix) {
-		
 			this.kickShape(matrix, 1);
-
 	},
 	//Caculate the max column of the shape
 	getColumnCount: function() {
@@ -2705,16 +2687,6 @@ ShapeZR.prototype = {
 	//Caculate the max row of the shape
 	getRowCount: function() {
 		return this.matrix().length;
-	},
-	//Get the right pos of the shape
-	getRight: function() {
-		var boxes = this.getBoxes(this.state);
-		var right = 0;
-
-		for (var i in boxes) {
-			right = Math.max(boxes[i].x, right);
-		}
-		return this.x + right;
 	},
 
 	//Return the next state of the shape
@@ -2730,49 +2702,59 @@ ShapeZR.prototype = {
 
 	//Check if the shape can move down
 	canDown: function(matrix) {
-		return isShapeCanMove(this, matrix, 'down');
+		let clone = utils.deepClone(this);
+		clone.y++;
+		return canMoveTo(clone, matrix);
 	},
 	//Move the shape down 
 	goDown: function(matrix) {
-		if (isShapeCanMove(this, matrix, 'down')) {
-			this.y += 1;
-		}
+		let clone = utils.deepClone(this);
+		clone.y++;
+		if (canMoveTo(clone, matrix)) 
+			this.y++;
+		
 	},
 	//Move the shape up 
 	goUp: function(matrix) {
-		if (isShapeCanMove(this, matrix, 'up')) {
-			this.y -= 1;
+		let clone = utils.deepClone(this);
+		clone.y--;
+		if (canMoveTo(clone, matrix)){
+			this.y--;
+		
 		}
 	},
 	//Move the shape to the Bottommost
-	bottomAt: function(matrix) {
-		var save = this.y;
-		var ret;
-		while (isShapeCanMove(this, matrix, 'down')) {
-			this.y += 1;
-		}
-		ret = this.y;
-		this.y = save;
-		return ret;
+	bottomAt: function(matrix) { // for ghost piece
+		while (canMoveTo(this, matrix)) 
+			this.y++;
+		
+		return this.y-1;
 	},
 	//Move the shape to the Bottommost
 	goBottom: function(matrix) {
-		while (isShapeCanMove(this, matrix, 'down')) {
-			this.y += 1;
+		//let clone = utils.deepClone(this);
+		//clone.y+=1;
+		while (canMoveTo(this, matrix)) {
+			this.y++;
 		}
+		this.y--; //one too many need to unify when we do rows - 1
 	},
 	//Move the shape to the left
 	goLeft: function(matrix) {
-		if (isShapeCanMove(this, matrix, 'left')) {
+		let clone = utils.deepClone(this);
+		clone.x--;
+		if (canMoveTo(clone, matrix)){
 			new Audio('./dist/sound/Click.ogg').play();
-			this.x -= 1;
+			this.x--;
 		}
 	},
 	//Move the shape to the right
 	goRight: function(matrix) {
-		if (isShapeCanMove(this, matrix, 'right')) {
+		let clone = utils.deepClone(this);
+		clone.x++;
+		if (canMoveTo(clone, matrix)) {
 			new Audio('./dist/sound/Click.ogg').play();
-			this.x += 1;
+			this.x++;
 		}
 	},
 	//Copy the shape data to the game data
