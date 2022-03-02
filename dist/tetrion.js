@@ -1099,7 +1099,7 @@ Tetris.prototype = {
 		if(this.holdStack.length >= 1 && this.canPopFromHoldStack)
 		{
 			this.canPopFromHoldStack = false;
-			this.shapeQueue.unshift(utils.deepClone(this.shape));
+			this.shapeQueue.unshift(shapes.getShape(this.shape.nType()));//utils.deepClone(this.shape));
 			this.shape = this.holdStack.pop();
 		}
 	},
