@@ -1041,6 +1041,8 @@ Tetris.prototype = {
 		this.isPCOActive = false;
 		this.landed = false;
 		this.isSequenceCompleted = false;
+		this.traditionalHold = true;
+		this.isHolding = false;
 		
         clearMatrix(this.matrix);
         views.setLevel(this.level);
@@ -1073,46 +1075,11 @@ Tetris.prototype = {
 			return;
 		}
 
-		// 1 shape hold queue
-		/*if(this.holdStack.length == 0) {
-			this.holdStack.push(this.shape);
-			this.shape = this.shapeQueue.shift();
-			this.canPopFromHoldStack = false;
-			this.shape.resetOrigin();
-			this._draw();
-		}else if(this.holdStack.length <= 1 && this.canPopFromHoldStack){// && canPopFromHoldStack){
-			this.canPopFromHoldStack = false;
-			this.shapeQueue.unshift(this.shape);
-			this.shape = this.holdStack.pop();
-			this.shape.resetOrigin();
-			this._draw();
-		}*/
-		/*
-		// 1 shape hold queue
-		if(this.holdStack.length > 0) {
-			this.canPopFromHoldStack = false;
-			this.shapeQueue.unshift(utils.deepClone(this.shape));
-			this.shape = utils.deepClone(this.holdStack.pop());
-			this.shape.resetOrigin();
-			this._draw();
-			
-
-		}
-		if(this.holdStack.length < 4) {
-			this.holdStack.push(utils.deepClone(this.shape));
-			this.shape = this.shapeQueue.shift();
-			this.canPopFromHoldStack = false;
-			this.shape.resetOrigin();
-			this._draw(); 
-		}
-		*/
 		// 4 shape hold queue
 		if(this.holdStack.length < 4) {
-			this.holdStack.push(shapes.getShape(this.shape.nType()));//this.shape);
+			this.holdStack.push(shapes.getShape(this.shape.nType()));
 			this.shape = this.shapeQueue.shift();
 			this.canPopFromHoldStack = false;
-			//this.shape.resetOrigin();
-			//this._draw(); 
 		}
 	},
 	popHoldStack: function()
@@ -1136,8 +1103,6 @@ Tetris.prototype = {
 			this.canPopFromHoldStack = false;
 			this.shapeQueue.unshift(utils.deepClone(this.shape));
 			this.shape = this.holdStack.pop();
-			//this.shape.resetOrigin();
-			//this._draw();
 		}
 	},
 
@@ -1145,7 +1110,6 @@ Tetris.prototype = {
     _restartHandler: function() {
         this.reset();
         this.start();
-		//this._fireShape();
 		this._recurseGameState();
     },
     // Bind game events
@@ -1214,8 +1178,7 @@ Tetris.prototype = {
 			if(this.currentOpener < 1000/*magic num*/)			// getting real hacky
 				this._restartHandler();
 			else clearMatrix(this.matrix);
-			// this.reset();
-			// this.start();
+
 			return;
 		}
 	},
@@ -1264,7 +1227,8 @@ Tetris.prototype = {
 			this.manipulationCounter = 0;
 		}
 			
-		this.lockDownTimer = 0;
+		if(this.manipulationCounter < 15)
+			this.lockDownTimer = 0;
 		
 		if(this.landed)
 			//if(UserInput.isPreDelayAutoShiftKeyboardKeyPressed() == false)
@@ -1272,9 +1236,8 @@ Tetris.prototype = {
 	},
 	// Return if the piece can be shifted or rotated
 	isPieceLocked: function() {
-		
-		if(this.manipulationCounter > 15) return true;
-		if(this.lockDownTimer >= 30) {console.log("lockdown timer >= 30"); return true;}
+		// lock down after 30 = 3 seconds
+		if(this.lockDownTimer >= 30) {return true;}
 		
 		return false;
 	},
@@ -1423,7 +1386,15 @@ Tetris.prototype = {
 					}
 				}
 				else if(inputs.settingsMap.get("Keyboard Hold").includes(curkey)) {
-					this.pushHoldStack();
+					if(this.traditionalHold == true) {
+						if(this.isHolding) 
+							this.popHoldStack();
+						else
+							this.pushHoldStack();
+						this.isHolding = !this.isHolding;
+					} else 
+						this.pushHoldStack();
+					
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Keyboard Pophold").includes(curkey)) {
@@ -1496,6 +1467,7 @@ Tetris.prototype = {
 			case consts.GAMESTATES[2]:
 				if(this.shape == undefined) break;
 				if (this.shape.canDown(this.matrix)) {
+					this.resetLockdown();
 					this.shape.goDown(this.matrix);
 				} else if(this.isPieceLocked()){
 					this.canPopFromHoldStack = true;
@@ -1594,7 +1566,7 @@ Tetris.prototype = {
         var currentTime = new Date().getTime();
 		this.interval = parseInt(inputs.settingsMap.get("Default Interval"));
         if (currentTime - this.levelTime > consts.LEVEL_INTERVAL) {
-			
+			this.resetLockdown
             //this.level += 1;
             //this.interval = calcIntervalByLevel(this.level);
             views.setLevel(this.level);
