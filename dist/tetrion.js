@@ -1072,27 +1072,48 @@ Tetris.prototype = {
 			this._draw();
 			return;
 		}
+
 		// 1 shape hold queue
-		/*if(this.holdStack.length > 0) {
+		/*if(this.holdStack.length == 0) {
+			this.holdStack.push(this.shape);
+			this.shape = this.shapeQueue.shift();
+			this.canPopFromHoldStack = false;
+			this.shape.resetOrigin();
+			this._draw();
+		}else if(this.holdStack.length <= 1 && this.canPopFromHoldStack){// && canPopFromHoldStack){
+			this.canPopFromHoldStack = false;
+			this.shapeQueue.unshift(this.shape);
+			this.shape = this.holdStack.pop();
+			this.shape.resetOrigin();
+			this._draw();
+		}*/
+		/*
+		// 1 shape hold queue
+		if(this.holdStack.length > 0) {
 			this.canPopFromHoldStack = false;
 			this.shapeQueue.unshift(utils.deepClone(this.shape));
 			this.shape = utils.deepClone(this.holdStack.pop());
 			this.shape.resetOrigin();
 			this._draw();
-		}else if(this.holdStack.length < 4) {
-			this.holdStack.push(utils.deepClone(this.shape));
-			this.shape = this.shapeQueue.shift();
-			this.canPopFromHoldStack = false;
-			this.shape.resetOrigin();
-			this._draw(); 
-		}*/
-		// 4 shape hold queue
+			
+
+		}
 		if(this.holdStack.length < 4) {
 			this.holdStack.push(utils.deepClone(this.shape));
 			this.shape = this.shapeQueue.shift();
 			this.canPopFromHoldStack = false;
 			this.shape.resetOrigin();
 			this._draw(); 
+		}
+		*/
+		// 4 shape hold queue
+		if(this.holdStack.length < 4) {
+			this.holdStack.push(this.shape);
+			this.shape = this.shapeQueue.shift();
+			this.canPopFromHoldStack = false;
+			//this.shape.resetOrigin();
+			//this.shape.resetOrigin();
+			//this._draw(); 
 		}
 	},
 	popHoldStack: function()
@@ -1116,8 +1137,8 @@ Tetris.prototype = {
 			this.canPopFromHoldStack = false;
 			this.shapeQueue.unshift(utils.deepClone(this.shape));
 			this.shape = this.holdStack.pop();
-			this.shape.resetOrigin();
-			this._draw();
+			//this.shape.resetOrigin();
+			//this._draw();
 		}
 	},
 
@@ -1271,8 +1292,8 @@ Tetris.prototype = {
 		if(this.shape != undefined) {
 		let clone = Object.assign(Object.create(Object.getPrototypeOf(this.shape)), this.shape);
 		
-		//var bottomY = clone.bottomAt(this.matrix);
-		//canvas.drawGhostShape(clone, bottomY);
+		var bottomY = clone.bottomAt(this.matrix);
+		canvas.drawGhostShape(clone, bottomY);
 		}
         canvas.drawMatrix(this.matrix);
 
@@ -1341,7 +1362,7 @@ Tetris.prototype = {
 					this._draw();
 				}				
 				else if(inputs.settingsMap.get("Gamepad Pophold").includes(curkey)) {
-					this.popHoldStack();
+					//this.popHoldStack();
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Gamepad Reset").includes(curkey)) {
