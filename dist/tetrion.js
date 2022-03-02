@@ -465,8 +465,6 @@ var UserInputs = {
 		for(var i in mapIdx) {
 			this.gamepadEventMap.set(this.gamepadEvents[i], gamepad.buttons[mapIdx[i]]);
 		}
-
-		
         document.addEventListener('keydown', this.keyDown.bind(this));
         document.addEventListener('keyup', this.keyUp.bind(this));
     },
