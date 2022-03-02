@@ -908,9 +908,11 @@ Tetris.prototype = {
     // Check and update game level
     _checkLevel: function() {
         var currentTime = new Date().getTime();
+		this.interval = parseInt(inputs.settingsMap.get("Default Interval"));
         if (currentTime - this.levelTime > consts.LEVEL_INTERVAL) {
+			
             //this.level += 1;
-            this.interval = calcIntervalByLevel(this.level);
+            //this.interval = calcIntervalByLevel(this.level);
             views.setLevel(this.level);
             this.levelTime = currentTime;
         }

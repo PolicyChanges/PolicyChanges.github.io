@@ -661,7 +661,7 @@ var UserInputs = {
 		
 	keyboardKeySettings:	["Keyboard DAS", "Keyboard ARR"],
 	keyboardShiftEvents:	["Keyboard Left", "Keyboard Right", "Keyboard Down", "Keyboard Up"],
-	keyboardKeyEvents:		["Keyboard Harddrop", "Keyboard Hold", "Keyboard Rotateccw", "Keyboard Rotate", "Keyboard Pophold", "Keyboard Reset", "Keyboard Background"],
+	keyboardKeyEvents:		["Keyboard Harddrop", "Keyboard Hold", "Keyboard Rotateccw", "Keyboard Rotate", "Keyboard Pophold", "Keyboard Reset", "Keyboard Background", "Default Interval"],
 					
 	gamepadSettings:		["Gamepad DAS", "Gamepad ARR"],
 	gamepadShiftEvents:		["Gamepad Left", "Gamepad Right","Gamepad Down"],
@@ -671,7 +671,7 @@ var UserInputs = {
 					
 	settingsDefault:	[	"167.0", "33.0", 
 							"37", "39", "40", "38",
-							"32", "16", "90", "88", "17", "82", "80",
+							"32", "16", "90", "88", "17", "82", "80", "600",
 							
 							"167.0", "33.0", 
 							"DPad-Left", "DPad-Right",	"DPad-Down",
@@ -1592,9 +1592,11 @@ Tetris.prototype = {
     // Check and update game level
     _checkLevel: function() {
         var currentTime = new Date().getTime();
+		this.interval = parseInt(inputs.settingsMap.get("Default Interval"));
         if (currentTime - this.levelTime > consts.LEVEL_INTERVAL) {
+			
             //this.level += 1;
-            this.interval = calcIntervalByLevel(this.level);
+            //this.interval = calcIntervalByLevel(this.level);
             views.setLevel(this.level);
             this.levelTime = currentTime;
         }
