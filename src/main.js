@@ -553,7 +553,7 @@ Tetris.prototype = {
 	// Return if the piece can be shifted or rotated
 	isPieceLocked: function() {
 		// lock down after 300 = 3 seconds
-		if(this.lockDownTimer >= 300) {return true;}
+		if(this.lockDownTimer >= parseInt(inputs.settingsMap.get("Lock Down Timer"))) {return true;}
 		
 		return false;
 	},
@@ -703,9 +703,9 @@ Tetris.prototype = {
 				}
 				else if(inputs.settingsMap.get("Keyboard Hold").includes(curkey)) {
 					if(this.traditionalHold == true) {
-						if(this.isHolding) 
+						if(this.isHolding && this.canPopFromHoldStack) 
 							this.popHoldStack();
-						else
+						else if(this.holdStack.length < 1)
 							this.pushHoldStack();
 						this.isHolding = !this.isHolding;
 					} else 
@@ -882,7 +882,7 @@ Tetris.prototype = {
         var currentTime = new Date().getTime();
 		this.interval = parseInt(inputs.settingsMap.get("Default Interval"));
         if (currentTime - this.levelTime > consts.LEVEL_INTERVAL) {
-			this.resetLockdown
+			//this.resetLockdown
             //this.level += 1;
             //this.interval = calcIntervalByLevel(this.level);
             views.setLevel(this.level);

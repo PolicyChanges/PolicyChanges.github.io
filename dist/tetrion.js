@@ -659,7 +659,7 @@ var UserInputs = {
 		
 	keyboardKeySettings:	["Keyboard DAS", "Keyboard ARR"],
 	keyboardShiftEvents:	["Keyboard Left", "Keyboard Right", "Keyboard Down", "Keyboard Up"],
-	keyboardKeyEvents:		["Keyboard Harddrop", "Keyboard Hold", "Keyboard Rotateccw", "Keyboard Rotate", "Keyboard Pophold", "Keyboard Reset", "Keyboard Background", "Default Interval"],
+	keyboardKeyEvents:		["Keyboard Harddrop", "Keyboard Hold", "Keyboard Rotateccw", "Keyboard Rotate", "Keyboard Pophold", "Keyboard Reset", "Keyboard Background", "Default Interval", "Lock Down Timer"],
 					
 	gamepadSettings:		["Gamepad DAS", "Gamepad ARR"],
 	gamepadShiftEvents:		["Gamepad Left", "Gamepad Right","Gamepad Down"],
@@ -669,7 +669,7 @@ var UserInputs = {
 					
 	settingsDefault:	[	"167.0", "33.0", 
 							"37", "39", "40", "38",
-							"32", "16", "90", "88", "17", "82", "80", "600",
+							"32", "16", "90", "88", "17", "82", "80", "600", "50",
 							
 							"167.0", "33.0", 
 							"DPad-Left", "DPad-Right",	"DPad-Down",
@@ -1235,7 +1235,7 @@ Tetris.prototype = {
 	// Return if the piece can be shifted or rotated
 	isPieceLocked: function() {
 		// lock down after 300 = 3 seconds
-		if(this.lockDownTimer >= 300) {return true;}
+		if(this.lockDownTimer >= parseInt(inputs.settingsMap.get("Lock Down Timer"))) {return true;}
 		
 		return false;
 	},
@@ -1385,9 +1385,9 @@ Tetris.prototype = {
 				}
 				else if(inputs.settingsMap.get("Keyboard Hold").includes(curkey)) {
 					if(this.traditionalHold == true) {
-						if(this.isHolding) 
+						if(this.isHolding && this.canPopFromHoldStack) 
 							this.popHoldStack();
-						else
+						else if(this.holdStack.length < 1)
 							this.pushHoldStack();
 						this.isHolding = !this.isHolding;
 					} else 
@@ -1564,7 +1564,7 @@ Tetris.prototype = {
         var currentTime = new Date().getTime();
 		this.interval = parseInt(inputs.settingsMap.get("Default Interval"));
         if (currentTime - this.levelTime > consts.LEVEL_INTERVAL) {
-			this.resetLockdown
+			//this.resetLockdown
             //this.level += 1;
             //this.interval = calcIntervalByLevel(this.level);
             views.setLevel(this.level);
