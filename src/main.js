@@ -424,10 +424,9 @@ Tetris.prototype = {
 		*/
 		// 4 shape hold queue
 		if(this.holdStack.length < 4) {
-			this.holdStack.push(this.shape);
+			this.holdStack.push(shapes.getShape(this.shape.nType()));//this.shape);
 			this.shape = this.shapeQueue.shift();
 			this.canPopFromHoldStack = false;
-			//this.shape.resetOrigin();
 			//this.shape.resetOrigin();
 			//this._draw(); 
 		}

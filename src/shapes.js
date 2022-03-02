@@ -205,6 +205,7 @@ function ShapeO() {
     this.y = -2;
 	this.originX = 2;
 	this.originY = -2;
+	this.origintState = 1;
     this.flag = 'O';
 }
 
@@ -276,9 +277,9 @@ function ShapeI() {
     this.states = [state1, state2, state3, state4];
 
     this.x = 3;
-    this.y = -4;
+    this.y = -3;
 	this.originX = 3;
-	this.originY = -4;
+	this.originY = -2;
     this.flag = 'I';
 }
 
@@ -775,8 +776,12 @@ ShapeZR.prototype = {
 		return isBoxesSame(this, shape)
 	},
 	resetOrigin: function() {
-		this.y = this.originY + 1;
+		this.state = 0;
+		this.y = this.originY;
+		//this.x = this.originX;
+		
 	},
+	
 	nType: function() {
 		
 		switch (this.flag) {
