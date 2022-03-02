@@ -472,24 +472,25 @@ Tetris.prototype = {
     },
 	// Process freeplay queue
 	_processFreeplayQueue: function() {
-		// while(this.shapeQueue.length <= 4)
-		// {
-			// this.preparedShape = shapes.randomShape();
-			// this.shapeQueue.push(this.preparedShape);
-		// }
+		 while(this.shapeQueue.length <= 4)
+		 {
+			 this.preparedShape = shapes.randomShape();
+			 this.shapeQueue.push(this.preparedShape);
+		 }
 		
-		// this.shape = this.shapeQueue.shift();// || shapes.randomShape();
+		 this.shape = this.shapeQueue.shift(); //|| shapes.randomShape();
 		
 		//T S Z J I  O L
-		this.shapeMap = [3,5,2,4,6,1,0];
-		while(this.shapeQueue.length <= 7)
-		{
-			this.prepareShape = shapes.getShape(this.shapeMap[this.currentMinoInx++%7]);
-			this.shapeQueue.push(this.prepareShape);
-		}
-		this.shape = this.shapeQueue.shift();
+		//this.shapeMap = [3,5,2,4,6,1,0];
 		
-		//this.currentMinoInx++;
+		//while(this.shapeQueue.length <= 7)
+		//{
+		//	this.prepareShape = shapes.getShape(this.shapeMap[this.currentMinoInx++%7]);
+		//	this.shapeQueue.push(this.prepareShape);
+		//}
+		//this.shape = this.shapeQueue.shift();
+		
+		this.currentMinoInx++;
 	},
 	// Process opener trainer queue
 	_processOpenerTrainerQueue: function() {

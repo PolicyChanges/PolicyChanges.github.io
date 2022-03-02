@@ -71,8 +71,7 @@ function ShapeL() {
     this.states = [state1, state2, state3, state4];
     this.x = 3;
     this.y = -3;
-	this.originX = 3;
-	this.originY = -3;
+
     this.flag = 'L';
 }
 
@@ -138,8 +137,7 @@ function ShapeLR() {
     this.states = [state1, state2, state3, state4];
     this.x = 3;
     this.y = -3;
-	this.originX = 3;
-	this.originY = -3;
+
     this.flag = 'LR';
 }
 
@@ -203,9 +201,7 @@ function ShapeO() {
     this.states = [state1, state2, state3, state4];
     this.x = 2;
     this.y = -2;
-	this.originX = 2;
-	this.originY = -2;
-	this.origintState = 1;
+
     this.flag = 'O';
 }
 
@@ -278,8 +274,7 @@ function ShapeI() {
 
     this.x = 3;
     this.y = -3;
-	this.originX = 3;
-	this.originY = -2;
+
     this.flag = 'I';
 }
 
@@ -345,8 +340,7 @@ function ShapeT() {
 	
     this.x = 3;
     this.y = -2;
-	this.originX = 3;
-	this.originY = -2;
+
     this.flag = 'T';
 }
 
@@ -411,8 +405,7 @@ function ShapeZ() {
     this.states = [state1, state2, state3, state4];
     this.x = 3;
     this.y = -2;
-	this.originX = 3;
-	this.originY = -2;
+
     this.flag = 'Z';
 }
 
@@ -477,8 +470,7 @@ function ShapeZR() {
     this.states = [state1, state2, state3, state4];
     this.x = 3;
     this.y = -2
-	this.originX = 3;
-	this.originY = -2;
+
     this.flag = 'ZR';
 }
 
@@ -553,36 +545,12 @@ var canMoveTo = function(shape, matrix) {
 	var canMove = true;
 	var boxes = shape.getBoxes(shape.state);
 	
-	//for (var i in boxes) {
     boxes.forEach(function (box){
 		if (!canBoxMoveTo(box))
 			canMove = false; 
 		}
 	);
-	
-	//for (var i in matrix)
-	//	var row = matrix[i];
-	//	for(var j in row) {
-			
-	
-/* 	var smatrix = this.matrix();
-	for (var i = 0; i < smatrix.length; i++) {
-		var row = smatrix[i];
-		for (var j = 0; j < row.length; j++) {
-			if (row[j] === 1) {
-				var x = this.x + j;
-				var y = this.y + i;
-				if (x >= 0 && x < matrix[0].length && y >= 0 && y < matrix.length) {
-					matrix[y][x] = this.color;
-				}
-			}
-		}
-	} */
-		
-/* 	for (var i in matrix)
-		for(var j in matrix[i])
-		if(isBoxCollided(boxes[i] */
-	
+
     return canMove;
 };
 
@@ -775,12 +743,7 @@ ShapeZR.prototype = {
 	isSameSRS: function(shape) {
 		return isBoxesSame(this, shape)
 	},
-	resetOrigin: function() {
-		this.state = 0;
-		this.y = this.originY;
-		//this.x = this.originX;
-		
-	},
+
 	
 	nType: function() {
 		
