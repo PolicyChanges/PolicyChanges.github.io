@@ -431,7 +431,7 @@ Tetris.prototype = {
     // Bind game events
     _initEvents: function() {
 		setInterval(() => {this._processTick();}, 1);
-		setInterval(() => {this.lockDownTimer++;}, 100 );
+		setInterval(() => {this.lockDownTimer++;}, 10 );
         views.btnRestart.addEventListener('click', utils.proxy(this._restartHandler, this), false);
     },
 	// Process freeplay queue
@@ -552,8 +552,8 @@ Tetris.prototype = {
 	},
 	// Return if the piece can be shifted or rotated
 	isPieceLocked: function() {
-		// lock down after 30 = 3 seconds
-		if(this.lockDownTimer >= 30) {return true;}
+		// lock down after 300 = 3 seconds
+		if(this.lockDownTimer >= 300) {return true;}
 		
 		return false;
 	},
