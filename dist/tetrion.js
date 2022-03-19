@@ -659,7 +659,7 @@ var UserInputs = {
 		
 	keyboardKeySettings:	["Keyboard DAS", "Keyboard ARR"],
 	keyboardShiftEvents:	["Keyboard Left", "Keyboard Right", "Keyboard Down", "Keyboard Up"],
-	keyboardKeyEvents:		["Keyboard Harddrop", "Keyboard Hold", "Keyboard Rotateccw", "Keyboard Rotate", "Keyboard Pophold", "Keyboard Reset", "Keyboard Background", "Default Interval", "Lock Down Timer"],
+	keyboardKeyEvents:		["Keyboard Harddrop", "Keyboard Hold", "Keyboard Rotateccw", "Keyboard Rotate", "Keyboard Pophold", "Keyboard Reset", "Keyboard Background", "Default Interval", "Lockdown Timer"],
 					
 	gamepadSettings:		["Gamepad DAS", "Gamepad ARR"],
 	gamepadShiftEvents:		["Gamepad Left", "Gamepad Right","Gamepad Down"],
@@ -669,7 +669,7 @@ var UserInputs = {
 					
 	settingsDefault:	[	"167.0", "33.0", 
 							"37", "39", "40", "38",
-							"32", "16", "90", "88", "17", "82", "80", "600", "50",
+							"32", "16", "90", "88", "17", "82", "80", "600", "1000",
 							
 							"167.0", "33.0", 
 							"DPad-Left", "DPad-Right",	"DPad-Down",
@@ -1113,7 +1113,7 @@ Tetris.prototype = {
     // Bind game events
     _initEvents: function() {
 		setInterval(() => {this._processTick();}, 1);
-		setInterval(() => {this.lockDownTimer++;}, 10 );
+		//setInterval(() => {this.lockDownTimer++;}, 2 );
         views.btnRestart.addEventListener('click', utils.proxy(this._restartHandler, this), false);
     },
 	// Process freeplay queue
@@ -1234,8 +1234,8 @@ Tetris.prototype = {
 	},
 	// Return if the piece can be shifted or rotated
 	isPieceLocked: function() {
-		// lock down after 300 = 3 seconds
-		if(this.lockDownTimer >= parseInt(inputs.settingsMap.get("Lock Down Timer"))) {return true;}
+		// lock down after 3000 = 3 seconds
+		if(this.lockDownTimer >= parseInt(inputs.settingsMap.get("Lockdown Timer"))) {return true;}
 		
 		return false;
 	},
@@ -1263,7 +1263,7 @@ Tetris.prototype = {
 	
 	// tick input data -- wont have better than 4-15ms resolution since javascript is single theaded and any ARR or DAS below 15ms will likely be broken
 	_processTick: async function() {
-	
+		this.lockDownTimer++;
 	
 		if(this.isTimerOn) {
 			var deltaPlayTime = new Date().getTime() - this.sequencePrevTime;
@@ -1355,6 +1355,7 @@ Tetris.prototype = {
 				else if(inputs.settingsMap.get("Keyboard Down").includes(curkey)) {
 					
 					 this.shape.goDown(this.matrix);
+					 this.resetLockdown();
 					 this._draw();
 				}
 				else if(this.gameState == consts.GAMESTATES[3] && inputs.settingsMap.get("Keyboard Up").includes(curkey)) {
@@ -2786,7 +2787,7 @@ function getRandomInt(max) {
 var RandomGenerator = {
 	returnBag: [],
     getTetrimino() {
-		if(this.returnBag.length < 7) 
+		if(this.returnBag.length < 7) // hmmm...dont think this is right.
 			this.returnBag.push.apply(this.returnBag, this.generateNewBag());
 		return parseInt(this.returnBag.shift());
     },

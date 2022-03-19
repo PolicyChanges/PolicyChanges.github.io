@@ -790,7 +790,7 @@ function getRandomInt(max) {
 var RandomGenerator = {
 	returnBag: [],
     getTetrimino() {
-		if(this.returnBag.length < 7) 
+		if(this.returnBag.length < 7) // hmmm...dont think this is right.
 			this.returnBag.push.apply(this.returnBag, this.generateNewBag());
 		return parseInt(this.returnBag.shift());
     },
