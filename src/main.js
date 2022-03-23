@@ -579,7 +579,7 @@ Tetris.prototype = {
 
     },
 	
-	// tick input data -- wont have better than 4-15ms resolution since javascript is single theaded and any ARR or DAS below 15ms will likely be broken
+	// tick input data -- wont have better than 4-15ms resolution since javascript is single theaded and any ARR or DAS below 15ms could be broken
 	_processTick: async function() {
 		this.lockDownTimer++;
 	
@@ -637,11 +637,19 @@ Tetris.prototype = {
 					}
 				}
 				else if(inputs.settingsMap.get("Gamepad Hold").includes(curkey)) {
-					this.pushHoldStack();
+					if(this.traditionalHold == true) {
+						if(this.isHolding && this.canPopFromHoldStack) 
+							this.popHoldStack();
+						else if(this.holdStack.length < 1)
+							this.pushHoldStack();
+						this.isHolding = !this.isHolding;
+					} else 
+						this.pushHoldStack();
+					
 					this._draw();
 				}				
 				else if(inputs.settingsMap.get("Gamepad Pophold").includes(curkey)) {
-					//this.popHoldStack();
+					this.popHoldStack();
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Gamepad Reset").includes(curkey)) {
