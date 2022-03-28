@@ -918,6 +918,7 @@ Tetris.prototype = {
 		
 		// change to editor gamestate
 		this.gameState = consts.GAMESTATES[3];
+		this.shape = undefined;
 		this.hintQueue = [];
 		this.shapeQueue = [];
 		this.hintMino = 0;
@@ -1067,12 +1068,15 @@ Tetris.prototype = {
 	{
 		if(this.gameState == consts.GAMESTATES[3]) {
 			while(this.holdStack.length < 7)
-				this.holdStack.unshift(utils.deepClone(shapes.getShape(this.currentMinoInx++%7)));
+				this.holdStack.unshift(shapes.getShape(this.currentMinoInx++%7));
+			
 			this.shape = this.holdStack.pop();
+			this._check();
 			this._draw();
+
 			return;
 		}
-
+		
 		// 4 shape hold queue
 		if(this.holdStack.length < 4) {
 			this.holdStack.push(shapes.getShape(this.shape.nType()));
@@ -1083,16 +1087,13 @@ Tetris.prototype = {
 	popHoldStack: function()
 	{
 		if(this.gameState == consts.GAMESTATES[3]) {
-			if(this.holdStack.length < 7)
-				while(this.holdStack.length < 7)
-					this.holdStack.unshift(utils.deepClone(shapes.getShape(this.currentMinoInx++%7)));
-			// piece needs to be able to be placed
+			// piece cannot be placed
 			if(this.shape.canDown(this.matrix)) return;
 			this.shape.copyTo(this.matrix);
-			this.shapeQueue.unshift(utils.deepClone(this.shape));
-			this.shape = utils.deepClone(this.holdStack.pop());
-			this._check();
+			this.shapeQueue.unshift(shapes.getShape(this.shape.nType()));
+			this.pushHoldStack();
 			this._draw();
+			
 			return;
 		}
 		// todo: disable if 1 shape hold queue
@@ -1319,19 +1320,27 @@ Tetris.prototype = {
 					}
 				}
 				else if(inputs.settingsMap.get("Gamepad Hold").includes(curkey)) {
-					if(this.traditionalHold == true) {
-						if(this.isHolding && this.canPopFromHoldStack) 
-							this.popHoldStack();
-						else if(this.holdStack.length < 1)
-							this.pushHoldStack();
-						this.isHolding = !this.isHolding;
-					} else 
-						this.pushHoldStack();
+						if(this.gameState != consts.GAMESTATES[3]) {
+							if(this.traditionalHold == true) {
+								if(this.isHolding && this.canPopFromHoldStack) 
+									this.popHoldStack();
+								else if(this.holdStack.length < 1)
+									this.pushHoldStack();
+								this.isHolding = !this.isHolding;
+							} else 
+								this.pushHoldStack();
 					
+						} else {
+							this.pushHoldStack();
+						}
 					this._draw();
 				}				
 				else if(inputs.settingsMap.get("Gamepad Pophold").includes(curkey)) {
-					this.popHoldStack();
+					if(this.gameState != consts.GAMESTATES[3]) {
+						this.popHoldStack();
+					}else { // calling pushHoldstack for pophold is clear as mud todo: fix
+						this.pushHoldStack();
+					}
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Gamepad Reset").includes(curkey)) {
@@ -1393,15 +1402,19 @@ Tetris.prototype = {
 					}
 				}
 				else if(inputs.settingsMap.get("Keyboard Hold").includes(curkey)) {
-					if(this.traditionalHold == true) {
-						if(this.isHolding && this.canPopFromHoldStack) 
-							this.popHoldStack();
-						else if(this.holdStack.length < 1)
-							this.pushHoldStack();
-						this.isHolding = !this.isHolding;
-					} else 
+					if(this.gameState == consts.GAMESTATES[3]) {
 						this.pushHoldStack();
-					
+					}
+					else {
+						if(this.traditionalHold == true) {
+							if(this.isHolding && this.canPopFromHoldStack) 
+								this.popHoldStack();
+							else if(this.holdStack.length < 1)
+								this.pushHoldStack();
+							this.isHolding = !this.isHolding;
+						} else 
+							this.pushHoldStack();
+					}
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Keyboard Pophold").includes(curkey)) {
@@ -2532,10 +2545,10 @@ var canMoveTo = function(shape, matrix) {
 
         var x = shape.x + box.x;
         var y = shape.y + box.y;
-		console.log("matrix X Y: " + " " + x + " "+ y + "\n"
+		/*console.log("matrix X Y: " + " " + x + " "+ y + "\n"
 					+"Shape X Y: " + " " + shape.x + " " + shape.y + "\n"
 					+"Box X Y: " + " " + box.x + " " + box.y + "\n"
-					+"Rows Cols: " + rows + " " + cols);
+					+"Rows Cols: " + rows + " " + cols);*/
 		if(isNaN(x))return false;
 		if(isNaN(y))return false;
 		if(x < 0) return false;
@@ -2814,7 +2827,7 @@ var RandomGenerator = {
 			newBag.push(minoes[mino]);
 			newBag = newBag.filter(this.onlyUnique);
 		}
-		console.log("New bag: " + newBag.toString());
+		//console.log("New bag: " + newBag.toString());
         return newBag;
     },
 	reset() {

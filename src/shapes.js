@@ -527,10 +527,10 @@ var canMoveTo = function(shape, matrix) {
 
         var x = shape.x + box.x;
         var y = shape.y + box.y;
-		console.log("matrix X Y: " + " " + x + " "+ y + "\n"
+		/*console.log("matrix X Y: " + " " + x + " "+ y + "\n"
 					+"Shape X Y: " + " " + shape.x + " " + shape.y + "\n"
 					+"Box X Y: " + " " + box.x + " " + box.y + "\n"
-					+"Rows Cols: " + rows + " " + cols);
+					+"Rows Cols: " + rows + " " + cols);*/
 		if(isNaN(x))return false;
 		if(isNaN(y))return false;
 		if(x < 0) return false;
@@ -809,7 +809,7 @@ var RandomGenerator = {
 			newBag.push(minoes[mino]);
 			newBag = newBag.filter(this.onlyUnique);
 		}
-		console.log("New bag: " + newBag.toString());
+		//console.log("New bag: " + newBag.toString());
         return newBag;
     },
 	reset() {

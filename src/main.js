@@ -236,6 +236,7 @@ Tetris.prototype = {
 		
 		// change to editor gamestate
 		this.gameState = consts.GAMESTATES[3];
+		this.shape = undefined;
 		this.hintQueue = [];
 		this.shapeQueue = [];
 		this.hintMino = 0;
@@ -385,12 +386,15 @@ Tetris.prototype = {
 	{
 		if(this.gameState == consts.GAMESTATES[3]) {
 			while(this.holdStack.length < 7)
-				this.holdStack.unshift(utils.deepClone(shapes.getShape(this.currentMinoInx++%7)));
+				this.holdStack.unshift(shapes.getShape(this.currentMinoInx++%7));
+			
 			this.shape = this.holdStack.pop();
+			this._check();
 			this._draw();
+
 			return;
 		}
-
+		
 		// 4 shape hold queue
 		if(this.holdStack.length < 4) {
 			this.holdStack.push(shapes.getShape(this.shape.nType()));
@@ -401,16 +405,13 @@ Tetris.prototype = {
 	popHoldStack: function()
 	{
 		if(this.gameState == consts.GAMESTATES[3]) {
-			if(this.holdStack.length < 7)
-				while(this.holdStack.length < 7)
-					this.holdStack.unshift(utils.deepClone(shapes.getShape(this.currentMinoInx++%7)));
-			// piece needs to be able to be placed
+			// piece cannot be placed
 			if(this.shape.canDown(this.matrix)) return;
 			this.shape.copyTo(this.matrix);
-			this.shapeQueue.unshift(utils.deepClone(this.shape));
-			this.shape = utils.deepClone(this.holdStack.pop());
-			this._check();
+			this.shapeQueue.unshift(shapes.getShape(this.shape.nType()));
+			this.pushHoldStack();
 			this._draw();
+			
 			return;
 		}
 		// todo: disable if 1 shape hold queue
@@ -637,19 +638,27 @@ Tetris.prototype = {
 					}
 				}
 				else if(inputs.settingsMap.get("Gamepad Hold").includes(curkey)) {
-					if(this.traditionalHold == true) {
-						if(this.isHolding && this.canPopFromHoldStack) 
-							this.popHoldStack();
-						else if(this.holdStack.length < 1)
-							this.pushHoldStack();
-						this.isHolding = !this.isHolding;
-					} else 
-						this.pushHoldStack();
+						if(this.gameState != consts.GAMESTATES[3]) {
+							if(this.traditionalHold == true) {
+								if(this.isHolding && this.canPopFromHoldStack) 
+									this.popHoldStack();
+								else if(this.holdStack.length < 1)
+									this.pushHoldStack();
+								this.isHolding = !this.isHolding;
+							} else 
+								this.pushHoldStack();
 					
+						} else {
+							this.pushHoldStack();
+						}
 					this._draw();
 				}				
 				else if(inputs.settingsMap.get("Gamepad Pophold").includes(curkey)) {
-					this.popHoldStack();
+					if(this.gameState != consts.GAMESTATES[3]) {
+						this.popHoldStack();
+					}else { // calling pushHoldstack for pophold is clear as mud todo: fix
+						this.pushHoldStack();
+					}
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Gamepad Reset").includes(curkey)) {
@@ -711,15 +720,19 @@ Tetris.prototype = {
 					}
 				}
 				else if(inputs.settingsMap.get("Keyboard Hold").includes(curkey)) {
-					if(this.traditionalHold == true) {
-						if(this.isHolding && this.canPopFromHoldStack) 
-							this.popHoldStack();
-						else if(this.holdStack.length < 1)
-							this.pushHoldStack();
-						this.isHolding = !this.isHolding;
-					} else 
+					if(this.gameState == consts.GAMESTATES[3]) {
 						this.pushHoldStack();
-					
+					}
+					else {
+						if(this.traditionalHold == true) {
+							if(this.isHolding && this.canPopFromHoldStack) 
+								this.popHoldStack();
+							else if(this.holdStack.length < 1)
+								this.pushHoldStack();
+							this.isHolding = !this.isHolding;
+						} else 
+							this.pushHoldStack();
+					}
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Keyboard Pophold").includes(curkey)) {
