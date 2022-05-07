@@ -922,6 +922,7 @@ Tetris.prototype = {
 		this.hintQueue = [];
 		this.shapeQueue = [];
 		this.hintMino = 0;
+		this.reset();
 		this._restartHandler();
 		this.currentOpener = 0;
 		this.pushHoldStack();
@@ -1022,6 +1023,7 @@ Tetris.prototype = {
         this.currentTime = this.startTime;
         this.prevTime = this.startTime;
 		this.sequencePrevTime = this.startTime;
+		this.resetTimer = this.startTime;
 		//todo:get rid of extra
         this.levelTime = this.startTime;
 		this.prevInputTime = this.startTime;
@@ -1030,7 +1032,8 @@ Tetris.prototype = {
 		this.shapeQueue = [];
 		this.hintQueue = [];
 		this.holdStack = [];
-		this.shape = shapes.getShape(0);
+		shapes.resetMinoRNG();
+		
 		// gets set to false after mino has been popped from hold stack; set back to true on mino dropped
 		this.canPopFromHoldStack = false;
 		// manipulation counter for srs extended piece lockdown
@@ -1048,7 +1051,7 @@ Tetris.prototype = {
         views.setScore(this.score);
         views.setGameOver(this.gameState == consts.GAMESTATES[0] && this.isGameOver);
 		openers.reset();
-		shapes.resetMinoRNG();
+		//this.shape = shapes.getShape(0);
 		
         this._draw();
     },
@@ -1119,7 +1122,7 @@ Tetris.prototype = {
     },
 	// Process freeplay queue
 	_processFreeplayQueue: function() {
-		 while(this.shapeQueue.length <= 4)
+		 while(this.shapeQueue.length < 7)
 		 {
 			 this.preparedShape = shapes.randomShape();
 			 this.shapeQueue.push(this.preparedShape);
@@ -1406,7 +1409,7 @@ Tetris.prototype = {
 						this.pushHoldStack();
 					}
 					else {
-						if(this.traditionalHold == true) {
+						if(this.traditionalHold == true) {  // TODO: move logic to holdstack functions
 							if(this.isHolding && this.canPopFromHoldStack) 
 								this.popHoldStack();
 							else if(this.holdStack.length < 1)
@@ -1434,7 +1437,11 @@ Tetris.prototype = {
 				}
 				
 				if(inputs.settingsMap.get("Keyboard Reset").includes(curkey)) {
-					this._restartHandler();
+					if( ( (new Date().getTime()) - this.resetTimer) >= 1000){
+						this._restartHandler();
+						this.resetTimer = new Date().getTime();
+					}
+					
 					return;
 				}
 					
@@ -2827,12 +2834,14 @@ var RandomGenerator = {
 			newBag.push(minoes[mino]);
 			newBag = newBag.filter(this.onlyUnique);
 		}
-		//console.log("New bag: " + newBag.toString());
+		console.log("New bag: " + newBag.toString());
         return newBag;
     },
 	reset() {
-		if(this.returnBag != undefined)
-			this.returnBag.splice(0, returnBag.length);
+		if(this.returnBag != undefined){
+			this.returnBag.splice(0, this.returnBag.length);
+			console.log("reset bag: " + this.returnBag.toString());
+		}
 	}
 		
 };

@@ -809,12 +809,14 @@ var RandomGenerator = {
 			newBag.push(minoes[mino]);
 			newBag = newBag.filter(this.onlyUnique);
 		}
-		//console.log("New bag: " + newBag.toString());
+		console.log("New bag: " + newBag.toString());
         return newBag;
     },
 	reset() {
-		if(this.returnBag != undefined)
-			this.returnBag.splice(0, returnBag.length);
+		if(this.returnBag != undefined){
+			this.returnBag.splice(0, this.returnBag.length);
+			console.log("reset bag: " + this.returnBag.toString());
+		}
 	}
 		
 };
