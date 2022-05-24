@@ -78,8 +78,10 @@ var tetrisCanvas = {
 		this.sceneContext = scene.getContext('2d');
 		this.previewContext = preview.getContext('2d');
 		this.holdContext = hold.getContext('2d');
-		this.gridSize = scene.width / consts.COLUMN_COUNT;
-
+		this.gridSize = scene.height / consts.ROW_COUNT;
+		//this.gridSize = scene.height / consts.ROW_COUNT;//consts.COLUMN_COUNT;
+		//this.gridSize = Math.max(scene.width / consts.COLUMN_COUNT, scene.height.ROW_COUNT);
+		//this.scene.width/=2;
 		this.previewGridSize = preview.width / 4;//consts.PREVIEW_COUNT;
 		this.holdGridSize = preview.width / 4;//consts.PREVIEW_COUNT;
 		

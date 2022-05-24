@@ -350,7 +350,6 @@ Tetris.prototype = {
 		this.shapeQueue = [];
 		this.hintQueue = [];
 		this.holdStack = [];
-		shapes.resetMinoRNG();
 		
 		// gets set to false after mino has been popped from hold stack; set back to true on mino dropped
 		this.canPopFromHoldStack = false;
@@ -440,24 +439,17 @@ Tetris.prototype = {
     },
 	// Process freeplay queue
 	_processFreeplayQueue: function() {
-		 while(this.shapeQueue.length < 7)
-		 {
-			 this.preparedShape = shapes.randomShape();
-			 this.shapeQueue.push(this.preparedShape);
-		 }
 		
-		 this.shape = this.shapeQueue.shift(); //|| shapes.randomShape();
+		if(this.shapeQueue.length < 7) {
+			shapes.generateBag().map(newShape =>
+			this.shapeQueue.push(newShape));
+		}
 		
-		//T S Z J I  O L
-		//this.shapeMap = [3,5,2,4,6,1,0];
+		 this.shape = this.shapeQueue.shift();
 		
-		//while(this.shapeQueue.length <= 7)
-		//{
-		//	this.prepareShape = shapes.getShape(this.shapeMap[this.currentMinoInx++%7]);
-		//	this.shapeQueue.push(this.prepareShape);
-		//}
-		//this.shape = this.shapeQueue.shift();
-		
+		//var debugline = this.shapeQueue.map(pshape => pshape.nType() + ", ");
+		//console.log("shape bag: " + debugline);
+
 		this.currentMinoInx++;
 	},
 	// Process opener trainer queue
@@ -527,7 +519,6 @@ Tetris.prototype = {
 				this._processOpenerTrainerQueue();
 				this._fireShape();
 				break;
-			
 		case consts.GAMESTATES[2]:				// Test
 			this._processOpenerTrainerQueue();
 			this._fireShape();

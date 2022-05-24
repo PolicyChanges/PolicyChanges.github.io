@@ -496,12 +496,9 @@ var isBoxesSame = function(shape, currentPiece) {
 		return false;
 	};
 	
-    //var boxes =  action === 'rotate'?shape.getBoxes(shape.nextState()) : shape.getBoxes(shape.state);
-    
 	var boxes;
 	var currentPieceBoxes;
 	
-
 	boxes = shape.getBoxes(shape.state);
 	
 	currentPieceBoxes = currentPiece.getBoxes(currentPiece.state);
@@ -627,7 +624,6 @@ ShapeZR.prototype = {
 				}
 			}	
 		}
-	
 	}
 
 		
@@ -789,11 +785,14 @@ function getRandomInt(max) {
 // Handles randomly generating and returning a tetromino
 var RandomGenerator = {
 	returnBag: [],
+
+	/*
     getTetrimino() {
-		if(this.returnBag.length < 7) // hmmm...dont think this is right.
+		if(this.returnBag.length == 0) // hmmm...dont think this is right.
 			this.returnBag.push.apply(this.returnBag, this.generateNewBag());
 		return parseInt(this.returnBag.shift());
     },
+	*/
 	onlyUnique(value, index, self) {
 		return self.indexOf(value) === index;
 	},
@@ -809,24 +808,26 @@ var RandomGenerator = {
 			newBag.push(minoes[mino]);
 			newBag = newBag.filter(this.onlyUnique);
 		}
-		console.log("New bag: " + newBag.toString());
+		//console.log("New bag: " + mapmino(newBag.toString()));
         return newBag;
     },
-	reset() {
-		if(this.returnBag != undefined){
-			this.returnBag.splice(0, this.returnBag.length);
-			console.log("reset bag: " + this.returnBag.toString());
-		}
-	}
-		
 };
 
+// Bag generator for freeplay
+function generateBag() {
+	var newBag = RandomGenerator.generateNewBag();
+	var returnBag = [];// = newBag.forEach(function(item) {
+	for(var i = 0; i < newBag.length; ++i) { 
+		returnBag.push(getShape(parseInt(newBag[i]))); 
+	} 
+	//console.log("return bag: " + newBag.toString());
+	return returnBag;
+}
+
+/* probably get rid of
 function randomShape() {
-	
-	
     var result = RandomGenerator.getTetrimino();
     var shape;
-	
 	
     switch (result) {
         case 0:
@@ -855,7 +856,7 @@ function randomShape() {
     return shape;
 	
 }
-
+*/
 function getShape(shapei) {
     var result = shapei
     var shape;
@@ -887,8 +888,8 @@ function getShape(shapei) {
     return shape;
 }
 
-module.exports.resetMinoRNG = RandomGenerator.reset;
-module.exports.randomShape = randomShape;
+
 module.exports.getShape = getShape;
-// export randomShape;
+module.exports.generateBag = generateBag;
+
 // export getShape;

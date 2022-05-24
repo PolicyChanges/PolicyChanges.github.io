@@ -79,8 +79,10 @@ var tetrisCanvas = {
 		this.sceneContext = scene.getContext('2d');
 		this.previewContext = preview.getContext('2d');
 		this.holdContext = hold.getContext('2d');
-		this.gridSize = scene.width / consts.COLUMN_COUNT;
-
+		this.gridSize = scene.height / consts.ROW_COUNT;
+		//this.gridSize = scene.height / consts.ROW_COUNT;//consts.COLUMN_COUNT;
+		//this.gridSize = Math.max(scene.width / consts.COLUMN_COUNT, scene.height.ROW_COUNT);
+		//this.scene.width/=2;
 		this.previewGridSize = preview.width / 4;//consts.PREVIEW_COUNT;
 		this.holdGridSize = preview.width / 4;//consts.PREVIEW_COUNT;
 		
@@ -1032,7 +1034,6 @@ Tetris.prototype = {
 		this.shapeQueue = [];
 		this.hintQueue = [];
 		this.holdStack = [];
-		shapes.resetMinoRNG();
 		
 		// gets set to false after mino has been popped from hold stack; set back to true on mino dropped
 		this.canPopFromHoldStack = false;
@@ -1122,24 +1123,17 @@ Tetris.prototype = {
     },
 	// Process freeplay queue
 	_processFreeplayQueue: function() {
-		 while(this.shapeQueue.length < 7)
-		 {
-			 this.preparedShape = shapes.randomShape();
-			 this.shapeQueue.push(this.preparedShape);
-		 }
 		
-		 this.shape = this.shapeQueue.shift(); //|| shapes.randomShape();
+		if(this.shapeQueue.length < 7) {
+			shapes.generateBag().map(newShape =>
+			this.shapeQueue.push(newShape));
+		}
 		
-		//T S Z J I  O L
-		//this.shapeMap = [3,5,2,4,6,1,0];
+		 this.shape = this.shapeQueue.shift();
 		
-		//while(this.shapeQueue.length <= 7)
-		//{
-		//	this.prepareShape = shapes.getShape(this.shapeMap[this.currentMinoInx++%7]);
-		//	this.shapeQueue.push(this.prepareShape);
-		//}
-		//this.shape = this.shapeQueue.shift();
-		
+		//var debugline = this.shapeQueue.map(pshape => pshape.nType() + ", ");
+		//console.log("shape bag: " + debugline);
+
 		this.currentMinoInx++;
 	},
 	// Process opener trainer queue
@@ -1209,7 +1203,6 @@ Tetris.prototype = {
 				this._processOpenerTrainerQueue();
 				this._fireShape();
 				break;
-			
 		case consts.GAMESTATES[2]:				// Test
 			this._processOpenerTrainerQueue();
 			this._fireShape();
@@ -2521,12 +2514,9 @@ var isBoxesSame = function(shape, currentPiece) {
 		return false;
 	};
 	
-    //var boxes =  action === 'rotate'?shape.getBoxes(shape.nextState()) : shape.getBoxes(shape.state);
-    
 	var boxes;
 	var currentPieceBoxes;
 	
-
 	boxes = shape.getBoxes(shape.state);
 	
 	currentPieceBoxes = currentPiece.getBoxes(currentPiece.state);
@@ -2652,7 +2642,6 @@ ShapeZR.prototype = {
 				}
 			}	
 		}
-	
 	}
 
 		
@@ -2814,11 +2803,14 @@ function getRandomInt(max) {
 // Handles randomly generating and returning a tetromino
 var RandomGenerator = {
 	returnBag: [],
+
+	/*
     getTetrimino() {
-		if(this.returnBag.length < 7) // hmmm...dont think this is right.
+		if(this.returnBag.length == 0) // hmmm...dont think this is right.
 			this.returnBag.push.apply(this.returnBag, this.generateNewBag());
 		return parseInt(this.returnBag.shift());
     },
+	*/
 	onlyUnique(value, index, self) {
 		return self.indexOf(value) === index;
 	},
@@ -2834,24 +2826,26 @@ var RandomGenerator = {
 			newBag.push(minoes[mino]);
 			newBag = newBag.filter(this.onlyUnique);
 		}
-		console.log("New bag: " + newBag.toString());
+		//console.log("New bag: " + mapmino(newBag.toString()));
         return newBag;
     },
-	reset() {
-		if(this.returnBag != undefined){
-			this.returnBag.splice(0, this.returnBag.length);
-			console.log("reset bag: " + this.returnBag.toString());
-		}
-	}
-		
 };
 
+// Bag generator for freeplay
+function generateBag() {
+	var newBag = RandomGenerator.generateNewBag();
+	var returnBag = [];// = newBag.forEach(function(item) {
+	for(var i = 0; i < newBag.length; ++i) { 
+		returnBag.push(getShape(parseInt(newBag[i]))); 
+	} 
+	//console.log("return bag: " + newBag.toString());
+	return returnBag;
+}
+
+/* probably get rid of
 function randomShape() {
-	
-	
     var result = RandomGenerator.getTetrimino();
     var shape;
-	
 	
     switch (result) {
         case 0:
@@ -2880,7 +2874,7 @@ function randomShape() {
     return shape;
 	
 }
-
+*/
 function getShape(shapei) {
     var result = shapei
     var shape;
@@ -2912,10 +2906,10 @@ function getShape(shapei) {
     return shape;
 }
 
-module.exports.resetMinoRNG = RandomGenerator.reset;
-module.exports.randomShape = randomShape;
+
 module.exports.getShape = getShape;
-// export randomShape;
+module.exports.generateBag = generateBag;
+
 // export getShape;
 
 },{"./consts.js":2,"./utils.js":8}],8:[function(require,module,exports){
