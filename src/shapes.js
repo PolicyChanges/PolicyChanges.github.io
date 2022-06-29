@@ -73,6 +73,7 @@ function ShapeL() {
     this.y = -3;
 
     this.flag = 'L';
+	
 }
 
 function ShapeLR() {
@@ -139,6 +140,7 @@ function ShapeLR() {
     this.y = -3;
 
     this.flag = 'LR';
+	
 }
 
 function ShapeO() {
@@ -203,6 +205,7 @@ function ShapeO() {
     this.y = -2;
 
     this.flag = 'O';
+	
 }
 
 function ShapeI() {
@@ -276,6 +279,7 @@ function ShapeI() {
     this.y = -3;
 
     this.flag = 'I';
+	
 }
 
 function ShapeT() {
@@ -342,6 +346,7 @@ function ShapeT() {
     this.y = -2;
 
     this.flag = 'T';
+	
 }
 
 function ShapeZ() {
@@ -407,6 +412,7 @@ function ShapeZ() {
     this.y = -2;
 
     this.flag = 'Z';
+	
 }
 
 function ShapeZR() {
@@ -472,6 +478,7 @@ function ShapeZR() {
     this.y = -2
 
     this.flag = 'ZR';
+	
 }
 
 

@@ -237,6 +237,7 @@ Tetris.prototype = {
 		// change to editor gamestate
 		this.gameState = consts.GAMESTATES[3];
 		this.shape = undefined;
+		this.canPopFromHoldStack = true;
 		this.hintQueue = [];
 		this.shapeQueue = [];
 		this.hintMino = 0;
@@ -295,17 +296,25 @@ Tetris.prototype = {
 		 var shapes = [];
 		 this.shapeQueue.slice().reverse().forEach( function(shape, idx) {  shapes.push(shape.x); shapes.push(shape.y); shapes.push(shape.state); } );
 		
+		var hintShapes = [];
+		this.hintQueue.slice().reverse().forEach( function(shape, idx) {  hintShapes.push(shape.x); hintShapes.push(shape.y); hintShapes.push(shape.state); } );
 		// console.log("var hintDataList = [" + shapes.join(",") + "];");
 		// console.log("this.createHintQueue(hintDataList);");
 		
 		var sequenceCode = [];
 		
 		var shapeArrayStr = [];
-		this.shapeQueue.slice().reverse().forEach( function(shape, idx, arr) { shapeArrayStr += "shapes.getShape("+shape.nType() + ((idx === arr.length-1) ? "));" : "), ") } );
+		this.shapeQueue.slice().reverse().forEach( function(shape, idx, arr) 
+		{ shapeArrayStr += "shapes.getShape("+shape.nType() + ((idx === arr.length-1) ? "));" : "), ") } );
+		
 		sequenceCode += "case :\n\tthis.shapeQueue = new Array(" + shapeArrayStr + "\nbreak;" + "\n\n";
 		
-		sequenceCode += "case :\n\tthis.hintQueue = new Array(" + shapeArrayStr;
-		sequenceCode += "\n\nvar hintDataList = [" + shapes.join(",") + "];" + "\nthis.createHintQueue(hintDataList);" + "\nbreak;";
+		var hintShapeArrayStr = [];
+		this.hintQueue.slice().reverse().forEach( function(shape, idx, arr) 
+		{ hintShapeArrayStr += "shapes.getShape("+shape.nType() + ((idx === arr.length-1) ? "));" : "), ") } );
+		
+		sequenceCode += "case :\n\tthis.hintQueue = new Array(" + hintShapeArrayStr;
+		sequenceCode += "\n\nvar hintDataList = [" + hintShapes.join(",") + "];" + "\nthis.createHintQueue(hintDataList);" + "\nbreak;";
 		
 		prompt("Generated Code:", sequenceCode);
 		
@@ -333,6 +342,7 @@ Tetris.prototype = {
 		this.numlefts = 0;
         this.running = false;
         this.isGameOver = false;
+		this.isPieceFromHold = false;
         this.level = 1;
         this.score = 0;
 		this.lines = 0;
@@ -384,6 +394,8 @@ Tetris.prototype = {
         this.currentTime =  new Date().getTime();
         this.prevTime = this.currentTime;
     },*/
+	
+
 	pushHoldStack: function()
 	{
 		if(this.gameState == consts.GAMESTATES[3]) {
@@ -396,7 +408,6 @@ Tetris.prototype = {
 
 			return;
 		}
-		
 		// 4 shape hold queue
 		if(this.holdStack.length < 4) {
 			this.holdStack.push(shapes.getShape(this.shape.nType()));
@@ -404,17 +415,64 @@ Tetris.prototype = {
 			this.canPopFromHoldStack = false;
 		}
 	},
+ 	pushEditorHold: function()
+	{	
+		// Add piece shape queue and set to it being held(canPopFromHoldStack = true)
+		if(this.canPopFromHoldStack == false) {			
+			
+			this.shapeQueue.unshift(utils.deepClone(this.shape));
+			
+			this.shape = this.holdStack.pop();
+			this.canPopFromHoldStack = true;
+			this._draw();
+		}
+	}, 
 	popHoldStack: function()
 	{
+		// in editor mode popHoldStack cycles through mino shapes
 		if(this.gameState == consts.GAMESTATES[3]) {
 			// piece cannot be placed
 			if(this.shape.canDown(this.matrix)) return;
-			this.shape.copyTo(this.matrix);
-			this.shapeQueue.unshift(shapes.getShape(this.shape.nType()));
-			this.pushHoldStack();
-			this._draw();
 			
-			return;
+			
+			// If piece came from hold
+			if(this.isPieceFromHold == true) {
+				
+				this.shape.copyTo(this.matrix);
+				
+				this.hintQueue.unshift(utils.deepClone(this.shape));
+
+				this.shape = this.holdStack.pop();
+				this.isPieceFromHold = false;
+				
+				return;
+			}
+			
+			// If a piece is being held
+			if(this.canPopFromHoldStack == true) {
+				
+				//  Copy current shape to playfield
+				this.shape.copyTo(this.matrix);
+				
+				this.hintQueue.unshift(utils.deepClone(this.shape));
+				this.shapeQueue.unshift(utils.deepClone(this.shape));
+				
+				// set current piece to previous piece
+				this.shape = shapes.getShape(this.shapeQueue[1].nType());
+
+
+				this.isPieceFromHold = true;
+				this.canPopFromHoldStack = false;
+				
+				return;
+			}
+			else { // insert piece
+				this.shapeQueue.unshift(utils.deepClone(this.shape));
+				this.hintQueue.unshift(utils.deepClone(this.shape));
+				this.shape.copyTo(this.matrix);
+				this.pushHoldStack();
+				this._draw();
+			}
 		}
 		// todo: disable if 1 shape hold queue
 		if(this.holdStack.length >= 1 && this.canPopFromHoldStack)
@@ -730,8 +788,15 @@ Tetris.prototype = {
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Keyboard Pophold").includes(curkey)) {
-					this.popHoldStack();
-					this._draw();
+					// This pushes the piece on to the editor hold queue in editor mode b/c the other mode's hold queue is being used to cycle through pieces. 
+					// it's confusing and bad.
+					if(this.gameState == consts.GAMESTATES[3]) {
+						console.log("sanity");
+						this.pushEditorHold();
+					} else {
+						this.popHoldStack();
+						this._draw();
+					}
 				}
 				else if(inputs.settingsMap.get("Keyboard Hold").includes(curkey)) {//something got goofd here
 					if(document.getElementById("divbg").style.display == "none")

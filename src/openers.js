@@ -89,7 +89,7 @@ var openerGenerator = {
 				break;
 
 				case 16:
-					this.shapeQueue = new Array(shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(1), shapes.getShape(6), shapes.getShape(0), shapes.getShape(0), shapes.getShape(6), shapes.getShape(3), shapes.getShape(6));
+					this.shapeQueue = new Array(shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(6));
 				break;
 
 				case 17:
@@ -306,9 +306,9 @@ var openerGenerator = {
 				break;
 			
 			case 16:
-				this.hintQueue = new Array(shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(1), shapes.getShape(6), shapes.getShape(0), shapes.getShape(0), shapes.getShape(6), shapes.getShape(3), shapes.getShape(6));
+				this.hintQueue = new Array(shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(5), shapes.getShape(4), shapes.getShape(6));
 
-			var hintDataList = [7,18,0,8,16,3,0,18,0,-1,17,0,2,16,3,0,15,2,5,17,1,3,16,3,6,15,2,4,16,3];
+			var hintDataList = [-1,17,1,6,18,0,1,18,0,5,18,0,6,16,3,4,15,1,8,14,3];
 			this.createHintQueue(hintDataList);
 			break;
 			
