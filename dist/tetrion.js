@@ -1101,6 +1101,7 @@ Tetris.prototype = {
 	},
  	pushEditorHold: function()
 	{	
+		// Add piece shape queue and set to it being held(canPopFromHoldStack = true)
 		if(this.canPopFromHoldStack == false) {			
 			
 			this.shapeQueue.unshift(utils.deepClone(this.shape));
@@ -1117,33 +1118,6 @@ Tetris.prototype = {
 			// piece cannot be placed
 			if(this.shape.canDown(this.matrix)) return;
 			
-/* 
-			if(this.canPopFromHoldStack == true) {
-				// swap piece location and state values
-				var holdPiece = this.shapeQueue.shift();
-				var tempPiece = this.holdPiece;
-				
-				this.shapeQueue.unshift(shapes.getShape(this.shape.nType()));
-				
-				holdPiece.x = this.shape.x;
-				holdPiece.y = this.shape.y;
-				holdPiece.state = this.shape.state;
-				this.shapeQueue.unshift(utils.deepClone(holdPiece));
-				
-				this.shape = shapes.getShape(holdPiece.nType());
-		
-				
-				this.canPopFromHoldStack = false;
-				this._draw();
-				return;
-			} 
-			
-			this.shape.copyTo(this.matrix);
-			this.shapeQueue.unshift(shapes.getShape(this.shape.nType()));
-			this.pushHoldStack();
-			this._draw();
-			
-			return; */
 			
 			// If piece came from hold
 			if(this.isPieceFromHold == true) {
@@ -1151,34 +1125,24 @@ Tetris.prototype = {
 				this.shape.copyTo(this.matrix);
 				
 				this.hintQueue.unshift(utils.deepClone(this.shape));
-				//this.shapeQueue.unshift(utils.deepClone(this.shape));
-				
-				//this.shapeQueue[0].x = this.shape.x;
-				//this.shapeQueue[0].y = this.shape.y;
-				//this.shapeQueue[0].state = this.shape.state;
-				//this.shapeQueue[0].ghostType = this.shape.flag;
-				
+
 				this.shape = this.holdStack.pop();
 				this.isPieceFromHold = false;
+				
 				return;
 			}
 			
 			// If a piece is being held
 			if(this.canPopFromHoldStack == true) {
+				
 				//  Copy current shape to playfield
 				this.shape.copyTo(this.matrix);
-				
 				
 				this.hintQueue.unshift(utils.deepClone(this.shape));
 				this.shapeQueue.unshift(utils.deepClone(this.shape));
 				
-				// Swap with previous piece
+				// set current piece to previous piece
 				this.shape = shapes.getShape(this.shapeQueue[1].nType());
-
-				//  Set previous piece data to current piece data
-				//this.shapeQueue[0].x = this.shape.x;
-				//this.shapeQueue[0].y = this.shape.y;
-				//this.shapeQueue[0].state = this.shape.state;
 
 
 				this.isPieceFromHold = true;
@@ -1791,11 +1755,9 @@ var openerGenerator = {
 					shapes.getShape(0), shapes.getShape(2), shapes.getShape(5), shapes.getShape(6), shapes.getShape(1), shapes.getShape(3), shapes.getShape(4), shapes.getShape(2), shapes.getShape(5), shapes.getShape(0), shapes.getShape(1), shapes.getShape(6), shapes.getShape(4), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(6), shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(1), shapes.getShape(3), shapes.getShape(4), shapes.getShape(3));
 				break;
 
-case 16:
-	this.shapeQueue = new Array(shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(6));
-break;
-
-
+				case 16:
+					this.shapeQueue = new Array(shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(6));
+				break;
 
 				case 17:
 					this.shapeQueue = new Array(shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(6), shapes.getShape(1), shapes.getShape(0), shapes.getShape(4), shapes.getShape(3), shapes.getShape(6));
@@ -2010,15 +1972,13 @@ break;
 				this.createHintQueue(hintDataList);
 				break;
 			
+			case 16:
+				this.hintQueue = new Array(shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(5), shapes.getShape(4), shapes.getShape(6));
 
-
-
-case 16:
-	this.hintQueue = new Array(shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(5), shapes.getShape(4), shapes.getShape(6));
-
-var hintDataList = [-1,17,1,6,18,0,1,18,0,5,18,0,6,16,3,4,15,1,8,14,3];
-this.createHintQueue(hintDataList);
-break;
+			var hintDataList = [-1,17,1,6,18,0,1,18,0,5,18,0,6,16,3,4,15,1,8,14,3];
+			this.createHintQueue(hintDataList);
+			break;
+			
 			case 17:
 				this.hintQueue = new Array(shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(6), shapes.getShape(1), shapes.getShape(0), shapes.getShape(4), shapes.getShape(3), shapes.getShape(6));
 
