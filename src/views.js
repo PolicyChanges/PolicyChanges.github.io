@@ -114,15 +114,16 @@ var tetrisView = {
 	},
 	// Update the score 
 	setScore:function(scoreNumber){
-		score.innerHTML = scoreNumber;	
+		//score.innerHTML = scoreNumber;	
 	},
 	// Update the finnal score
 	setFinalScore:function(scoreNumber){
-		finalScore.innerHTML = scoreNumber;
+		//finalScore.innerHTML = scoreNumber;
 	},
 	// Update the level
 	setLevel:function(levelNumber){
-		level.innerHTML = levelNumber;
+		
+		//level.innerHTML = levelNumber;
 	},
 	// Update the extra reward score
 	setLines:function(setlines){

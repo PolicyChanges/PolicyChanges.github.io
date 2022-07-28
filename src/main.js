@@ -378,6 +378,8 @@ Tetris.prototype = {
         views.setScore(this.score);
         views.setGameOver(this.gameState == consts.GAMESTATES[0] && this.isGameOver);
 		openers.reset();
+		
+		this.gameState = consts.GAMESTATES[0]; //remove when fixed
 		//this.shape = shapes.getShape(0);
 		
         this._draw();

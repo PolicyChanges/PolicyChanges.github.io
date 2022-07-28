@@ -84,6 +84,7 @@ var tetrisCanvas = {
 		//this.gridSize = Math.max(scene.width / consts.COLUMN_COUNT, scene.height.ROW_COUNT);
 		//this.scene.width/=2;
 		this.previewGridSize = preview.width / 4;//consts.PREVIEW_COUNT;
+
 		this.holdGridSize = preview.width / 4;//consts.PREVIEW_COUNT;
 		
 		this.drawScene();
@@ -1062,6 +1063,8 @@ Tetris.prototype = {
         views.setScore(this.score);
         views.setGameOver(this.gameState == consts.GAMESTATES[0] && this.isGameOver);
 		openers.reset();
+		
+		this.gameState = consts.GAMESTATES[0]; //remove when fixed
 		//this.shape = shapes.getShape(0);
 		
         this._draw();
@@ -3247,15 +3250,16 @@ var tetrisView = {
 	},
 	// Update the score 
 	setScore:function(scoreNumber){
-		score.innerHTML = scoreNumber;	
+		//score.innerHTML = scoreNumber;	
 	},
 	// Update the finnal score
 	setFinalScore:function(scoreNumber){
-		finalScore.innerHTML = scoreNumber;
+		//finalScore.innerHTML = scoreNumber;
 	},
 	// Update the level
 	setLevel:function(levelNumber){
-		level.innerHTML = levelNumber;
+		
+		//level.innerHTML = levelNumber;
 	},
 	// Update the extra reward score
 	setLines:function(setlines){
