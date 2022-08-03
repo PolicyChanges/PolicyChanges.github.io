@@ -767,6 +767,22 @@ var removeOneRow = function(matrix, row) {
     }
 };
 /**
+	Add one row from game matrix. 
+	copy each previous row data to  next row  which row number less than row;
+*/
+var addOneRow = function(matrix, row) {
+    var colCount = matrix[0].length;
+    for (var i = row; i >= 0; i--) {
+        for (var j = 0; j < colCount; j++) {
+            if (i > 0) {
+                matrix[i][j] = matrix[i - 1][j];
+            } else {
+                matrix[i][j] = 1;
+            }
+        }
+    }
+};
+/**
 	Remove rows from game matrix by row numbers.
 */
 var removeRows = function(matrix, rows) {
@@ -818,6 +834,9 @@ var calcIntervalByLevel = function(level) {
     return consts.DEFAULT_INTERVAL - (level - 1) * 60;
 };
 
+var addGarbage = function(amount, row){
+	addOneRow(row);
+};
 
 // Default max scene size
 var defaults = {
