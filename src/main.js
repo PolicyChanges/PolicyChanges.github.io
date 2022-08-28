@@ -714,8 +714,10 @@ Tetris.prototype = {
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Gamepad Reset").includes(curkey)) {
-					this._restartHandler();
-					return;
+					if( ( (new Date().getTime()) - this.resetTimer) >= 1000){
+						this._restartHandler();
+						this.resetTimer = new Date().getTime();
+					}
 				}
 			}
 			inputs.saveButtons();
