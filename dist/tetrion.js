@@ -242,6 +242,9 @@ var tetrisCanvas = {
 						if (value === 1){
 							var x = startX + gsize * j;
 							var y = startY + gsize * i;
+							if(shape.flag == 'L' || shape.flag == 'LR' || shape.flag == 'Z' || shape.flag == 'ZR' || shape.flag == 'T'){y+=gsize;x+=gsize*.5;}
+							else if(shape.flag == 'O'){y+=gsize;x-=gsize;}
+							else if(shape.flag == 'I'){y+=gsize*.5}
 							drawBox(this.holdContext,shape.color,x,y,gsize);
 						}
 					}
@@ -1054,7 +1057,7 @@ Tetris.prototype = {
 		this.isPCOActive = false;
 		this.landed = false;
 		this.isSequenceCompleted = false;
-		this.traditionalHold = true;
+		this.traditionalHold = true;  // 1 piece hold if true. 4 if false
 		this.isHolding = false;
 		
         clearMatrix(this.matrix);

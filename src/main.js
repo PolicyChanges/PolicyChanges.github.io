@@ -370,7 +370,7 @@ Tetris.prototype = {
 		this.isPCOActive = false;
 		this.landed = false;
 		this.isSequenceCompleted = false;
-		this.traditionalHold = true;
+		this.traditionalHold = true;  // 1 piece hold if true. 4 if false
 		this.isHolding = false;
 		
         clearMatrix(this.matrix);
