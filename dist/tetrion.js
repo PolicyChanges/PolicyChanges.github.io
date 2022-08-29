@@ -235,14 +235,21 @@ var tetrisCanvas = {
 			{
 				var matrix = shape.matrix();
 				var gsize = this.holdGridSize;
-				var startX = (this.hold.width - gsize*shape.getColumnCount()) / 2;
-				var startY = ((this.hold.height - gsize*shape.getRowCount()) / 2 / 4)*(index*2+1);
+				
+				var startX = (this.hold.width - gsize*shape.getColumnCount());
+				var startY = ((this.hold.height - gsize*shape.getRowCount()))*(index*2+1);
+				
 				for(var i = 0;i<matrix.length;i++){
 					for(var j = 0;j<matrix[i].length;j++){
 						var value = matrix[i][j];
 						if (value === 1){
 							var x = startX + gsize * j;
 							var y = startY + gsize * i;
+							if(shape.flag == 'L' || shape.flag == 'LR' || shape.flag == 'Z' || shape.flag == 'ZR' || shape.flag == 'T'){y+=gsize;x+=gsize*.5;}
+							else if(shape.flag == 'O'){y+=gsize;x-=gsize;}
+							else if(shape.flag == 'I'){y+=gsize*.5}
+							
+							//console.log("shape: " + shape.flag);
 							drawBox(this.holdContext,shape.color,x,y,gsize);
 						}
 					}
@@ -3220,7 +3227,7 @@ var layoutView = function(container,maxW,maxH){
 	//layout scene
 	
 	//hold.width = 80;
-	//hold.height = 380;
+	//hold.height = 980;
 	
 	
 	scene.height = size.height;
@@ -3233,7 +3240,7 @@ var layoutView = function(container,maxW,maxH){
 	if (sideW < SIDE_WIDTH ){
 		info.style.width = side.style.width;
 	}
-	side.style.height = 500 + 'px';
+	//side.style.height = 500 + 'px';
 	hold.style.top = 10+'px';//preview.top + 10px pad
 
 	
@@ -3241,7 +3248,7 @@ var layoutView = function(container,maxW,maxH){
 	preview.height = 380;
 	
 	hold.width = 80;
-	hold.height = 380;
+	hold.height = 80;
 		
 	gameOver.style.width = scene.width +'px';
 
