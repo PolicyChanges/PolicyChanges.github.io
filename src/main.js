@@ -358,6 +358,7 @@ Tetris.prototype = {
 		// current tetrino index gets set to 0 at the end of opener sequence
 		this.currentMinoInx = 0;
 		this.shapeQueue = [];
+		this.freeplayBagQueue = [];  // Always try to have two bags full
 		this.hintQueue = [];
 		this.holdStack = [];
 		
@@ -378,6 +379,7 @@ Tetris.prototype = {
         views.setScore(this.score);
         views.setGameOver(this.gameState == consts.GAMESTATES[0] && this.isGameOver);
 		openers.reset();
+		this.ensureFreeplayBagsFull();
 		//this.shape = shapes.getShape(0);
 		
         this._draw();
@@ -388,14 +390,17 @@ Tetris.prototype = {
 		window.requestAnimationFrame(utils.proxy(this._refresh, this));
 
     },
-    //Pause game
-    /*pause: function() {
-        this.running = false;
-        this.currentTime =  new Date().getTime();
-        this.prevTime = this.currentTime;
-    },*/
-	
 
+	ensureFreeplayBagsFull() {
+		while(this.freeplayBagQueue.length <= 4) {
+			this.freeplayBagQueue.push(shapes.generateBag());
+		}
+	},
+	getBagFromFreeplayBagQueue() {
+		var bag = this.freeplayBagQueue.shift();
+		this.ensureFreeplayBagsFull();
+		return bag;
+	},
 	pushHoldStack: function()
 	{
 		if(this.gameState == consts.GAMESTATES[3]) {
@@ -498,16 +503,16 @@ Tetris.prototype = {
 	// Process freeplay queue
 	_processFreeplayQueue: function() {
 		
-		if(this.shapeQueue.length < 7) {
+		/*if(this.shapeQueue.length < 7) {
 			shapes.generateBag().map(newShape =>
 			this.shapeQueue.push(newShape));
+		}*/
+		while(this.shapeQueue.length < 7) {
+			var newbag = this.getBagFromFreeplayBagQueue();
+			newbag.forEach(newShape => this.shapeQueue.push(newShape));
 		}
-		
 		 this.shape = this.shapeQueue.shift();
 		
-		//var debugline = this.shapeQueue.map(pshape => pshape.nType() + ", ");
-		//console.log("shape bag: " + debugline);
-
 		this.currentMinoInx++;
 	},
 	// Process opener trainer queue
@@ -588,7 +593,7 @@ Tetris.prototype = {
 		case consts.GAMESTATES[3]:				
 			this._processSequenceEditor();
 			break;
-		case consts.GAMESTATES[4]:
+		case consts.GAMESTATES[4]:  // TODO: check different rng methods distrobutions. should have gaussian distrobution for each position of each bag
 			//generate RNG data for testing random number distribution
 
 		// Handles randomly generating and returning a tetromino
@@ -690,11 +695,7 @@ Tetris.prototype = {
 		
 		inputs.processInputs();
 		
-		if(this.gamepadEnabled && inputs.gamepadEnabled()) {
-			inputs.updateGamepad();
-			inputs.processGamepadDPad();
-			inputs.processGamepadInput();
-			
+		if(this.gamepadEnabled && inputs.gamepadEnabled()) {			
 			while((inputs.gamepadQueue != undefined && inputs.gamepadQueue.length >= 1)){
 				var curkey = inputs.gamepadQueue.shift();
 				if(inputs.settingsMap.get("Gamepad Left").includes(curkey)) {

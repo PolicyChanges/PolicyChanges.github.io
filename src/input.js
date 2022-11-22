@@ -5,16 +5,16 @@ var utils = require('./utils.js');
 var UserInputs = {
 	init() {
 		
+		// All game settings  TODO: put somwhere more appropriate
 		this.settingsList = this.keyboardKeySettings.concat(this.keyboardShiftEvents.concat(this.keyboardKeyEvents.concat(this.gamepadSettings.concat(this.gamepadDASEvents.concat(this.gamepadOnDownButtonEvents)))));	
 		
 		// Initialization time stamp
 		this.initTime = new Date();
-		
 		// Gamepad OnButtonDown event timer
 		this.gamepadButtonTimer = this.initTime;
 		// Gamepad Left and Right timer
 		this.gamepadShiftTimer = this.initTime;
-		//
+		// Gamepad Down ARR/DAS timer TODO: Switch to SDF(Softdrop factor)
 		this.gamepadShiftDownDASTimer = this.initTime;
 		
 		
@@ -22,13 +22,12 @@ var UserInputs = {
 		this.keyboardKeyTimer = this.initTime;
 		// Keyboard Left and Right ARR/DAS Timer
 		this.keyboardShiftTimer  = this.initTime;
-		// Keyboard Down ARR/DAS Timer
+		// Keyboard Down ARR/DAS Timer TODO: Switch to SDF(Softdrop factor)
 		this.keyboardShiftDownKeyTimer = this.initTime;
 		
 		
 		this.settingsMap = new Map();
 		this.gamepadEventMap = new Map();
-		///this.gamepadEventMap = new Map();
 		
 		// var init = utils.getCookie("init");
 		// if(init == "") 
@@ -41,9 +40,7 @@ var UserInputs = {
 		 for(var i in this.settingsList)
 			 this.settingsMap.set(this.settingsList[i], this.settingsDefault[i]);
 		
-		
 		//this.gamepadEvents = this.gamepadDASEvents.concat(this.gamepadOnDownButtonEvents);
-		
 		
 		var mapIdx = [14, 7, 13, 5, 4, 1, 2, 12, 8, 3];
 		for(var i in mapIdx) 
@@ -55,6 +52,7 @@ var UserInputs = {
 	// Pocess inputs.  To be called every game tick.
 	processInputs() {
 		if(this.gamepadEnabled) {
+			this.updateGamepad();
 			this.processGamepadOnDownEvents();
 			this.processGamepadDASEvents();
 		}
@@ -329,11 +327,12 @@ var UserInputs = {
 	// button pressed containers
 	inputQueue: [],
 	gamepadQueue: [],
-		
+								// Keyboard settings TODO: switch Keyboard Down DAS/ARR to Keyboard SDF(Soft drop factor, which should default to 4 times gravity)
 	keyboardKeySettings:		["Keyboard Down DAS", "Keyboard Down ARR", "Keyboard DAS", "Keyboard ARR"],
 	keyboardShiftEvents:		["Keyboard Left", "Keyboard Right", "Keyboard Down", "Keyboard Up"],
 	keyboardKeyEvents:			["Keyboard Harddrop", "Keyboard Hold", "Keyboard Rotateccw", "Keyboard Rotate", "Keyboard Pophold", "Keyboard Reset", "Keyboard Pause Toggle", "Default Interval", "Lockdown Timer"],
 					
+								// Gamepad settings names TODO: switch Gamepad Down DAS/ARR to Gamepad SDF(Soft drop factor, which should default to 4 times gravity)
 	gamepadSettings:			["Gamepad Down DAS", "Gamepad Down ARR", "Gamepad DAS", "Gamepad ARR"],
 	gamepadDASEvents:			["Gamepad Left", "Gamepad Right", "Gamepad Down"],
 	gamepadOnDownButtonEvents:	["Gamepad Harddrop", "Gamepad Hold", "Gamepad Rotateccw", "Gamepad Rotate", "Gamepad Pophold", "Gamepad Reset", "Gamepad Pause Toggle"],
