@@ -567,26 +567,69 @@ Tetris.prototype = {
 		
         
     },
-	_recurseGameState: function (){
+	_recurseGameState: function ()
+	{
 		switch(this.gameState) {
-		case consts.GAMESTATES[0]:				// Free play
+		// Free play
+		case consts.GAMESTATES[0]:				
 			this._processFreeplayQueue();
 			this._fireShape();
 			break;
-		case consts.GAMESTATES[1]:				// Trainer
+		// Trainer
+		case consts.GAMESTATES[1]:				
 				this._processOpenerTrainerQueue();
 				this._fireShape();
 				break;
-		case consts.GAMESTATES[2]:				// Test
+		// Quiz mode
+		case consts.GAMESTATES[2]:				
 			this._processOpenerTrainerQueue();
 			this._fireShape();
-		case consts.GAMESTATES[3]:				// Sequence Test
+		// Sequence Test
+		case consts.GAMESTATES[3]:				
 			this._processSequenceEditor();
 			break;
+		case consts.GAMESTATES[4]:
+			//generate RNG data for testing random number distribution
+
+		// Handles randomly generating and returning a tetromino
 		
+			var returnBag = [];
+
+			/*
+			getTetrimino() {
+				if(this.returnBag.length == 0) // hmmm...dont think this is right.
+					this.returnBag.push.apply(this.returnBag, this.generateNewBag());
+				return parseInt(this.returnBag.shift());
+			},
+			*/
+			/*onlyUnique(value, index, self) {
+				return self.indexOf(value) === index;
+			},*/
+			//generateNewBag() {
+			var i = 50;
+			while(i-- < 0) {
+				var minoes = ['0','1','2','3','4','5','6'];
+				
+				var newBag = [];	
+				var bagLength = 7;
+
+				/*while(newBag.length < bagLength)
+				{
+					mino = Math.floor(Math.random() * Math.floor(max));
+					newBag.push(minoes[mino]);
+					newBag = newBag.filter(this.onlyUnique);
+				}*/
+				newBag = shuffle(minoes);
+				console.log("New bag: " + newBag.toString());
+			}
+			
+			break;
+		
+
 		default:
 			break;
 		}
+		
 	},
 	// lockdown timer with centisecond resolution
 	resetLockdown: function() {
@@ -645,7 +688,7 @@ Tetris.prototype = {
 		// Don't process game related events if game over
 		if(this.isGameOver) return;
 		
-		
+		inputs.processInputs();
 		
 		if(this.gamepadEnabled && inputs.gamepadEnabled()) {
 			inputs.updateGamepad();
@@ -655,12 +698,12 @@ Tetris.prototype = {
 			while((inputs.gamepadQueue != undefined && inputs.gamepadQueue.length >= 1)){
 				var curkey = inputs.gamepadQueue.shift();
 				if(inputs.settingsMap.get("Gamepad Left").includes(curkey)) {
-					this.shape.goLeft(this.matrix);
+					var isDas = this.shape.goLeft(this.matrix);
 					this.resetLockdown();
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Gamepad Right").includes(curkey)) {
-					this.shape.goRight(this.matrix);
+					var isDas = this.shape.goRight(this.matrix);
 					this.resetLockdown();
 					this._draw();
 				}
@@ -713,6 +756,9 @@ Tetris.prototype = {
 					}
 					this._draw();
 				}
+				else if(inputs.settingsMap.get("Gamepad Pause Toggle").includes(curkey)) {
+					this.isPaused = !this.isPaused;
+				}
 				else if(inputs.settingsMap.get("Gamepad Reset").includes(curkey)) {
 					if( ( (new Date().getTime()) - this.resetTimer) >= 1000){
 						this._restartHandler();
@@ -726,8 +772,9 @@ Tetris.prototype = {
 		
 		
 			// Do keyboard
-			inputs.processKeys();
-			inputs.processKeyShift();
+			//inputs.processKeys();
+			//inputs.processKeyShift();
+			
 			// Keyboard inputs
 			while((inputs.inputQueue != undefined && inputs.inputQueue.length >= 1)){
 				var curkey = inputs.inputQueue.shift();
@@ -742,7 +789,6 @@ Tetris.prototype = {
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Keyboard Down").includes(curkey)) {
-					
 					 this.shape.goDown(this.matrix);
 					 this.resetLockdown();
 					 this._draw();
@@ -807,7 +853,7 @@ Tetris.prototype = {
 						document.getElementById("divbg").style.display="none";
 				}
 				
-				else if(inputs.settingsMap.get("Keyboard Background").includes(curkey)) {
+				else if(inputs.settingsMap.get("Keyboard Pause Toggle").includes(curkey)) {
 					//setInterval(() => { this.isPaused = !this.isPaused; }, 300) ;
 					this.isPaused = !this.isPaused;
 				}
@@ -891,6 +937,8 @@ Tetris.prototype = {
 					views.setFinalScore(this.score);
 			break;
 			case consts.GAMESTATES[3]:
+			break;
+			case consts.GAMESTATES[4]:
 			break;
 			default:
 			break;

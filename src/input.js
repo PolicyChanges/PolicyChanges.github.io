@@ -5,15 +5,31 @@ var utils = require('./utils.js');
 var UserInputs = {
 	init() {
 		
-		this.settingsList = this.keyboardKeySettings.concat(this.keyboardShiftEvents.concat(this.keyboardKeyEvents.concat(this.gamepadSettings.concat(this.gamepadShiftEvents.concat(this.gamepadButtonEvents)))));
-		//;["Soft Drop Rate [1 - 100]"].concat(this.keyboardSettings.concat(this.gamepadSettings));
-		this.gamepadShiftTimer = new Date();
-		this.gamepadButtonTimer = new Date();
-		this.keyboardKeyTimer = new Date();
-		this.keyboardShiftTimer  = new Date();
+		this.settingsList = this.keyboardKeySettings.concat(this.keyboardShiftEvents.concat(this.keyboardKeyEvents.concat(this.gamepadSettings.concat(this.gamepadDASEvents.concat(this.gamepadOnDownButtonEvents)))));	
+		
+		// Initialization time stamp
+		this.initTime = new Date();
+		
+		// Gamepad OnButtonDown event timer
+		this.gamepadButtonTimer = this.initTime;
+		// Gamepad Left and Right timer
+		this.gamepadShiftTimer = this.initTime;
+		//
+		this.gamepadShiftDownDASTimer = this.initTime;
+		
+		
+		// Keyboard OnKeyDown event timer
+		this.keyboardKeyTimer = this.initTime;
+		// Keyboard Left and Right ARR/DAS Timer
+		this.keyboardShiftTimer  = this.initTime;
+		// Keyboard Down ARR/DAS Timer
+		this.keyboardShiftDownKeyTimer = this.initTime;
+		
+		
 		this.settingsMap = new Map();
 		this.gamepadEventMap = new Map();
 		///this.gamepadEventMap = new Map();
+		
 		// var init = utils.getCookie("init");
 		// if(init == "") 
 			for(var i in this.settingsList) 
@@ -26,68 +42,52 @@ var UserInputs = {
 			 this.settingsMap.set(this.settingsList[i], this.settingsDefault[i]);
 		
 		
-		this.gamepadEvents = this.gamepadShiftEvents.concat(this.gameButtonsEvents);
+		//this.gamepadEvents = this.gamepadDASEvents.concat(this.gamepadOnDownButtonEvents);
+		
 		
 		var mapIdx = [14, 7, 13, 5, 4, 1, 2, 12, 8, 3];
-		for(var i in mapIdx) {
-			this.gamepadEventMap.set(this.gamepadEvents[i], gamepad.buttons[mapIdx[i]]);
-		}
+		for(var i in mapIdx) 
+			this.gamepadEventMap.set(this.gamepadDASEvents[i], gamepad.buttons[mapIdx[i]]);
+		
         document.addEventListener('keydown', this.keyDown.bind(this));
         document.addEventListener('keyup', this.keyUp.bind(this));
     },
-
+	// Pocess inputs.  To be called every game tick.
+	processInputs() {
+		if(this.gamepadEnabled) {
+			this.processGamepadOnDownEvents();
+			this.processGamepadDASEvents();
+		}
+		this.processKeyboardOnDownEvents();
+		this.processKeyboardDASEvents();
+	},
 	updateGamepad() {
 		this.gpButtons = gamepad.update();
 	},
 	gamepadEnabled() {
 		return gamepad.controller || false;
 	},
-	processGamepadInput() {
-		this.gamepadButtonEvents.forEach(gamepadButton => this.gamepadButtonsDown(this.settingsMap.get(gamepadButton)));
+	processGamepadOnDownEvents() {
+		this.gamepadOnDownButtonEvents.forEach(gamepadButton => this.processGamepadOnDownButton(this.settingsMap.get(gamepadButton)));
 	},
-	processGamepadDPad()  {
-		this.gamepadShiftEvents.forEach(dpadButton => this.gamepadDPadDown(this.settingsMap.get(dpadButton)));
+	processGamepadDASEvents()  {
+		this.gamepadDASEvents.forEach(gamepadButton => this.processGamepadDASButtons(this.settingsMap.get(gamepadButton)));
 	},
-	// Single press gamepad buttons
-	gamepadButtonsDown(finds) {
-		var DAS = 167.0;
-		var ARR = 300.0;
-		var isContained = this.gpButtons.includes(finds);
-		var isPrevContained = this.prevGpButtons.includes(finds);
 
-		if(isPrevContained != isContained ) {
-			// Not being held yet
-			this.gamepadButtonTimer = new Date();
-			this.isPassedDelayGamepadShift = false;
-			// Add button to queue on pressed input
-			if(isContained)
-				this.gamepadQueue.push(finds);
-		}
-		
-		var deltaTime = (new Date()).getTime() - this.gamepadButtonTimer.getTime();
-		
-		if (!this.isPassedDelayGamepadShift) {
-				if (deltaTime >= DAS) {
-					this.gamepadButtonTimer = new Date();
-					this.isPassedDelayGamepadShift = true;
-				}
-				
-		} else {
-			if (deltaTime >= ARR && isContained) {
-				this.gamepadQueue.push(finds);
-				this.gamepadButtonTimer = new Date();
-			}
-		}
-			
-	},
 	
-	// Direction Pad
-	gamepadDPadDown(finds) {
+	processGamepadDASButtons(button) {
+		if(button != this.settingsMap.get("Gamepad Down"))
+			this.gamepadDASDown(button);
+		else
+			this.gamepadDownButtonEvent(button);
+	},
+	// Gamepad DAS Events
+	gamepadDASDown(button) {
 		var DAS = parseInt(this.settingsMap.get("Gamepad DAS"));	
 		var ARR = parseInt(this.settingsMap.get("Gamepad ARR"));
 		
-		var isContained = this.gpButtons.includes(finds);
-		var isPrevContained = this.prevGpButtons.includes(finds);
+		var isContained = this.gpButtons.includes(button);
+		var isPrevContained = this.prevGpButtons.includes(button);
 		
 		if(isPrevContained != isContained ) {
 			// Not being held yet
@@ -95,7 +95,7 @@ var UserInputs = {
 			this.isDelayedPassedGamepadShift = false;
 			// Add button to queue on pressed input
 			if(isContained)
-				this.gamepadQueue.push(finds);
+				this.gamepadQueue.push(button);
 		}
 		
 		var deltaTime = (new Date()).getTime() - this.gamepadShiftTimer.getTime();
@@ -108,21 +108,86 @@ var UserInputs = {
 		} 
 		else {
 			if (deltaTime >= ARR && isContained) {
-				this.gamepadQueue.push(finds);
+				this.gamepadQueue.push(button);
 				this.gamepadShiftTimer = new Date();
 			}
 		}
 		return;
 	},
+	// Down button DAS event
+	gamepadDownButtonEvent(button) {
+		var DAS = parseInt(this.settingsMap.get("Gamepad Down DAS"));	
+		var ARR = parseInt(this.settingsMap.get("Gamepad Down ARR"));
+		
+		var isContained = this.gpButtons.includes(button);
+		var isPrevContained = this.prevGpButtons.includes(button);
+		
+		if(isPrevContained != isContained ) {
+			// Not being held yet
+			this.gamepadShiftDownDASTimer = new Date();
+			this.isDelayedPassedDASGamepadDown = false;
+			// Add button to queue on pressed input
+			if(isContained)
+				this.gamepadQueue.push(button);
+		}
+		
+		var deltaTime = (new Date()).getTime() - this.gamepadShiftDownDASTimer.getTime();
 
-	processKeys() {
+		if (!this.isDelayedPassedDASGamepadDown) {
+			if (deltaTime >= DAS) {
+				this.gamepadShiftDownDASTimer = new Date();
+				this.isDelayedPassedDASGamepadDown = true;	
+			}
+		} 
+		else {
+			if (deltaTime >= ARR && isContained) {
+				this.gamepadQueue.push(button);
+				this.gamepadShiftDownDASTimer = new Date();
+			}
+		}
+		return;
+	},
+	// gamepad on down events
+	processGamepadOnDownButton(button) {
+		var DAS = Infinity;  // Only single press aka. no arr or das
+		var ARR = 300.0;
+		
+		var isContained = this.gpButtons.includes(button);
+		var isPrevContained = this.prevGpButtons.includes(button);
+
+		if(isPrevContained != isContained ) {
+			// Not being held yet
+			this.gamepadShiftDownDASTimer = new Date();
+			this.isPassedDelayGamepadShift = false;
+			// Add button to queue on pressed input
+			if(isContained)
+				this.gamepadQueue.push(button);
+		}
+		
+		var deltaTime = (new Date()).getTime() - this.gamepadShiftDownDASTimer.getTime();
+		
+		if (!this.isPassedDelayGamepadShift) {
+				if (deltaTime >= DAS) {
+					this.gamepadShiftDownDASTimer = new Date();
+					this.isPassedDelayGamepadShift = true;
+				}
+				
+		} else {
+			if (deltaTime >= ARR && isContained) {
+				this.gamepadQueue.push(button);
+				this.gamepadShiftDownDASTimer = new Date();
+			}
+		}
+			
+	},
+	// On key down events
+	processKeyboardOnDownEvents() {
 		this.keyboardKeyEvents.forEach( key => this.settingsMap.get(key).split(',').forEach( idx => this.processKeyDown( parseInt(idx) ) ) );
 	},
 
-	// keyboard keys z,x,space
-	processKeyDown(key)
-	{
-		var DAS = 167.0;
+	// keyboard events rotate cc, ccw, and hard drop
+	processKeyDown(key) {
+		var DAS = Infinity;  // Effectively makes an only on key down event
 		var ARR = 300.0;
 		
 		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key]) {
@@ -150,11 +215,13 @@ var UserInputs = {
 		}
 	},
 	// Process applicable key inputs
-	processKeyShift() {
-		this.keyboardShiftEvents.forEach(arrowKey => arrowKey.split(',').forEach(option => this.processKeyboardArrowKeys(parseInt(this.settingsMap.get(option)))));	
+	processKeyboardDASEvents() {
+		this.keyboardShiftEvents.forEach(arrowKey => arrowKey.split(',').forEach(option => this.processDASKeyboardKeys(parseInt(this.settingsMap.get(option)))));
+	
 	},
+
 	// Direction arrows
-    processKeyboardArrowKeys(key) {		
+    processKeyboardArrowKeys(key) {
 		var DAS = parseInt(this.settingsMap.get("Keyboard DAS"));
 		var ARR = parseInt(this.settingsMap.get("Keyboard ARR"));
 
@@ -184,7 +251,46 @@ var UserInputs = {
 	
 		
     },
-    keyDown(event) {
+	// Process keyboard down
+	processKeyboardDownKey(key) {
+		var DAS = parseInt(this.settingsMap.get("Keyboard Down DAS"));
+		var ARR = parseInt(this.settingsMap.get("Keyboard Down ARR"));
+
+		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key]) {
+			// Not being held yet
+			this.isDelayAutoShiftDownStarted = false;
+			this.keyboardShiftDownKeyTimer = new Date();
+			
+			// Do shift if key has been pushed down
+			if(this.keyboardKeys[key] == true)
+				this.inputQueue.push(key);
+		}
+		
+		var deltaTime = (new Date()).getTime() - this.keyboardShiftDownKeyTimer.getTime();
+		
+            if (!this.isDelayAutoShiftDownStarted) {
+				
+                if (deltaTime >= DAS) {
+					this.keyboardShiftDownKeyTimer = new Date();
+                    this.isDelayAutoShiftDownStarted = true;
+                }
+            } 
+			else if(deltaTime >= ARR && this.keyboardKeys[key] == true) {
+                    this.inputQueue.push(key);
+					this.keyboardShiftDownKeyTimer  = new Date();
+			}
+	
+	},	
+	// Process all DAS/ARR controlled keys
+	processDASKeyboardKeys(key) {
+		if(key != this.settingsMap.get("Keyboard Down"))
+			this.processKeyboardArrowKeys(key);
+		else
+			this.processKeyboardDownKey(key);
+
+
+	},
+	keyDown(event) {
 		if(event.keyCode != 38) 
 		if (! ((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105) || event.keyCode == 8)) 
 			event.preventDefault();
@@ -224,21 +330,23 @@ var UserInputs = {
 	inputQueue: [],
 	gamepadQueue: [],
 		
-	keyboardKeySettings:	["Keyboard DAS", "Keyboard ARR"],
-	keyboardShiftEvents:	["Keyboard Left", "Keyboard Right", "Keyboard Down", "Keyboard Up"],
-	keyboardKeyEvents:		["Keyboard Harddrop", "Keyboard Hold", "Keyboard Rotateccw", "Keyboard Rotate", "Keyboard Pophold", "Keyboard Reset", "Keyboard Background", "Default Interval", "Lockdown Timer"],
+	keyboardKeySettings:		["Keyboard Down DAS", "Keyboard Down ARR", "Keyboard DAS", "Keyboard ARR"],
+	keyboardShiftEvents:		["Keyboard Left", "Keyboard Right", "Keyboard Down", "Keyboard Up"],
+	keyboardKeyEvents:			["Keyboard Harddrop", "Keyboard Hold", "Keyboard Rotateccw", "Keyboard Rotate", "Keyboard Pophold", "Keyboard Reset", "Keyboard Pause Toggle", "Default Interval", "Lockdown Timer"],
 					
-	gamepadSettings:		["Gamepad DAS", "Gamepad ARR"],
-	gamepadShiftEvents:		["Gamepad Left", "Gamepad Right","Gamepad Down"],
-	gamepadButtonEvents:	["Gamepad Harddrop", "Gamepad Hold", "Gamepad Rotateccw", "Gamepad Rotate", "Gamepad Pophold", "Gamepad Reset", "Gamepad Background"],
+	gamepadSettings:			["Gamepad Down DAS", "Gamepad Down ARR", "Gamepad DAS", "Gamepad ARR"],
+	gamepadDASEvents:			["Gamepad Left", "Gamepad Right", "Gamepad Down"],
+	gamepadOnDownButtonEvents:	["Gamepad Harddrop", "Gamepad Hold", "Gamepad Rotateccw", "Gamepad Rotate", "Gamepad Pophold", "Gamepad Reset", "Gamepad Pause Toggle"],
 				
 	settingsList: [],
 					
-	settingsDefault:	[	"167.0", "33.0", 
+							// Keyboard
+	settingsDefault:		["0.0", "33.0", "167.0", "33.0", 
 							"37", "39", "40", "38",
 							"32", "16", "90", "88", "17", "82", "80", "600", "1000",
 							
-							"167.0", "33.0", 
+							// Gamepad
+							"0.0", "33.0", "167.0", "33.0", 
 							"DPad-Left", "DPad-Right",	"DPad-Down",
 							"RB", "LB", "A", "B", "DPad-Up", "Back", ""],
 	settingsMap: []

@@ -6,7 +6,7 @@ var colors = ['#ef7a21','#f7d308','#ef2029','#ad4d9c','#5a658f','#42b642','#31c7
 
 
 // Gamestates
-var gameStates = ["freePlayState", "trainerState", "testTrainerStates", "sequenceEditorState", "quizState"];
+var gameStates = ["freePlayState", "trainerState", "testTrainerStates", "sequenceEditorState", "quizState", "testRNG"];
 var defaultGameState = "freePlayState";
 
 //sidebar width

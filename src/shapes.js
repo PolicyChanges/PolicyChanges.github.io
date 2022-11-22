@@ -783,6 +783,20 @@ ShapeZR.prototype = {
 	}
 }
 
+
+
+// Fisher-Yates shuffle
+function shuffle(array) {
+	var m = array.length, t, i;
+	while (m) {
+		i = Math.floor(Math.random() * m--);
+		t = array[m];
+		array[m] = array[i];
+		array[i] = t;
+	}
+	return array;
+}
+	
 /**
 	Create  a random shape for game
 */
@@ -809,13 +823,14 @@ var RandomGenerator = {
         var newBag = [];	
 		var bagLength = 7;
 
-		while(newBag.length < bagLength)
+		/*while(newBag.length < bagLength)
 		{
 			mino = getRandomInt(bagLength);
 			newBag.push(minoes[mino]);
 			newBag = newBag.filter(this.onlyUnique);
-		}
-		//console.log("New bag: " + mapmino(newBag.toString()));
+		}*/
+		newBag = shuffle(minoes);
+		console.log("New bag: " + newBag.toString());
         return newBag;
     },
 };
