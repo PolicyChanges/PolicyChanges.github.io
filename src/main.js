@@ -103,6 +103,27 @@ var checkGameOver = function(matrix) {
     return false;
 };
 
+// Add garbage.  matrix must be assigned.
+var addGarbage = function(matrix, garbage) {
+    //var firstRow = matrix[0];
+	var garbageHeight = garbage[0].length;
+	var newMatrix = matrix;
+	console.log("gheigth: " + garbageHeight);
+	//  Shift play matrix up and insert garbage
+	for (var j = garbageHeight-1; j <= 0; j--)
+	{
+		//var currentRow = matrix[j];
+		var garbageLength = 10;//zsmatrix[j].length;
+		
+		for (var i = 0; i < garbageLength; i++) {
+			newMatrix[j+garbageHeight][i] = matrix[j][i];
+			newMatrix[j][i] = garbage[j][i]
+		}
+    }
+
+	return newMatrix;
+	
+};
 
 /**
 	Calculate  the extra rewards add to the score
@@ -147,9 +168,123 @@ function Tetris(id) {
     this.id = id;
     this.init();
 }
-
+        var guide = {
+            i: [
+                [
+                    ["das left"],
+                    ["das left", "right"],
+                    ["left"],
+                    [],
+                    ["right"],
+                    ["das right", "left"],
+                    ["das right"]
+                ], // 0 rotation
+                [
+                    ["ccw", "das left"],
+                    ["das left", "ccw"],
+                    ["das left", "cw"],
+                    ["left", "ccw"],
+                    ["ccw"],
+                    ["cw"],
+                    ["right", "cw"],
+                    ["das right", "ccw"],
+                    ["das right", "cw"],
+                    ["ccw", "das right"],
+                ], // 1 rotation
+            ],
+            j: [
+                [
+                    ["das left"],
+                    ["left", "left"],
+                    ["left"],
+                    [],
+                    ["right"],
+                    ["right", "right"],
+                    ["das right", "left"],
+                    ["das right"]
+                ], // 0
+                [
+                    ["cw", "das left"],
+                    ["das left", "cw"],
+                    ["left", "left", "cw"],
+                    ["left", "cw"],
+                    ["cw"],
+                    ["right", "cw"],
+                    ["right", "right", "cw"],
+                    ["das right", "left", "cw"],
+                    ["das right", "cw"]
+                ], // 1
+                [
+                    ["das left", "cw", "cw"],
+                    ["left", "left", "cw", "cw"],
+                    ["left", "cw", "cw"],
+                    ["cw", "cw"],
+                    ["right", "cw", "cw"],
+                    ["right", "right", "cw", "cw"],
+                    ["das right", "left", "cw", "cw"],
+                    ["das right", "cw", "cw"]
+                ], // 2
+                [
+                    ["das left", "ccw"],
+                    ["left", "left", "ccw"],
+                    ["left", "ccw"],
+                    ["ccw"],
+                    ["right", "ccw"],
+                    ["right", "right", "ccw"],
+                    ["das right", "left", "ccw"],
+                    ["das right", "ccw"],
+                    ["ccw", "das right"]
+                ] // 3
+            ],
+            o: [
+                [
+                    ["das left"],
+                    ["das left", "right"],
+                    ["left", "left"],
+                    ["left"],
+                    [],
+                    ["right"],
+                    ["right", "right"],
+                    ["das right", "left"],
+                    ["das right"]
+                ]
+            ],
+            s: [
+                [
+                    ["cw", "das left"],
+                    ["das left", "cw"],
+                    ["left", "ccw"],
+                    ["ccw"],
+                    ["cw"],
+                    ["right", "cw"],
+                    ["right", "right", "cw"],
+                    ["das right", "ccw"],
+                    ["cw", "das right"]
+                ],
+            ],
+        };
 Tetris.prototype = {
     init: function(options) {
+		
+		
+		/*(async () => {
+			var response = await fetch('https://harddrop.com/wiki/Category:T-Spin_Methods',
+			{method: 'POST',
+			mode: 'cors',
+			cache: 'no-cache'});
+			switch (response.status) {
+				// status "OK"
+				case 200:
+					var template = await response.text();
+
+					console.log(template);
+					break;
+				// status "Not Found"
+				case 404:
+					console.log('Not Found');
+					break;
+			}
+		})();*/
 		//document.getElementById("pco").style.visibility = "hidden";
 		
         var cfg = this.config = utils.extend(options, defaults);
@@ -361,6 +496,7 @@ Tetris.prototype = {
 		this.freeplayBagQueue = [];  // Always try to have two bags full
 		this.hintQueue = [];
 		this.holdStack = [];
+		this.inputEventHistory = [];
 		
 		// gets set to false after mino has been popped from hold stack; set back to true on mino dropped
 		this.canPopFromHoldStack = false;
@@ -679,7 +815,7 @@ Tetris.prototype = {
 
 
     },
-	
+
 	// tick input data -- wont have better than 4-15ms resolution since javascript is single theaded and any ARR or DAS below 15ms could be broken
 	_processTick: async function() {
 		this.lockDownTimer++;
@@ -699,12 +835,13 @@ Tetris.prototype = {
 			while((inputs.gamepadQueue != undefined && inputs.gamepadQueue.length >= 1)){
 				var curkey = inputs.gamepadQueue.shift();
 				if(inputs.settingsMap.get("Gamepad Left").includes(curkey)) {
-					var isDas = this.shape.goLeft(this.matrix);
+					this.shape.goLeft(this.matrix);
+					
 					this.resetLockdown();
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Gamepad Right").includes(curkey)) {
-					var isDas = this.shape.goRight(this.matrix);
+					this.shape.goRight(this.matrix);
 					this.resetLockdown();
 					this._draw();
 				}
@@ -837,10 +974,12 @@ Tetris.prototype = {
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Keyboard Pophold").includes(curkey)) {
+					var garbageTest = [['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080']];
+					addGarbage(this.matrix, garbageTest);
+					return;
 					// This pushes the piece on to the editor hold queue in editor mode b/c the other mode's hold queue is being used to cycle through pieces. 
 					// it's confusing and bad.
 					if(this.gameState == consts.GAMESTATES[3]) {
-						console.log("sanity");
 						this.pushEditorHold();
 					} else {
 						this.popHoldStack();

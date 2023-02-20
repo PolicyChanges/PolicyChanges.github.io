@@ -44,7 +44,7 @@ var UserInputs = {
 		
 		var mapIdx = [14, 7, 13, 5, 4, 1, 2, 12, 8, 3];
 		for(var i in mapIdx) 
-			this.gamepadEventMap.set(this.gamepadDASEvents[i], gamepad.buttons[mapIdx[i]]);
+			this.gamepadEventMap.set(this.gamepadDASEvents[i], gamepad.buttons[mapIdx[i]]); //TODO: incorrect
 		
         document.addEventListener('keydown', this.keyDown.bind(this));
         document.addEventListener('keyup', this.keyUp.bind(this));
@@ -58,6 +58,14 @@ var UserInputs = {
 		}
 		this.processKeyboardOnDownEvents();
 		this.processKeyboardDASEvents();
+	},
+	isDASActive(button) {
+		if(this.gamepadDASEvents.includes(button))
+			return this.isDelayedPassedGamepadShift;
+		else if(this.keyboardShiftEvents.include(button))
+			return this.isDelayAutoShiftDownStarted;
+		
+		return undefined;
 	},
 	updateGamepad() {
 		this.gpButtons = gamepad.update();
