@@ -16,7 +16,11 @@ var UserInputs = {
 		this.gamepadShiftTimer = this.initTime;
 		// Gamepad Down ARR/DAS timer TODO: Switch to SDF(Softdrop factor)
 		this.gamepadShiftDownDASTimer = this.initTime;
-		
+		// Gamepad Wall Charge
+		this.gamepadIsCharged = false;
+		// Gamepad button up time stamp
+		this.gamepadButtonUpEventTimeStamp = (new Date()).getTime();
+		this.gamepadButtonDownEventTimeStamp = (new Date()).getTime();
 		
 		// Keyboard OnKeyDown event timer
 		this.keyboardKeyTimer = this.initTime;
@@ -24,7 +28,11 @@ var UserInputs = {
 		this.keyboardShiftTimer  = this.initTime;
 		// Keyboard Down ARR/DAS Timer TODO: Switch to SDF(Softdrop factor)
 		this.keyboardShiftDownKeyTimer = this.initTime;
-		
+		// Keyboard Wall Charge
+		this.keyboardIsCharged = false;
+		// Keyboard key up event time stamp
+		this.keyboardKeyUpEventTimeStamp = (new Date()).getTime();
+		this.keyboardKeyDownEventTimeStamp = this.keyboardKeyUpEventTimeStamp 
 		
 		this.settingsMap = new Map();
 		this.gamepadEventMap = new Map();
@@ -59,13 +67,12 @@ var UserInputs = {
 		this.processKeyboardOnDownEvents();
 		this.processKeyboardDASEvents();
 	},
-	isDASActive(button) {
-		if(this.gamepadDASEvents.includes(button))
-			return this.isDelayedPassedGamepadShift;
-		else if(this.keyboardShiftEvents.include(button))
-			return this.isDelayAutoShiftDownStarted;
-		
-		return undefined;
+	setIsCharged(isCharged) {
+		this.keyboardIsChanged = isCharged;
+		this.gamepadIsCharged = isCharged;
+	},
+	getGamepadButtonDownEventTimeStamp() {
+		return this.gamepadButtonDownEventTimeStamp;
 	},
 	updateGamepad() {
 		this.gpButtons = gamepad.update();
@@ -79,8 +86,7 @@ var UserInputs = {
 	processGamepadDASEvents()  {
 		this.gamepadDASEvents.forEach(gamepadButton => this.processGamepadDASButtons(this.settingsMap.get(gamepadButton)));
 	},
-
-	
+	// clean up naming conventions eesh
 	processGamepadDASButtons(button) {
 		if(button != this.settingsMap.get("Gamepad Down"))
 			this.gamepadDASDown(button);
@@ -96,6 +102,17 @@ var UserInputs = {
 		var isPrevContained = this.prevGpButtons.includes(button);
 		
 		if(isPrevContained != isContained ) {
+			/*var isButtonUpEvent = isPrevContained == true && isContained == false;
+			if(isButtonUpEvent){
+				this.gamepadButtonUpEventTimeStamp = (new Date()).getTime();
+				console.log("Entry delay delta:"  + (this.gamepadButtonUpEventTimeStamp - this.entryDelayTimeStamp));
+			}*/
+			var isButtonDownEvent = isContained == true && isPrevContained == false;
+			if(isButtonDownEvent && isPrevContained != undefined) {
+				this.gamepadButtonDownEventTimeStamp = (new Date()).getTime();
+				//console.log("Entry delay: "  + ((this.gamepadButtonDownEventTimeStamp - this.entryDelayTimeStamp)/16.0));
+			}
+		
 			// Not being held yet
 			this.gamepadShiftTimer = new Date();
 			this.isDelayedPassedGamepadShift = false;
@@ -105,15 +122,16 @@ var UserInputs = {
 		}
 		
 		var deltaTime = (new Date()).getTime() - this.gamepadShiftTimer.getTime();
-
-		if (!this.isDelayedPassedGamepadShift) {
+		
+		
+		if (!this.isDelayedPassedGamepadShift && !this.gamepadIsCharged) {
 			if (deltaTime >= DAS) {
 				this.gamepadShiftTimer = new Date();
 				this.isDelayedPassedGamepadShift = true;	
 			}
 		} 
 		else {
-			if (deltaTime >= ARR && isContained) {
+			if (deltaTime >= ARR && isContained ) {
 				this.gamepadQueue.push(button);
 				this.gamepadShiftTimer = new Date();
 			}
@@ -139,6 +157,7 @@ var UserInputs = {
 		
 		var deltaTime = (new Date()).getTime() - this.gamepadShiftDownDASTimer.getTime();
 
+		
 		if (!this.isDelayedPassedDASGamepadDown) {
 			if (deltaTime >= DAS) {
 				this.gamepadShiftDownDASTimer = new Date();
@@ -230,8 +249,19 @@ var UserInputs = {
     processKeyboardArrowKeys(key) {
 		var DAS = parseInt(this.settingsMap.get("Keyboard DAS"));
 		var ARR = parseInt(this.settingsMap.get("Keyboard ARR"));
-
+	
 		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key]) {
+		// keyboardKeys keys will be true or false depending on [key] state.
+		// prevKeyboardKeys may be undefine initially
+		/*var isKeyUpEvent = this.prevKeyboardKeys != undefined  && this.prevKeyboardKeys[key] == true && this.keyboardKeys[key] == false;
+		if(isKeyUpEvent){
+			this.keyboardKeyUpEventTimeStamp = (new Date()).getTime();
+			console.log("Entry delay delta:"  + (this.keyboardKeyUpEventTimeStamp - this.entryDelayTimeStamp));
+		}
+		/*var isKeyDownEvent = this.keyboardKeys[key] = true && this.prevKeyboardKeys != true;
+		if(isKeyDownEvent)
+			this.keyboardKeyDownEventTimeStamp = (new Date()).getTime();*/
+		
 			// Not being held yet
 			this.isDelayAutoShiftStarted = false;
 			this.keyboardShiftTimer = new Date();
@@ -242,6 +272,9 @@ var UserInputs = {
 		}
 		
 		var deltaTime = (new Date()).getTime() - this.keyboardShiftTimer.getTime();
+		
+		//if(this.keyboardIsCharged == true)
+			//this.isDelayAutoShiftStarted = true;
 		
             if (!this.isDelayAutoShiftStarted) {
 				

@@ -270,10 +270,11 @@ module.exports = tetrisCanvas;
 var colors = ['#ef7a21','#f7d308','#ef2029','#ad4d9c','#5a658f','#42b642','#31c7ef'];
 //['#ef7a21','#f7d308','#42b642','#ef2029','#ad4d9c','#5a658f','#31c7ef'];
 //['#00af9d','#ffb652','#cd66cc','#66bc29','#0096db','#3a7dda','#ffe100'];
-
+var zoneBlockColor = '#CCCCCC';
+var garbageBlockColor = '#808080';
 
 // Gamestates
-var gameStates = ["freePlayState", "trainerState", "testTrainerStates", "sequenceEditorState", "quizState", "testRNG"];
+var gameStates = ["freePlayState", "trainerState", "testTrainerStates", "sequenceEditorState", "quizState", "tspinQuizState", "testRNG"];
 var defaultGameState = "freePlayState";
 
 //sidebar width
@@ -321,34 +322,23 @@ var levelInterval = 120 * 1000;
 
 var exports = module.exports = {};
 
+
 exports.GAMESTATES = gameStates;
-
 exports.DEFAULT_GAMESTATE = defaultGameState;
-
 exports.COLORS =  colors;
-
 exports.SIDE_WIDTH = sideWidth;
-
 exports.ROW_COUNT = rowCount;
-
 exports.COLUMN_COUNT = columnCount;
-
 exports.SCENE_BG_START = sceneBgStart;
-
 exports.SCENE_BG_END = sceneBgEnd;
-
 exports.PREVIEW_BG = previewBg;
-
 exports.PREVIEW_COUNT = previewCount;
-
 exports.GRID_LINE_COLOR = gridLineColor;
-
 exports.BOX_BORDER_COLOR = boxBorderColor;
-
 exports.DEFAULT_INTERVAL = defaultInterval;
-
 exports.LEVEL_INTERVAL = levelInterval;
-
+exports.ZONE_BLOCK_COLOR = zoneBlockColor;
+exports.GARBAGE_BLOCK_COLOR = garbageBlockColor;
 },{}],3:[function(require,module,exports){
 
 var gamepadAPI = {
@@ -454,7 +444,11 @@ var UserInputs = {
 		this.gamepadShiftTimer = this.initTime;
 		// Gamepad Down ARR/DAS timer TODO: Switch to SDF(Softdrop factor)
 		this.gamepadShiftDownDASTimer = this.initTime;
-		
+		// Gamepad Wall Charge
+		this.gamepadIsCharged = false;
+		// Gamepad button up time stamp
+		this.gamepadButtonUpEventTimeStamp = (new Date()).getTime();
+		this.gamepadButtonDownEventTimeStamp = (new Date()).getTime();
 		
 		// Keyboard OnKeyDown event timer
 		this.keyboardKeyTimer = this.initTime;
@@ -462,7 +456,11 @@ var UserInputs = {
 		this.keyboardShiftTimer  = this.initTime;
 		// Keyboard Down ARR/DAS Timer TODO: Switch to SDF(Softdrop factor)
 		this.keyboardShiftDownKeyTimer = this.initTime;
-		
+		// Keyboard Wall Charge
+		this.keyboardIsCharged = false;
+		// Keyboard key up event time stamp
+		this.keyboardKeyUpEventTimeStamp = (new Date()).getTime();
+		this.keyboardKeyDownEventTimeStamp = this.keyboardKeyUpEventTimeStamp 
 		
 		this.settingsMap = new Map();
 		this.gamepadEventMap = new Map();
@@ -505,6 +503,16 @@ var UserInputs = {
 		
 		return undefined;
 	},
+	setIsCharged(isCharged) {
+		this.keyboardIsChanged = isCharged;
+		this.gamepadIsCharged = isCharged;
+	},
+	getGamepadButtonDownEventTimeStamp() {
+		return this.gamepadButtonDownEventTimeStamp;
+	},
+	setEntryDelayTimeStamp (setTimeStamp) {
+		this.entryDelayTimeStamp = setTimeStamp;
+	},
 	updateGamepad() {
 		this.gpButtons = gamepad.update();
 	},
@@ -517,8 +525,7 @@ var UserInputs = {
 	processGamepadDASEvents()  {
 		this.gamepadDASEvents.forEach(gamepadButton => this.processGamepadDASButtons(this.settingsMap.get(gamepadButton)));
 	},
-
-	
+	// clean up naming conventions eesh
 	processGamepadDASButtons(button) {
 		if(button != this.settingsMap.get("Gamepad Down"))
 			this.gamepadDASDown(button);
@@ -534,6 +541,17 @@ var UserInputs = {
 		var isPrevContained = this.prevGpButtons.includes(button);
 		
 		if(isPrevContained != isContained ) {
+		/*	var isButtonUpEvent = isPrevContained == true && isContained == false;
+			if(isButtonUpEvent){
+				this.gamepadButtonUpEventTimeStamp = (new Date()).getTime();
+				console.log("Entry delay delta:"  + (this.gamepadButtonUpEventTimeStamp - this.entryDelayTimeStamp));
+			}*/
+		var isButtonDownEvent = isContained == true && isPrevContained == false;
+		if(isButtonDownEvent && isPrevContained != undefined) {
+			this.gamepadButtonDownEventTimeStamp = (new Date()).getTime();
+			//console.log("Entry delay: "  + ((this.gamepadButtonDownEventTimeStamp - this.entryDelayTimeStamp)/16.0));
+		}
+		
 			// Not being held yet
 			this.gamepadShiftTimer = new Date();
 			this.isDelayedPassedGamepadShift = false;
@@ -543,15 +561,16 @@ var UserInputs = {
 		}
 		
 		var deltaTime = (new Date()).getTime() - this.gamepadShiftTimer.getTime();
-
-		if (!this.isDelayedPassedGamepadShift) {
+		
+		
+		if (!this.isDelayedPassedGamepadShift && !this.gamepadIsCharged) {
 			if (deltaTime >= DAS) {
 				this.gamepadShiftTimer = new Date();
 				this.isDelayedPassedGamepadShift = true;	
 			}
 		} 
 		else {
-			if (deltaTime >= ARR && isContained) {
+			if (deltaTime >= ARR && isContained ) {
 				this.gamepadQueue.push(button);
 				this.gamepadShiftTimer = new Date();
 			}
@@ -577,6 +596,7 @@ var UserInputs = {
 		
 		var deltaTime = (new Date()).getTime() - this.gamepadShiftDownDASTimer.getTime();
 
+		
 		if (!this.isDelayedPassedDASGamepadDown) {
 			if (deltaTime >= DAS) {
 				this.gamepadShiftDownDASTimer = new Date();
@@ -668,8 +688,19 @@ var UserInputs = {
     processKeyboardArrowKeys(key) {
 		var DAS = parseInt(this.settingsMap.get("Keyboard DAS"));
 		var ARR = parseInt(this.settingsMap.get("Keyboard ARR"));
-
+	
 		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key]) {
+		// keyboardKeys keys will be true or false depending on [key] state.
+		// prevKeyboardKeys may be undefine initially
+		/*var isKeyUpEvent = this.prevKeyboardKeys != undefined  && this.prevKeyboardKeys[key] == true && this.keyboardKeys[key] == false;
+		if(isKeyUpEvent){
+			this.keyboardKeyUpEventTimeStamp = (new Date()).getTime();
+			console.log("Entry delay delta:"  + (this.keyboardKeyUpEventTimeStamp - this.entryDelayTimeStamp));
+		}
+		/*var isKeyDownEvent = this.keyboardKeys[key] = true && this.prevKeyboardKeys != true;
+		if(isKeyDownEvent)
+			this.keyboardKeyDownEventTimeStamp = (new Date()).getTime();*/
+		
 			// Not being held yet
 			this.isDelayAutoShiftStarted = false;
 			this.keyboardShiftTimer = new Date();
@@ -680,6 +711,9 @@ var UserInputs = {
 		}
 		
 		var deltaTime = (new Date()).getTime() - this.keyboardShiftTimer.getTime();
+		
+		//if(this.keyboardIsCharged == true)
+			//this.isDelayAutoShiftStarted = true;
 		
             if (!this.isDelayAutoShiftStarted) {
 				
@@ -791,7 +825,7 @@ var UserInputs = {
 							"32", "16", "90", "88", "17", "82", "80", "600", "1000",
 							
 							// Gamepad
-							"0.0", "33.0", "167.0", "33.0", 
+							"0.0", "33.0", "48.0", "33.0", 
 							"DPad-Left", "DPad-Right",	"DPad-Down",
 							"RB", "LB", "A", "B", "DPad-Up", "Back", ""],
 	settingsMap: []
@@ -857,7 +891,7 @@ var checkFullRows = function(matrix) {
         var row = matrix[i];
         var full = true;
         for (var j = 0; j < row.length; j++) {
-            full = full && row[j] !== 0;
+            full = full && (row[j] !== 0 && row[j] != consts.ZONE_BLOCK_COLOR);
         }
         if (full) {
             rowNumbers.push(i);
@@ -905,26 +939,37 @@ var checkGameOver = function(matrix) {
     return false;
 };
 
-// Add garbage.  matrix must be assigned.
+// Add garbage.
 var addGarbage = function(matrix, garbage) {
-    //var firstRow = matrix[0];
-	var garbageHeight = garbage[0].length;
-	var newMatrix = matrix;
-	console.log("gheigth: " + garbageHeight);
-	//  Shift play matrix up and insert garbage
-	for (var j = garbageHeight-1; j <= 0; j--)
-	{
-		//var currentRow = matrix[j];
-		var garbageLength = 10;//zsmatrix[j].length;
-		
+    
+
+	
+	var garbageHeight = garbage.length;
+
+	var previousMatrix = matrix;
+
+	var bottomRow = consts.ROW_COUNT;
+	var garbageTopRow = bottomRow - garbageHeight;
+	
+	//  Shift play matrix up
+	for (var j = 0; j < consts.ROW_COUNT; j++) {
+		for (var i = 0; i < consts.COLUMN_COUNT; i++) {
+			// Bump up old matrix for incoming garbage
+			if(j-garbageHeight>=0)
+				matrix[j-garbageHeight][i] = previousMatrix[j][i];
+		}
+	}
+
+	//	Insert garbage. Indices count up from top to bottom row
+	for (var j = garbageTopRow; j < bottomRow ; j++) {
+		var garbageLength = garbage[j-garbageTopRow].length;
 		for (var i = 0; i < garbageLength; i++) {
-			newMatrix[j+garbageHeight][i] = matrix[j][i];
-			newMatrix[j][i] = garbage[j][i]
+			// Add incoming garbage
+			matrix[j][i] = garbage[j-garbageTopRow][i];
+			//console.log("matrix: " + matrix[j][i] + " garbage: " + garbage[0][i] + " prevmatrix: " + previousMatrix[j][i]);
 		}
     }
-
-	return newMatrix;
-	
+	return matrix;
 };
 
 /**
@@ -1156,18 +1201,27 @@ Tetris.prototype = {
 
 	},
 	// Gamestate 3
-	setDoTest: function()
+	toggleDoQuiz: function()
 	{
-
-		if(this.gameState != consts.GAMESTATES[1]) return;
+		if(this.gameState != consts.GAMESTATES[1] && this.gameState != consts.GAMESTATES[2]) return;
 		
-		// set game state to do test
-		this.gameState = consts.GAMESTATES[2];
+		
+		if(this.gameState == consts.GAMESTATES[1]) {
+			// set game state to do test
+			document.getElementById("quiz").value = "Show Hints";
+			
+			this.gameState = consts.GAMESTATES[2];
+		}
+		else {
+			document.getElementById("quiz").value = "Hide Hints";
+			
+			this.gameState = consts.GAMESTATES[1];
+		}
 		
 		this._restartHandler();
 	},
 	// Gamestate 4
-	setGameStateSequenceEditor: function()
+	setGameStateToSequenceEditor: function()
 	{
 		//document.getElementById("side").display = "none";
 		
@@ -1181,9 +1235,53 @@ Tetris.prototype = {
 		this.reset();
 		this._restartHandler();
 		this.currentOpener = 0;
+		
+		// Fill up hold stack with each mino
 		this.pushHoldStack();
 	},
-
+	setGameStateToTSpinQuiz: function()
+	{
+		/*this.gameState = consts.GAMESTATES[5];
+		this.shape = undefined;
+		this.hintqueue = [];
+		this.hintQueue = [];
+		this.shapeQueue = [];
+		this.hintMino = 0;
+		this.reset();
+		this._restartHandler();
+		this.currentOpener = 0;*/
+		
+		var Variation1 = 
+		[['#808080','#808080','#808080','#808080'],
+		['#808080','#808080','#808080','#808080','#808080'],
+		['#808080','#808080','#808080','#808080','#808080','#808080',0,'#808080','#808080']
+		];
+		var TSpinField = 
+		[
+		['#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080'],
+		['#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080'],
+		['#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080'],
+		['#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080'],
+		['#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080'],
+		['#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080']
+		];
+		
+		//[['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080']];
+		// Add garbage to playfield
+		addGarbage(this.matrix, Variation1);
+		//addGarbage(this.matrix, TSpinField);
+		
+		/*
+		// Push current piece to top of playfield
+		if(shapes.canMoveTo(this.shape, this.matrix) == false) {
+			// Set piece y to origin
+			this.shape.y = shapes.getShape(this.shape.nType()).y;
+			// Move piece to pushed up playfield
+			this.shape.goBottom(this.matrix);
+		}*/
+		
+		this._draw();
+	},
 	createSettings: function () {
 		var list = document.getElementById("settings");
 		var settings = inputs.settingsList;
@@ -1305,12 +1403,20 @@ Tetris.prototype = {
 		// manipulation counter for srs extended piece lockdown
 		this.manipulationCounter = 0;
 		// timer for srs extened piece lockdown
-		this.lockdownTimer = 5000;
+		this.lockDownTimer = 5000;
 		this.isPCOActive = false;
 		this.landed = false;
 		this.isSequenceCompleted = false;
 		this.traditionalHold = true;  // 1 piece hold if true. 4 if false
 		this.isHolding = false;
+		
+		// Frame time logger todo: delete
+		this.currentFrameTime = this.startTime;
+		this.previousFrameTime = this.startTime;
+		this.logInfo = [];
+		
+		// ARE timer
+		this.entryDelayTimeStamp = this.startTime;
 		
         clearMatrix(this.matrix);
         views.setLevel(this.level);
@@ -1434,11 +1540,13 @@ Tetris.prototype = {
     },
     // Bind game events
     _initEvents: function() {
-		setInterval(() => {this._processTick();}, 1);
+		setInterval(() => {this._periodicLog();}, 1000);
+		setInterval(() => {this._processInputTick();}, 1);
+		setInterval(() => {this._processFrameTick();}, 16);
 		//setInterval(() => {this.lockDownTimer++;}, 2 );
         views.btnRestart.addEventListener('click', utils.proxy(this._restartHandler, this), false);
     },
-	// Process freeplay queue
+	// Process freeplay queue TODO: possibly rename queue to mode
 	_processFreeplayQueue: function() {
 		
 		/*if(this.shapeQueue.length < 7) {
@@ -1499,15 +1607,19 @@ Tetris.prototype = {
 	_processSequenceEditor: function () {
 		return;
 	},
-	
+	// Process T-Spin quiz mode
+	_processTSpinQuiz: function () {
+		return;
+	},
 	// Fill next queue and set next shape
     _fireShape: function() {
 		//todo:should be in shapes.js
 		this.landed = false;
 		this.manipulationCounter = 0;
-
+	
 		this._draw();
 		
+		// End wall charge window
         
     },
 	_recurseGameState: function ()
@@ -1531,7 +1643,11 @@ Tetris.prototype = {
 		case consts.GAMESTATES[3]:				
 			this._processSequenceEditor();
 			break;
-		case consts.GAMESTATES[4]:  // TODO: check different rng methods distrobutions. should have gaussian distrobution for each position of each bag
+		case consts.GAMESTATES[5]:
+			this._processTSpinQuiz();
+			this._fireShape();
+		break;
+		case consts.GAMESTATES[6]:  // TODO: check different rng methods distrobutions. should have gaussian distrobution for each position in generated bags
 			//generate RNG data for testing random number distribution
 
 		// Handles randomly generating and returning a tetromino
@@ -1618,8 +1734,35 @@ Tetris.prototype = {
 
     },
 
+	_periodicLog: function() {
+		if(this.logInfo.length > 0) {
+			console.log("Info: " + this.logInfo[0]);
+			utils.fastEmptyArray(this.logInfo);
+			this.logInfo = [];
+		}
+	},
+
+	// Process Frame todo: switch from _fireShape/_draw to _invalidate when neccessary
+	_processFrameTick: async function() {
+		this.currentFrameDelta = this.currentFrameTime - this.previousFrameTime
+		//this.logInfo.push(this.currentFrameDelta);
+		this.previousFrameTime = this.currentFrameTime;
+		this.currentFrameTime = (new Date).getTime();
+		
+		// Check to see if we left entry delay
+		var entryDelayCheck = (inputs.getGamepadButtonDownEventTimeStamp() - this.entryDelayTimeStamp) / 16;
+		
+		if(entryDelayCheck>0&&entryDelayCheck<=6)
+			this.logInfo.push(parseInt(entryDelayCheck));
+		
+		inputs.setEntryDelayTimeStamp(this.entryDelayTimeStamp);
+		if(entryDelayCheck >= 6) inputs.setIsCharged(false);
+		//if(entryDelayCheck < 6) inputs.setIsCharged(false);
+		
+	},		
+	
 	// tick input data -- wont have better than 4-15ms resolution since javascript is single theaded and any ARR or DAS below 15ms could be broken
-	_processTick: async function() {
+	_processInputTick: async function() {
 		this.lockDownTimer++;
 	
 		if(this.isTimerOn) {
@@ -1716,7 +1859,7 @@ Tetris.prototype = {
 			//inputs.processKeyShift();
 			
 			// Keyboard inputs
-			while((inputs.inputQueue != undefined && inputs.inputQueue.length >= 1)){
+			while((inputs.inputQueue != undefined && inputs.inputQueue.length >= 1) && this.gamepadEnabled != true){
 				var curkey = inputs.inputQueue.shift();
 				if(inputs.settingsMap.get("Keyboard Left").includes(curkey)) {
 					this.shape.goLeft(this.matrix);
@@ -1776,9 +1919,6 @@ Tetris.prototype = {
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Keyboard Pophold").includes(curkey)) {
-					var garbageTest = [['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080']];
-					addGarbage(this.matrix, garbageTest);
-					return;
 					// This pushes the piece on to the editor hold queue in editor mode b/c the other mode's hold queue is being used to cycle through pieces. 
 					// it's confusing and bad.
 					if(this.gameState == consts.GAMESTATES[3]) {
@@ -1816,7 +1956,7 @@ Tetris.prototype = {
 			inputs.saveKeyboardKeys();
 
 			inputs.saveButtons();
-	},		
+	},
     // Refresh game canvas
     _refresh: function() {
 		if (!this.running) 
@@ -1855,12 +1995,16 @@ Tetris.prototype = {
 		switch(this.gameState) {
 			case consts.GAMESTATES[0]:
 			case consts.GAMESTATES[1]:
-			case consts.GAMESTATES[2]:
+			case consts.GAMESTATES[2]:  // Handle some piece logic TODO: get rid of some of these logic loops
 				if(this.shape == undefined) break;
 				if (this.shape.canDown(this.matrix)) {
 					this.resetLockdown();
 					this.shape.goDown(this.matrix);
 				} else if(this.isPieceLocked()){
+					// ARE window
+					inputs.setIsCharged(true);
+					this.entryDelayTimeStamp = (new Date()).getTime();
+					
 					this.canPopFromHoldStack = true;
 					this.shape.copyTo(this.matrix);
 					this._check();
@@ -1881,6 +2025,8 @@ Tetris.prototype = {
 			case consts.GAMESTATES[3]:
 			break;
 			case consts.GAMESTATES[4]:
+			break;
+			case consts.GAMESTATES[5]:
 			break;
 			default:
 			break;
@@ -3241,7 +3387,7 @@ var RandomGenerator = {
 			newBag = newBag.filter(this.onlyUnique);
 		}*/
 		newBag = shuffle(minoes);
-		console.log("New bag: " + newBag.toString());
+		
         return newBag;
     },
 };
@@ -3330,6 +3476,12 @@ module.exports.generateBag = generateBag;
 },{"./consts.js":2,"./utils.js":8}],8:[function(require,module,exports){
 
 var exports = module.exports = {};
+
+var fastEmptyArray = function(array){
+			while (array.length > 0) {
+			array.pop();
+		} 
+};
 
 var setCookie = function(cname, cvalue, exdays) {
   var d = new Date();
@@ -3469,6 +3621,8 @@ exports.proxy = proxy;
 exports.deepClone = deepClone;
 exports.setCookie = setCookie;
 exports.getCookie = getCookie;
+exports.fastEmptyArray = fastEmptyArray;
+
 // export $;
 // export extend;
 // export proxy;

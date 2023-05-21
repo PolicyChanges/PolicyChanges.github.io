@@ -87,6 +87,7 @@ this.resizebg();
 			<ul style="font-size:16px;color:dodgerblue;text-align:left;" id="Openers">Openers:
 			
 			<li style="font-size:12px;color:powderblue;"><a href="#" id="setFreePlay">No Opener </a></li>
+			<li style="font-size:12px;color:powderblue;"><a href="#" id="setTSpinQuiz">9-0 T-Spin Quiz</a></li>
 			<li style="font-size:12px;color:powderblue;"><a href="src/ttpc-master-eng/index.html" id="togglePCOActive">PC Openers </a></li>
 			
 				<ul style="font-size:14px;color:dodgerblue;text-align:left;" id="TSpinOpeners">T-Spin Openers:	
@@ -123,8 +124,9 @@ this.resizebg();
 				
 				</ul>
 				<li style="font-size:12px;padding-left:1em;"><a href="#" id="setStdPCOpenerVar">PC Opener Impossible Variation </a></li>
-				<li syule="font-size:12px;padding-left:1em";><a href="#" id="setTrinityVar">Trinity</a></li>
-				<li syule="font-size:12px;padding-left:1em";><a href="#" id="setMountainousVar">Mountainous</a></li>
+				<li style="font-size:12px;padding-left:1em";><a href="#" id="setTrinityVar">Trinity</a></li>
+				<li style="font-size:12px;padding-left:1em";><a href="#" id="setMountainousVar">Mountainous</a></li>
+				
 				<!--
 				<ul style="font-size:14px;color:powderblue;text-align:left;" id="ComboOpeners">Combo Openers
 					<li style="font-size:12px;padding-left:1em;"><a href="#" id="setTKIFonzieVar">Side 4 Wide </a></li>
@@ -177,7 +179,7 @@ this.resizebg();
 			<input style="width:50px;font-size:13px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" type="text" id="setting_value">		
 			<input style="width:45px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" id="submitsetting" type="submit" value="Set"></input>
 			<br>
-			<input style="width:70px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" id="test" type="submit" value="Hide Hints"></input>
+			<input style="width:70px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" id="quiz" type="submit" value="Hide Hints"></input>
 			<input style="width:110px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" id="enablegamepad" type="button" value="Enable Gamepad"/>
 			<input style="width:100px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" id="sequenceeditor" type="button" value="Opener Editor"/>
 			<input style="width:80px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" id="addopener" type="button" value="Add Opener"/>
@@ -200,6 +202,7 @@ this.resizebg();
 <script>
 	(function(){
 		var tetrion = new Tetris('tetris');
+		// Note: Putting this in a loop would clean things up, but would make it even more opaque.
 		document.getElementById("setFreePlay").addEventListener("click", function() { tetrion.setFreePlay(); } );
 		document.getElementById("togglePCOActive").addEventListener("click", function() { tetrion.togglePCO(); } );
 		
@@ -228,10 +231,11 @@ this.resizebg();
 		
 		document.getElementById("Timer").addEventListener("click", function() { tetrion.toggleTimer(); } );
 		
-		document.getElementById("test").addEventListener("click", function() { tetrion.setDoTest(); } );
+		document.getElementById("quiz").addEventListener("click", function() { tetrion.toggleDoQuiz(); } );
 		document.getElementById("settings").addEventListener("change", function() { tetrion.updateSettingTextBox(); } );
 		document.getElementById("submitsetting").addEventListener("click", function() { tetrion.setSettings(); } );
-		document.getElementById("sequenceeditor").addEventListener("click", function() { tetrion.setGameStateSequenceEditor(); } );
+		document.getElementById("sequenceeditor").addEventListener("click", function() { tetrion.setGameStateToSequenceEditor(); } );
+		document.getElementById("setTSpinQuiz").addEventListener("click", function() { tetrion.setGameStateToTSpinQuiz(); } );
 		document.getElementById("addopener").addEventListener("click", function() { tetrion.addOpener(); } );
 		tetrion.start();
 	})();

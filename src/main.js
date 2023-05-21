@@ -55,7 +55,7 @@ var checkFullRows = function(matrix) {
         var row = matrix[i];
         var full = true;
         for (var j = 0; j < row.length; j++) {
-            full = full && row[j] !== 0;
+            full = full && (row[j] !== 0 && row[j] != consts.ZONE_BLOCK_COLOR);
         }
         if (full) {
             rowNumbers.push(i);
@@ -103,26 +103,37 @@ var checkGameOver = function(matrix) {
     return false;
 };
 
-// Add garbage.  matrix must be assigned.
+// Add garbage.
 var addGarbage = function(matrix, garbage) {
-    //var firstRow = matrix[0];
-	var garbageHeight = garbage[0].length;
-	var newMatrix = matrix;
-	console.log("gheigth: " + garbageHeight);
-	//  Shift play matrix up and insert garbage
-	for (var j = garbageHeight-1; j <= 0; j--)
-	{
-		//var currentRow = matrix[j];
-		var garbageLength = 10;//zsmatrix[j].length;
-		
+    
+
+	
+	var garbageHeight = garbage.length;
+
+	var previousMatrix = matrix;
+
+	var bottomRow = consts.ROW_COUNT;
+	var garbageTopRow = bottomRow - garbageHeight;
+	
+	//  Shift play matrix up
+	for (var j = 0; j < consts.ROW_COUNT; j++) {
+		for (var i = 0; i < consts.COLUMN_COUNT; i++) {
+			// Bump up old matrix for incoming garbage
+			if(j-garbageHeight>=0)
+				matrix[j-garbageHeight][i] = previousMatrix[j][i];
+		}
+	}
+
+	//	Insert garbage. Indices count up from top to bottom row
+	for (var j = garbageTopRow; j < bottomRow ; j++) {
+		var garbageLength = garbage[j-garbageTopRow].length;
 		for (var i = 0; i < garbageLength; i++) {
-			newMatrix[j+garbageHeight][i] = matrix[j][i];
-			newMatrix[j][i] = garbage[j][i]
+			// Add incoming garbage
+			matrix[j][i] = garbage[j-garbageTopRow][i];
+			//console.log("matrix: " + matrix[j][i] + " garbage: " + garbage[0][i] + " prevmatrix: " + previousMatrix[j][i]);
 		}
     }
-
-	return newMatrix;
-	
+	return matrix;
 };
 
 /**
@@ -354,18 +365,27 @@ Tetris.prototype = {
 
 	},
 	// Gamestate 3
-	setDoTest: function()
+	toggleDoQuiz: function()
 	{
-
-		if(this.gameState != consts.GAMESTATES[1]) return;
+		if(this.gameState != consts.GAMESTATES[1] && this.gameState != consts.GAMESTATES[2]) return;
 		
-		// set game state to do test
-		this.gameState = consts.GAMESTATES[2];
+		
+		if(this.gameState == consts.GAMESTATES[1]) {
+			// set game state to do test
+			document.getElementById("quiz").value = "Show Hints";
+			
+			this.gameState = consts.GAMESTATES[2];
+		}
+		else {
+			document.getElementById("quiz").value = "Hide Hints";
+			
+			this.gameState = consts.GAMESTATES[1];
+		}
 		
 		this._restartHandler();
 	},
 	// Gamestate 4
-	setGameStateSequenceEditor: function()
+	setGameStateToSequenceEditor: function()
 	{
 		//document.getElementById("side").display = "none";
 		
@@ -379,9 +399,53 @@ Tetris.prototype = {
 		this.reset();
 		this._restartHandler();
 		this.currentOpener = 0;
+		
+		// Fill up hold stack with each mino
 		this.pushHoldStack();
 	},
-
+	setGameStateToTSpinQuiz: function()
+	{
+		/*this.gameState = consts.GAMESTATES[5];
+		this.shape = undefined;
+		this.hintqueue = [];
+		this.hintQueue = [];
+		this.shapeQueue = [];
+		this.hintMino = 0;
+		this.reset();
+		this._restartHandler();
+		this.currentOpener = 0;*/
+		
+		var Variation1 = 
+		[['#808080','#808080','#808080','#808080'],
+		['#808080','#808080','#808080','#808080','#808080'],
+		['#808080','#808080','#808080','#808080','#808080','#808080',0,'#808080','#808080']
+		];
+		var TSpinField = 
+		[
+		['#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080'],
+		['#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080'],
+		['#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080'],
+		['#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080'],
+		['#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080'],
+		['#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080']
+		];
+		
+		//[['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080']];
+		// Add garbage to playfield
+		addGarbage(this.matrix, Variation1);
+		//addGarbage(this.matrix, TSpinField);
+		
+		/*
+		// Push current piece to top of playfield
+		if(shapes.canMoveTo(this.shape, this.matrix) == false) {
+			// Set piece y to origin
+			this.shape.y = shapes.getShape(this.shape.nType()).y;
+			// Move piece to pushed up playfield
+			this.shape.goBottom(this.matrix);
+		}*/
+		
+		this._draw();
+	},
 	createSettings: function () {
 		var list = document.getElementById("settings");
 		var settings = inputs.settingsList;
@@ -503,12 +567,20 @@ Tetris.prototype = {
 		// manipulation counter for srs extended piece lockdown
 		this.manipulationCounter = 0;
 		// timer for srs extened piece lockdown
-		this.lockdownTimer = 5000;
+		this.lockDownTimer = 5000;
 		this.isPCOActive = false;
 		this.landed = false;
 		this.isSequenceCompleted = false;
 		this.traditionalHold = true;  // 1 piece hold if true. 4 if false
 		this.isHolding = false;
+		
+		// Frame time logger todo: delete
+		this.currentFrameTime = this.startTime;
+		this.previousFrameTime = this.startTime;
+		this.logInfo = [];
+		
+		// ARE timer
+		this.entryDelayTimeStamp = this.startTime;
 		
         clearMatrix(this.matrix);
         views.setLevel(this.level);
@@ -632,11 +704,13 @@ Tetris.prototype = {
     },
     // Bind game events
     _initEvents: function() {
-		setInterval(() => {this._processTick();}, 1);
+		setInterval(() => {this._periodicLog();}, 1000);
+		setInterval(() => {this._processInputTick();}, 1);
+		setInterval(() => {this._processFrameTick();}, 16);
 		//setInterval(() => {this.lockDownTimer++;}, 2 );
         views.btnRestart.addEventListener('click', utils.proxy(this._restartHandler, this), false);
     },
-	// Process freeplay queue
+	// Process freeplay queue TODO: possibly rename queue to mode
 	_processFreeplayQueue: function() {
 		
 		/*if(this.shapeQueue.length < 7) {
@@ -697,15 +771,19 @@ Tetris.prototype = {
 	_processSequenceEditor: function () {
 		return;
 	},
-	
+	// Process T-Spin quiz mode
+	_processTSpinQuiz: function () {
+		return;
+	},
 	// Fill next queue and set next shape
     _fireShape: function() {
 		//todo:should be in shapes.js
 		this.landed = false;
 		this.manipulationCounter = 0;
-
+	
 		this._draw();
 		
+		// End wall charge window
         
     },
 	_recurseGameState: function ()
@@ -729,7 +807,11 @@ Tetris.prototype = {
 		case consts.GAMESTATES[3]:				
 			this._processSequenceEditor();
 			break;
-		case consts.GAMESTATES[4]:  // TODO: check different rng methods distrobutions. should have gaussian distrobution for each position of each bag
+		case consts.GAMESTATES[5]:
+			this._processTSpinQuiz();
+			this._fireShape();
+		break;
+		case consts.GAMESTATES[6]:  // TODO: check different rng methods distrobutions. should have gaussian distrobution for each position in generated bags
 			//generate RNG data for testing random number distribution
 
 		// Handles randomly generating and returning a tetromino
@@ -816,8 +898,35 @@ Tetris.prototype = {
 
     },
 
+	_periodicLog: function() {
+		if(this.logInfo.length > 0) {
+			console.log("Info: " + this.logInfo[0]);
+			utils.fastEmptyArray(this.logInfo);
+			this.logInfo = [];
+		}
+	},
+
+	// Process Frame todo: switch from _fireShape/_draw to _invalidate when neccessary
+	_processFrameTick: async function() {
+		this.currentFrameDelta = this.currentFrameTime - this.previousFrameTime
+		//this.logInfo.push(this.currentFrameDelta);
+		this.previousFrameTime = this.currentFrameTime;
+		this.currentFrameTime = (new Date).getTime();
+		
+		// Check to see if we left entry delay
+		var entryDelayCheck = (inputs.getGamepadButtonDownEventTimeStamp() - this.entryDelayTimeStamp) / 16;
+		
+		if(entryDelayCheck>0&&entryDelayCheck<=6)
+			this.logInfo.push(parseInt(entryDelayCheck));
+		
+		inputs.setEntryDelayTimeStamp(this.entryDelayTimeStamp);
+		if(entryDelayCheck >= 6) inputs.setIsCharged(false);
+		//if(entryDelayCheck < 6) inputs.setIsCharged(false);
+		
+	},		
+	
 	// tick input data -- wont have better than 4-15ms resolution since javascript is single theaded and any ARR or DAS below 15ms could be broken
-	_processTick: async function() {
+	_processInputTick: async function() {
 		this.lockDownTimer++;
 	
 		if(this.isTimerOn) {
@@ -914,7 +1023,7 @@ Tetris.prototype = {
 			//inputs.processKeyShift();
 			
 			// Keyboard inputs
-			while((inputs.inputQueue != undefined && inputs.inputQueue.length >= 1)){
+			while((inputs.inputQueue != undefined && inputs.inputQueue.length >= 1) && this.gamepadEnabled != true){
 				var curkey = inputs.inputQueue.shift();
 				if(inputs.settingsMap.get("Keyboard Left").includes(curkey)) {
 					this.shape.goLeft(this.matrix);
@@ -974,9 +1083,6 @@ Tetris.prototype = {
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Keyboard Pophold").includes(curkey)) {
-					var garbageTest = [['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080']];
-					addGarbage(this.matrix, garbageTest);
-					return;
 					// This pushes the piece on to the editor hold queue in editor mode b/c the other mode's hold queue is being used to cycle through pieces. 
 					// it's confusing and bad.
 					if(this.gameState == consts.GAMESTATES[3]) {
@@ -1014,7 +1120,7 @@ Tetris.prototype = {
 			inputs.saveKeyboardKeys();
 
 			inputs.saveButtons();
-	},		
+	},
     // Refresh game canvas
     _refresh: function() {
 		if (!this.running) 
@@ -1053,12 +1159,16 @@ Tetris.prototype = {
 		switch(this.gameState) {
 			case consts.GAMESTATES[0]:
 			case consts.GAMESTATES[1]:
-			case consts.GAMESTATES[2]:
+			case consts.GAMESTATES[2]:  // Handle some piece logic TODO: get rid of some of these logic loops
 				if(this.shape == undefined) break;
 				if (this.shape.canDown(this.matrix)) {
 					this.resetLockdown();
 					this.shape.goDown(this.matrix);
 				} else if(this.isPieceLocked()){
+					// ARE window
+					inputs.setIsCharged(true);
+					this.entryDelayTimeStamp = (new Date()).getTime();
+					
 					this.canPopFromHoldStack = true;
 					this.shape.copyTo(this.matrix);
 					this._check();
@@ -1079,6 +1189,8 @@ Tetris.prototype = {
 			case consts.GAMESTATES[3]:
 			break;
 			case consts.GAMESTATES[4]:
+			break;
+			case consts.GAMESTATES[5]:
 			break;
 			default:
 			break;

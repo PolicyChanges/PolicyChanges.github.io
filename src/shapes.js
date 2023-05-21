@@ -830,7 +830,7 @@ var RandomGenerator = {
 			newBag = newBag.filter(this.onlyUnique);
 		}*/
 		newBag = shuffle(minoes);
-		console.log("New bag: " + newBag.toString());
+		
         return newBag;
     },
 };

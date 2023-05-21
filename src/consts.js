@@ -3,10 +3,11 @@
 var colors = ['#ef7a21','#f7d308','#ef2029','#ad4d9c','#5a658f','#42b642','#31c7ef'];
 //['#ef7a21','#f7d308','#42b642','#ef2029','#ad4d9c','#5a658f','#31c7ef'];
 //['#00af9d','#ffb652','#cd66cc','#66bc29','#0096db','#3a7dda','#ffe100'];
-
+var zoneBlockColor = '#CCCCCC';
+var garbageBlockColor = '#808080';
 
 // Gamestates
-var gameStates = ["freePlayState", "trainerState", "testTrainerStates", "sequenceEditorState", "quizState", "testRNG"];
+var gameStates = ["freePlayState", "trainerState", "testTrainerStates", "sequenceEditorState", "quizState", "tspinQuizState", "testRNG"];
 var defaultGameState = "freePlayState";
 
 //sidebar width
@@ -54,30 +55,20 @@ var levelInterval = 120 * 1000;
 
 var exports = module.exports = {};
 
+
 exports.GAMESTATES = gameStates;
-
 exports.DEFAULT_GAMESTATE = defaultGameState;
-
 exports.COLORS =  colors;
-
 exports.SIDE_WIDTH = sideWidth;
-
 exports.ROW_COUNT = rowCount;
-
 exports.COLUMN_COUNT = columnCount;
-
 exports.SCENE_BG_START = sceneBgStart;
-
 exports.SCENE_BG_END = sceneBgEnd;
-
 exports.PREVIEW_BG = previewBg;
-
 exports.PREVIEW_COUNT = previewCount;
-
 exports.GRID_LINE_COLOR = gridLineColor;
-
 exports.BOX_BORDER_COLOR = boxBorderColor;
-
 exports.DEFAULT_INTERVAL = defaultInterval;
-
 exports.LEVEL_INTERVAL = levelInterval;
+exports.ZONE_BLOCK_COLOR = zoneBlockColor;
+exports.GARBAGE_BLOCK_COLOR = garbageBlockColor;

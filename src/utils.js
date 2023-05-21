@@ -1,6 +1,12 @@
 
 var exports = module.exports = {};
 
+var fastEmptyArray = function(array){
+			while (array.length > 0) {
+			array.pop();
+		} 
+};
+
 var setCookie = function(cname, cvalue, exdays) {
   var d = new Date();
   d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
@@ -139,6 +145,8 @@ exports.proxy = proxy;
 exports.deepClone = deepClone;
 exports.setCookie = setCookie;
 exports.getCookie = getCookie;
+exports.fastEmptyArray = fastEmptyArray;
+
 // export $;
 // export extend;
 // export proxy;
