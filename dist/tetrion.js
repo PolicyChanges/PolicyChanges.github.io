@@ -495,23 +495,12 @@ var UserInputs = {
 		this.processKeyboardOnDownEvents();
 		this.processKeyboardDASEvents();
 	},
-	isDASActive(button) {
-		if(this.gamepadDASEvents.includes(button))
-			return this.isDelayedPassedGamepadShift;
-		else if(this.keyboardShiftEvents.include(button))
-			return this.isDelayAutoShiftDownStarted;
-		
-		return undefined;
-	},
 	setIsCharged(isCharged) {
 		this.keyboardIsChanged = isCharged;
 		this.gamepadIsCharged = isCharged;
 	},
 	getGamepadButtonDownEventTimeStamp() {
 		return this.gamepadButtonDownEventTimeStamp;
-	},
-	setEntryDelayTimeStamp (setTimeStamp) {
-		this.entryDelayTimeStamp = setTimeStamp;
 	},
 	updateGamepad() {
 		this.gpButtons = gamepad.update();
@@ -541,16 +530,16 @@ var UserInputs = {
 		var isPrevContained = this.prevGpButtons.includes(button);
 		
 		if(isPrevContained != isContained ) {
-		/*	var isButtonUpEvent = isPrevContained == true && isContained == false;
+			/*var isButtonUpEvent = isPrevContained == true && isContained == false;
 			if(isButtonUpEvent){
 				this.gamepadButtonUpEventTimeStamp = (new Date()).getTime();
 				console.log("Entry delay delta:"  + (this.gamepadButtonUpEventTimeStamp - this.entryDelayTimeStamp));
 			}*/
-		var isButtonDownEvent = isContained == true && isPrevContained == false;
-		if(isButtonDownEvent && isPrevContained != undefined) {
-			this.gamepadButtonDownEventTimeStamp = (new Date()).getTime();
-			//console.log("Entry delay: "  + ((this.gamepadButtonDownEventTimeStamp - this.entryDelayTimeStamp)/16.0));
-		}
+			var isButtonDownEvent = isContained == true && isPrevContained == false;
+			if(isButtonDownEvent && isPrevContained != undefined) {
+				this.gamepadButtonDownEventTimeStamp = (new Date()).getTime();
+				//console.log("Entry delay: "  + ((this.gamepadButtonDownEventTimeStamp - this.entryDelayTimeStamp)/16.0));
+			}
 		
 			// Not being held yet
 			this.gamepadShiftTimer = new Date();
@@ -825,7 +814,7 @@ var UserInputs = {
 							"32", "16", "90", "88", "17", "82", "80", "600", "1000",
 							
 							// Gamepad
-							"0.0", "33.0", "48.0", "33.0", 
+							"0.0", "33.0", "167.0", "33.0", 
 							"DPad-Left", "DPad-Right",	"DPad-Down",
 							"RB", "LB", "A", "B", "DPad-Up", "Back", ""],
 	settingsMap: []
