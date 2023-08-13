@@ -810,7 +810,8 @@ var UserInputs = {
 					
 							// Keyboard
 	settingsDefault:		["0.0", "33.0", "167.0", "33.0", 
-							"37", "39", "40", "38",
+							//"37", "39", "40", "38",
+							"74", "76", "75", "73",
 							"32", "16", "90", "88", "17", "82", "80", "600", "1000",
 							
 							// Gamepad
@@ -1576,7 +1577,7 @@ Tetris.prototype = {
 				var deltaTime = new Date().getTime() - this.sequencePrevTime;
 				if(besttime == "" || deltaTime/1000.0 < parseFloat(besttime)) {	
 					document.getElementById("besttime").value = (deltaTime/1000.0).toString();
-					document.getElementById("ppm").value = openers.getLength() / (parseFloat(document.getElementById("besttime").value));
+					document.getElementById("ppm").value = (openers.getLength() / (parseFloat(document.getElementById("besttime").value))) * 60.0;
 				}
 			}	
 		
@@ -1669,7 +1670,7 @@ Tetris.prototype = {
 					newBag = newBag.filter(this.onlyUnique);
 				}*/
 				newBag = shuffle(minoes);
-				console.log("New bag: " + newBag.toString());
+				//console.log("New bag: " + newBag.toString());
 			}
 			
 			break;
@@ -1841,6 +1842,7 @@ Tetris.prototype = {
 					// it's confusing and bad.
 					if(this.gameState == consts.GAMESTATES[3]) {
 						this.pushEditorHold();
+						this._draw();
 					} else {
 						this.popHoldStack();
 						this._draw();

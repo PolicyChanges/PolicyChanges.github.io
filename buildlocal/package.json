@@ -17,6 +17,9 @@
   },
   "homepage": "https://github.com/policychanges/policychanges.github.io#readme",
   "devDependencies": {
-    "electron": "^19.0.8"
+    "electron": "^19.1.9"
+  },
+  "dependencies": {
+    "main.js": "^0.0.1"
   }
 }

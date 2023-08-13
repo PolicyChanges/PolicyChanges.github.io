@@ -751,7 +751,7 @@ Tetris.prototype = {
 				var deltaTime = new Date().getTime() - this.sequencePrevTime;
 				if(besttime == "" || deltaTime/1000.0 < parseFloat(besttime)) {	
 					document.getElementById("besttime").value = (deltaTime/1000.0).toString();
-					document.getElementById("ppm").value = openers.getLength() / (parseFloat(document.getElementById("besttime").value));
+					document.getElementById("ppm").value = (openers.getLength() / (parseFloat(document.getElementById("besttime").value))) * 60.0;
 				}
 			}	
 		
@@ -844,7 +844,7 @@ Tetris.prototype = {
 					newBag = newBag.filter(this.onlyUnique);
 				}*/
 				newBag = shuffle(minoes);
-				console.log("New bag: " + newBag.toString());
+				//console.log("New bag: " + newBag.toString());
 			}
 			
 			break;
@@ -1016,6 +1016,7 @@ Tetris.prototype = {
 					// it's confusing and bad.
 					if(this.gameState == consts.GAMESTATES[3]) {
 						this.pushEditorHold();
+						this._draw();
 					} else {
 						this.popHoldStack();
 						this._draw();
