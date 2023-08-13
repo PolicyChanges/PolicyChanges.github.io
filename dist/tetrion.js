@@ -1576,6 +1576,7 @@ Tetris.prototype = {
 				var deltaTime = new Date().getTime() - this.sequencePrevTime;
 				if(besttime == "" || deltaTime/1000.0 < parseFloat(besttime)) {	
 					document.getElementById("besttime").value = (deltaTime/1000.0).toString();
+					document.getElementById("ppm").value = openers.getLength() / (parseFloat(document.getElementById("besttime").value));
 				}
 			}	
 		
@@ -1744,8 +1745,9 @@ Tetris.prototype = {
 		if(entryDelayCheck>0&&entryDelayCheck<=6)
 			this.logInfo.push(parseInt(entryDelayCheck));
 		
-		inputs.setEntryDelayTimeStamp(this.entryDelayTimeStamp);
-		if(entryDelayCheck >= 6) inputs.setIsCharged(false);
+		//inputs.setEntryDelayTimeStamp(this.entryDelayTimeStamp);
+		//if(entryDelayCheck >= 6)
+			inputs.setIsCharged(false);
 		//if(entryDelayCheck < 6) inputs.setIsCharged(false);
 		
 	},		
@@ -1805,7 +1807,21 @@ Tetris.prototype = {
 					}
 				}
 				else if(inputs.settingsMap.get("Gamepad Hold").includes(curkey)) {
-						if(this.gameState != consts.GAMESTATES[3]) {
+					if(this.gameState == consts.GAMESTATES[3]) {
+						this.pushHoldStack();
+					}
+					else {
+						if(this.traditionalHold == true) {  // TODO: move logic to holdstack functions
+							if(this.isHolding && this.canPopFromHoldStack) 
+								this.popHoldStack();
+							else if(this.holdStack.length < 1)
+								this.pushHoldStack();
+							this.isHolding = !this.isHolding;
+						} else 
+							this.pushHoldStack();
+					}
+					this._draw();
+					/*	if(this.gameState != consts.GAMESTATES[3]) {
 							if(this.traditionalHold == true) {
 								if(this.isHolding && this.canPopFromHoldStack) 
 									this.popHoldStack();
@@ -1818,15 +1834,23 @@ Tetris.prototype = {
 						} else {
 							this.pushHoldStack();
 						}
-					this._draw();
+					this._draw();*/
 				}				
 				else if(inputs.settingsMap.get("Gamepad Pophold").includes(curkey)) {
-					if(this.gameState != consts.GAMESTATES[3]) {
+					// This pushes the piece on to the editor hold queue in editor mode b/c the other mode's hold queue is being used to cycle through pieces. 
+					// it's confusing and bad.
+					if(this.gameState == consts.GAMESTATES[3]) {
+						this.pushEditorHold();
+					} else {
+						this.popHoldStack();
+						this._draw();
+					}
+					/*if(this.gameState != consts.GAMESTATES[3]) {
 						this.popHoldStack();
 					}else { // calling pushHoldstack for pophold is clear as mud todo: fix
 						this.pushHoldStack();
 					}
-					this._draw();
+					this._draw();*/
 				}
 				else if(inputs.settingsMap.get("Gamepad Pause Toggle").includes(curkey)) {
 					this.isPaused = !this.isPaused;
@@ -2212,6 +2236,11 @@ var openerGenerator = {
 				case 19: // Mountainous
 					this.shapeQueue = new Array(shapes.getShape(4), shapes.getShape(2), shapes.getShape(5), shapes.getShape(1), shapes.getShape(3), shapes.getShape(6), shapes.getShape(0), shapes.getShape(0), shapes.getShape(4), shapes.getShape(1), shapes.getShape(6), shapes.getShape(5), shapes.getShape(2), shapes.getShape(3), shapes.getShape(3), shapes.getShape(0), shapes.getShape(2), shapes.getShape(1), shapes.getShape(4), shapes.getShape(6));
 				break;
+case 20:
+	this.shapeQueue = new Array(shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(1), shapes.getShape(6), shapes.getShape(6), shapes.getShape(4));
+break;
+
+
 
 
 
@@ -2449,7 +2478,12 @@ var openerGenerator = {
 			var hintDataList = [1,18,0,4,18,0,1,16,3,6,18,0,6,17,3,-1,16,3,-1,13,1,0,12,3,1,14,1,6,16,0,8,12,3,6,15,0,4,15,2,2,16,1,3,17,2,6,17,2,4,17,1,5,17,0,2,17,2,2,18,0];
 			this.createHintQueue(hintDataList);
 			break;
-				
+case 20:
+	this.hintQueue = new Array(shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(6), shapes.getShape(1), shapes.getShape(6), shapes.getShape(4));
+
+var hintDataList = [0,18,0,-2,17,0,6,18,0,8,17,3,0,15,2,7,16,0,2,16,3,2,18,0,4,16,0,4,17,2];
+this.createHintQueue(hintDataList);
+break;
 			default:
 				this.hintQueue.unshift(utils.deepClone(shapes.randomShape()));
 					return;
@@ -2486,7 +2520,7 @@ var openerGenerator = {
 		this.isHintInit = 0;
 	},
 	getLength() {
-		return this.customHintQueue.length || this.hintQueue.length;
+		return this.hintQueue.length;
 	},
 	addSequence(sequence) {
 		//this.reset();

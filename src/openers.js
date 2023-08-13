@@ -101,6 +101,11 @@ var openerGenerator = {
 				case 19: // Mountainous
 					this.shapeQueue = new Array(shapes.getShape(4), shapes.getShape(2), shapes.getShape(5), shapes.getShape(1), shapes.getShape(3), shapes.getShape(6), shapes.getShape(0), shapes.getShape(0), shapes.getShape(4), shapes.getShape(1), shapes.getShape(6), shapes.getShape(5), shapes.getShape(2), shapes.getShape(3), shapes.getShape(3), shapes.getShape(0), shapes.getShape(2), shapes.getShape(1), shapes.getShape(4), shapes.getShape(6));
 				break;
+case 20:
+	this.shapeQueue = new Array(shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(1), shapes.getShape(6), shapes.getShape(6), shapes.getShape(4));
+break;
+
+
 
 
 
@@ -338,7 +343,12 @@ var openerGenerator = {
 			var hintDataList = [1,18,0,4,18,0,1,16,3,6,18,0,6,17,3,-1,16,3,-1,13,1,0,12,3,1,14,1,6,16,0,8,12,3,6,15,0,4,15,2,2,16,1,3,17,2,6,17,2,4,17,1,5,17,0,2,17,2,2,18,0];
 			this.createHintQueue(hintDataList);
 			break;
-				
+case 20:
+	this.hintQueue = new Array(shapes.getShape(0), shapes.getShape(1), shapes.getShape(2), shapes.getShape(3), shapes.getShape(4), shapes.getShape(5), shapes.getShape(6), shapes.getShape(1), shapes.getShape(6), shapes.getShape(4));
+
+var hintDataList = [0,18,0,-2,17,0,6,18,0,8,17,3,0,15,2,7,16,0,2,16,3,2,18,0,4,16,0,4,17,2];
+this.createHintQueue(hintDataList);
+break;
 			default:
 				this.hintQueue.unshift(utils.deepClone(shapes.randomShape()));
 					return;
@@ -375,7 +385,7 @@ var openerGenerator = {
 		this.isHintInit = 0;
 	},
 	getLength() {
-		return this.customHintQueue.length || this.hintQueue.length;
+		return this.hintQueue.length;
 	},
 	addSequence(sequence) {
 		//this.reset();

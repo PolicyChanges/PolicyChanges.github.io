@@ -751,6 +751,7 @@ Tetris.prototype = {
 				var deltaTime = new Date().getTime() - this.sequencePrevTime;
 				if(besttime == "" || deltaTime/1000.0 < parseFloat(besttime)) {	
 					document.getElementById("besttime").value = (deltaTime/1000.0).toString();
+					document.getElementById("ppm").value = openers.getLength() / (parseFloat(document.getElementById("besttime").value));
 				}
 			}	
 		
@@ -919,8 +920,9 @@ Tetris.prototype = {
 		if(entryDelayCheck>0&&entryDelayCheck<=6)
 			this.logInfo.push(parseInt(entryDelayCheck));
 		
-		inputs.setEntryDelayTimeStamp(this.entryDelayTimeStamp);
-		if(entryDelayCheck >= 6) inputs.setIsCharged(false);
+		//inputs.setEntryDelayTimeStamp(this.entryDelayTimeStamp);
+		//if(entryDelayCheck >= 6)
+			inputs.setIsCharged(false);
 		//if(entryDelayCheck < 6) inputs.setIsCharged(false);
 		
 	},		
@@ -980,7 +982,21 @@ Tetris.prototype = {
 					}
 				}
 				else if(inputs.settingsMap.get("Gamepad Hold").includes(curkey)) {
-						if(this.gameState != consts.GAMESTATES[3]) {
+					if(this.gameState == consts.GAMESTATES[3]) {
+						this.pushHoldStack();
+					}
+					else {
+						if(this.traditionalHold == true) {  // TODO: move logic to holdstack functions
+							if(this.isHolding && this.canPopFromHoldStack) 
+								this.popHoldStack();
+							else if(this.holdStack.length < 1)
+								this.pushHoldStack();
+							this.isHolding = !this.isHolding;
+						} else 
+							this.pushHoldStack();
+					}
+					this._draw();
+					/*	if(this.gameState != consts.GAMESTATES[3]) {
 							if(this.traditionalHold == true) {
 								if(this.isHolding && this.canPopFromHoldStack) 
 									this.popHoldStack();
@@ -993,15 +1009,23 @@ Tetris.prototype = {
 						} else {
 							this.pushHoldStack();
 						}
-					this._draw();
+					this._draw();*/
 				}				
 				else if(inputs.settingsMap.get("Gamepad Pophold").includes(curkey)) {
-					if(this.gameState != consts.GAMESTATES[3]) {
+					// This pushes the piece on to the editor hold queue in editor mode b/c the other mode's hold queue is being used to cycle through pieces. 
+					// it's confusing and bad.
+					if(this.gameState == consts.GAMESTATES[3]) {
+						this.pushEditorHold();
+					} else {
+						this.popHoldStack();
+						this._draw();
+					}
+					/*if(this.gameState != consts.GAMESTATES[3]) {
 						this.popHoldStack();
 					}else { // calling pushHoldstack for pophold is clear as mud todo: fix
 						this.pushHoldStack();
 					}
-					this._draw();
+					this._draw();*/
 				}
 				else if(inputs.settingsMap.get("Gamepad Pause Toggle").includes(curkey)) {
 					this.isPaused = !this.isPaused;

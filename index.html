@@ -126,7 +126,7 @@ this.resizebg();
 				<li style="font-size:12px;padding-left:1em;"><a href="#" id="setStdPCOpenerVar">PC Opener Impossible Variation </a></li>
 				<li style="font-size:12px;padding-left:1em";><a href="#" id="setTrinityVar">Trinity</a></li>
 				<li style="font-size:12px;padding-left:1em";><a href="#" id="setMountainousVar">Mountainous</a></li>
-				
+				<li style="font-size:12px;padding-left:1em";><a href="#" id="setTestVar">Ed Test</a></li>
 				<!--
 				<ul style="font-size:14px;color:powderblue;text-align:left;" id="ComboOpeners">Combo Openers
 					<li style="font-size:12px;padding-left:1em;"><a href="#" id="setTKIFonzieVar">Side 4 Wide </a></li>
@@ -156,6 +156,9 @@ this.resizebg();
 		
 		<input disabled=true style="overflow:visible;width:63px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" type="text" id="besttimetext" value="Best Time:"/>
 		<input disabled=true style="overflow:visible;width:68px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" type="text" id="besttime" value=""/>
+	
+		<input disabled=true style="overflow:visible;width:63px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" type="text" id="ppmtext" value="Best PPM:"/>
+		<input disabled=true style="overflow:visible;width:68px;font-size:12px;background:rgba(40,40,40,.5);color:dodgerblue;border:1px solid #6666;text-align:left;" type="text" id="ppm" value=""/>	
 	</div>
 	
 	<div id="gameOver">
@@ -226,6 +229,7 @@ this.resizebg();
 		document.getElementById("setStdPCOpenerVar").addEventListener("click", function() { tetrion.setCurrentOpener(17); } );
 		document.getElementById("setTrinityVar").addEventListener("click", function() { tetrion.setCurrentOpener(18); } );
 		document.getElementById("setMountainousVar").addEventListener("click", function() { tetrion.setCurrentOpener(19); } );
+		document.getElementById("setTestVar").addEventListener("click", function() { tetrion.setCurrentOpener(20); } );
 		
 		document.getElementById("enablegamepad").addEventListener("click", function() { tetrion.toggleGamepad(); } );
 		
