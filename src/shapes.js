@@ -3,6 +3,8 @@ var utils = require('./utils.js');
 // import * as consts from './const.js';
 var COLORS = consts.COLORS;
 var COLUMN_COUNT = consts.COLUMN_COUNT;
+var clickAudio = new Audio('./dist/sound/Click.ogg');
+clickAudio.load();
 
 /**
 	Defined all shapes used in Tetris game. 
@@ -575,6 +577,7 @@ ShapeZR.prototype = {
 		this.state = 0;
 		this.allBoxes = {};
 		this.y = 0;
+		this.keysPressed = [];
 	},
 	// Get boxes matrix which composite the shape
 	getBoxes: function(state) {
@@ -713,7 +716,8 @@ ShapeZR.prototype = {
 		let clone = utils.deepClone(this);
 		clone.x--;
 		if (canMoveTo(clone, matrix)){
-			new Audio('./dist/sound/Click.ogg').play();
+			//new Audio('./dist/sound/Click.ogg').play();
+			clickAudio.play();
 			this.x--;
 		}
 	},
@@ -722,7 +726,8 @@ ShapeZR.prototype = {
 		let clone = utils.deepClone(this);
 		clone.x++;
 		if (canMoveTo(clone, matrix)) {
-			new Audio('./dist/sound/Click.ogg').play();
+			//new Audio('./dist/sound/Click.ogg').play();
+			clickAudio.play();
 			this.x++;
 		}
 	},

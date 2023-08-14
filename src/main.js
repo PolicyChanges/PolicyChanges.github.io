@@ -15,7 +15,8 @@ var openers = require('./openers.js');
 //import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
 
 
-
+var blopAudio = new Audio('./dist/sound/Blop2.ogg');
+blopAudio.load();
 
 /**
 	Init game matrix
@@ -179,101 +180,178 @@ function Tetris(id) {
     this.id = id;
     this.init();
 }
-        var guide = {
-            i: [
-                [
-                    ["das left"],
-                    ["das left", "right"],
-                    ["left"],
-                    [],
-                    ["right"],
-                    ["das right", "left"],
-                    ["das right"]
-                ], // 0 rotation
-                [
-                    ["ccw", "das left"],
-                    ["das left", "ccw"],
-                    ["das left", "cw"],
-                    ["left", "ccw"],
-                    ["ccw"],
-                    ["cw"],
-                    ["right", "cw"],
-                    ["das right", "ccw"],
-                    ["das right", "cw"],
-                    ["ccw", "das right"],
-                ], // 1 rotation
-            ],
-            j: [
-                [
-                    ["das left"],
-                    ["left", "left"],
-                    ["left"],
-                    [],
-                    ["right"],
-                    ["right", "right"],
-                    ["das right", "left"],
-                    ["das right"]
-                ], // 0
-                [
-                    ["cw", "das left"],
-                    ["das left", "cw"],
-                    ["left", "left", "cw"],
-                    ["left", "cw"],
-                    ["cw"],
-                    ["right", "cw"],
-                    ["right", "right", "cw"],
-                    ["das right", "left", "cw"],
-                    ["das right", "cw"]
-                ], // 1
-                [
-                    ["das left", "cw", "cw"],
-                    ["left", "left", "cw", "cw"],
-                    ["left", "cw", "cw"],
-                    ["cw", "cw"],
-                    ["right", "cw", "cw"],
-                    ["right", "right", "cw", "cw"],
-                    ["das right", "left", "cw", "cw"],
-                    ["das right", "cw", "cw"]
-                ], // 2
-                [
-                    ["das left", "ccw"],
-                    ["left", "left", "ccw"],
-                    ["left", "ccw"],
-                    ["ccw"],
-                    ["right", "ccw"],
-                    ["right", "right", "ccw"],
-                    ["das right", "left", "ccw"],
-                    ["das right", "ccw"],
-                    ["ccw", "das right"]
-                ] // 3
-            ],
-            o: [
-                [
-                    ["das left"],
-                    ["das left", "right"],
-                    ["left", "left"],
-                    ["left"],
-                    [],
-                    ["right"],
-                    ["right", "right"],
-                    ["das right", "left"],
-                    ["das right"]
-                ]
-            ],
-            s: [
-                [
-                    ["cw", "das left"],
-                    ["das left", "cw"],
-                    ["left", "ccw"],
-                    ["ccw"],
-                    ["cw"],
-                    ["right", "cw"],
-                    ["right", "right", "cw"],
-                    ["das right", "ccw"],
-                    ["cw", "das right"]
-                ],
-            ],
-        };
+
+// ty tf2
+/**
+ * getIdealFinesse
+ *   returns array ideal finesse instructions (may be multiple ways with different order / whatever)
+ * piece - the letter of the piece
+ * loc - the column of the piece (can be negative)
+ * rot - the rotation of the piece (0 through 3)
+ * spin - boolean of whether this piece spun
+ */
+var getIdealFinesse = function(shape, loc, rot, spin) {
+	var piece = shape.flag;
+	//TODO probably map rot to state and loc to x
+	if (piece == "I") {
+		if (rot == 1) {
+			loc += + 2;
+		} else if (rot == 3) {
+			loc += + 1;
+			rot = 1;
+		} else if (rot == 2) {
+			rot = 0;
+		}
+	}
+	if (piece == "O") {
+		rot = 0;
+	}
+	if ("SZ".indexOf(piece) != -1) {
+		if (rot == 2)
+			rot = 0;
+		if (rot == 0) {
+			piece = "J";
+		} else {
+			piece = "S";
+			if (rot == 1)
+				loc += 1
+			rot = 0;
+		}
+	}
+	if ("JLT".indexOf(piece) != -1) {
+		piece = "J";
+		if (rot == 1)
+			loc += 1;
+	}
+
+	if ("IJLOSTZ".indexOf(piece) == -1) {
+		//error("Invalid piece: " + piece);
+	}
+
+	var guide = {
+		i: [
+			[
+				["das left"],
+				["das left", "right"],
+				["left"],
+				[],
+				["right"],
+				["das right", "left"],
+				["das right"]
+			], // 0 rotation
+			[
+				["ccw", "das left"],
+				["das left", "ccw"],
+				["das left", "cw"],
+				["left", "ccw"],
+				["ccw"],
+				["cw"],
+				["right", "cw"],
+				["das right", "ccw"],
+				["das right", "cw"],
+				["ccw", "das right"],
+			], // 1 rotation
+		],
+		j: [
+			[
+				["das left"],
+				["left", "left"],
+				["left"],
+				[],
+				["right"],
+				["right", "right"],
+				["das right", "left"],
+				["das right"]
+			], // 0
+			[
+				["cw", "das left"],
+				["das left", "cw"],
+				["left", "left", "cw"],
+				["left", "cw"],
+				["cw"],
+				["right", "cw"],
+				["right", "right", "cw"],
+				["das right", "left", "cw"],
+				["das right", "cw"]
+			], // 1
+			[
+				["das left", "cw", "cw"],
+				["left", "left", "cw", "cw"],
+				["left", "cw", "cw"],
+				["cw", "cw"],
+				["right", "cw", "cw"],
+				["right", "right", "cw", "cw"],
+				["das right", "left", "cw", "cw"],
+				["das right", "cw", "cw"]
+			], // 2
+			[
+				["das left", "ccw"],
+				["left", "left", "ccw"],
+				["left", "ccw"],
+				["ccw"],
+				["right", "ccw"],
+				["right", "right", "ccw"],
+				["das right", "left", "ccw"],
+				["das right", "ccw"],
+				["ccw", "das right"]
+			] // 3
+		],
+		o: [
+			[
+				["das left"],
+				["das left", "right"],
+				["left", "left"],
+				["left"],
+				[],
+				["right"],
+				["right", "right"],
+				["das right", "left"],
+				["das right"]
+			]
+		],
+		s: [
+			[
+				["cw", "das left"],
+				["das left", "cw"],
+				["left", "ccw"],
+				["ccw"],
+				["cw"],
+				["right", "cw"],
+				["right", "right", "cw"],
+				["das right", "ccw"],
+				["cw", "das right"]
+			],
+		],
+	}
+
+	var v = guide[piece][rot][loc]
+	//if (spin)   spin can be added to kickShape if needed
+	//	v.push("spins");
+
+	return v;
+};
+/*
+testFinesse () 
+{
+		//var v = s.board.getIdealFinesse(p.piece, p.getLocation()[1], p.getRotation(), p.spin);
+		var v = s.board.getIdealFinesse(this.piece.flag, this.piece.x, this.piece.state, false);
+		var str = "";
+		for (var i = 0; i < v.length; i++)
+			str += v[i] + ", ";
+		if (str.length > 0)
+			str = str.substring(0, str.length - 2);
+		else
+			str = "drop"; // TODO put this in settings?
+		if (count - v.length > 0) {
+			s.finesse.add(count - v.length);
+			s.finessePrintout.updateValue(str); // TODO add finesse error (tell user what they did that was wrong)
+			if (s.board.settings.redoFinesseErrors)
+				p.reset();
+			else
+				if (s.board.settings.showFinesseErrors)
+					p.greyOut();
+		}
+}*/
 Tetris.prototype = {
     init: function(options) {
 		
@@ -946,8 +1024,13 @@ Tetris.prototype = {
 			while((inputs.gamepadQueue != undefined && inputs.gamepadQueue.length >= 1)){
 				var curkey = inputs.gamepadQueue.shift();
 				if(inputs.settingsMap.get("Gamepad Left").includes(curkey)) {
+					/*if(inputs.isGamepadCharged() == true){
+						this.piece.keysPressed.shift();
+						this.piece.keysPressed.unshift("das left");
+					} else
+						this.piece.keysPressed.unshift("left");
+					*/
 					this.shape.goLeft(this.matrix);
-					
 					this.resetLockdown();
 					this._draw();
 				}
@@ -996,20 +1079,6 @@ Tetris.prototype = {
 							this.pushHoldStack();
 					}
 					this._draw();
-					/*	if(this.gameState != consts.GAMESTATES[3]) {
-							if(this.traditionalHold == true) {
-								if(this.isHolding && this.canPopFromHoldStack) 
-									this.popHoldStack();
-								else if(this.holdStack.length < 1)
-									this.pushHoldStack();
-								this.isHolding = !this.isHolding;
-							} else 
-								this.pushHoldStack();
-					
-						} else {
-							this.pushHoldStack();
-						}
-					this._draw();*/
 				}				
 				else if(inputs.settingsMap.get("Gamepad Pophold").includes(curkey)) {
 					// This pushes the piece on to the editor hold queue in editor mode b/c the other mode's hold queue is being used to cycle through pieces. 
@@ -1021,12 +1090,6 @@ Tetris.prototype = {
 						this.popHoldStack();
 						this._draw();
 					}
-					/*if(this.gameState != consts.GAMESTATES[3]) {
-						this.popHoldStack();
-					}else { // calling pushHoldstack for pophold is clear as mud todo: fix
-						this.pushHoldStack();
-					}
-					this._draw();*/
 				}
 				else if(inputs.settingsMap.get("Gamepad Pause Toggle").includes(curkey)) {
 					this.isPaused = !this.isPaused;
@@ -1190,8 +1253,10 @@ Tetris.prototype = {
 					this.resetLockdown();
 					this.shape.goDown(this.matrix);
 				} else if(this.isPieceLocked()){
-					// ARE window
-					inputs.setIsCharged(true);
+					// ARE window -- remove
+					//inputs.setIsCharged(true);
+					//isFinesseSucceeded = testFinesse(getIdealFinesse(this.piece.flag, this.piece.x, this.piece.state, false));
+					
 					this.entryDelayTimeStamp = (new Date()).getTime();
 					
 					this.canPopFromHoldStack = true;
@@ -1200,7 +1265,7 @@ Tetris.prototype = {
 					if(this._checkHint()) return;
 					//this._fireShape();
 					this._recurseGameState();
-					 new Audio('./dist/sound/Blop2.ogg').play();
+					 blopAudio.play();
 				}
 				this._draw();
 				this.isGameOver = checkGameOver(this.matrix);

@@ -16,7 +16,7 @@ var UserInputs = {
 		this.gamepadShiftTimer = this.initTime;
 		// Gamepad Down ARR/DAS timer TODO: Switch to SDF(Softdrop factor)
 		this.gamepadShiftDownDASTimer = this.initTime;
-		// Gamepad Wall Charge
+		// Gamepad Wall Charge  -- repurposed for das loaded detection
 		this.gamepadIsCharged = false;
 		// Gamepad button up time stamp
 		this.gamepadButtonUpEventTimeStamp = (new Date()).getTime();
@@ -67,9 +67,8 @@ var UserInputs = {
 		this.processKeyboardOnDownEvents();
 		this.processKeyboardDASEvents();
 	},
-	setIsCharged(isCharged) {
-		this.keyboardIsChanged = isCharged;
-		this.gamepadIsCharged = isCharged;
+	getIsGamepadCharged() {
+		return this.gamepadIsCharged;
 	},
 	getGamepadButtonDownEventTimeStamp() {
 		return this.gamepadButtonDownEventTimeStamp;
@@ -86,7 +85,7 @@ var UserInputs = {
 	processGamepadDASEvents()  {
 		this.gamepadDASEvents.forEach(gamepadButton => this.processGamepadDASButtons(this.settingsMap.get(gamepadButton)));
 	},
-	// clean up naming conventions eesh
+	// TODO * clean up naming conventions eesh
 	processGamepadDASButtons(button) {
 		if(button != this.settingsMap.get("Gamepad Down"))
 			this.gamepadDASDown(button);
@@ -106,13 +105,13 @@ var UserInputs = {
 			if(isButtonUpEvent){
 				this.gamepadButtonUpEventTimeStamp = (new Date()).getTime();
 				console.log("Entry delay delta:"  + (this.gamepadButtonUpEventTimeStamp - this.entryDelayTimeStamp));
-			}*/
+			}
 			var isButtonDownEvent = isContained == true && isPrevContained == false;
 			if(isButtonDownEvent && isPrevContained != undefined) {
 				this.gamepadButtonDownEventTimeStamp = (new Date()).getTime();
 				//console.log("Entry delay: "  + ((this.gamepadButtonDownEventTimeStamp - this.entryDelayTimeStamp)/16.0));
-			}
-		
+			}*/
+			this.gamepadIsCharged = false;
 			// Not being held yet
 			this.gamepadShiftTimer = new Date();
 			this.isDelayedPassedGamepadShift = false;
@@ -132,6 +131,7 @@ var UserInputs = {
 		} 
 		else {
 			if (deltaTime >= ARR && isContained ) {
+				this.gamepadIsCharged = true;
 				this.gamepadQueue.push(button);
 				this.gamepadShiftTimer = new Date();
 			}
