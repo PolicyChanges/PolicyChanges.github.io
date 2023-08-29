@@ -9,8 +9,15 @@ var gamepadAPI = {
     },
     disconnect: function(evt) {
         gamepadAPI.turbo = false;
+		  console.log(
+			"Gamepad connected at index %d: %s. %d buttons, %d axes.",
+			e.gamepad.index,
+			e.gamepad.id,
+			e.gamepad.buttons.length,
+			e.gamepad.axes.length,
+		  );
         delete gamepadAPI.controller;
-        console.log('Gamepad disconnected.');
+        //console.log('Gamepad disconnected.');
     },
     update: function() {
 		var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;

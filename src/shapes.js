@@ -713,23 +713,27 @@ ShapeZR.prototype = {
 	},
 	//Move the shape to the left
 	goLeft: function(matrix) {
+		let canGoLeft = false;
 		let clone = utils.deepClone(this);
 		clone.x--;
 		if (canMoveTo(clone, matrix)){
-			//new Audio('./dist/sound/Click.ogg').play();
+			canGoLeft = true;
 			clickAudio.play();
 			this.x--;
 		}
+		return canGoLeft;
 	},
 	//Move the shape to the right
 	goRight: function(matrix) {
+		let canGoRight = false;
 		let clone = utils.deepClone(this);
 		clone.x++;
 		if (canMoveTo(clone, matrix)) {
-			//new Audio('./dist/sound/Click.ogg').play();
+			canGoRight = true;
 			clickAudio.play();
 			this.x++;
 		}
+		return canGoRight;
 	},
 	//Copy the shape data to the game data
 	copyTo: function(matrix) {

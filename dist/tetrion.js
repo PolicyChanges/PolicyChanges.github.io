@@ -351,8 +351,15 @@ var gamepadAPI = {
     },
     disconnect: function(evt) {
         gamepadAPI.turbo = false;
+		  console.log(
+			"Gamepad connected at index %d: %s. %d buttons, %d axes.",
+			e.gamepad.index,
+			e.gamepad.id,
+			e.gamepad.buttons.length,
+			e.gamepad.axes.length,
+		  );
         delete gamepadAPI.controller;
-        console.log('Gamepad disconnected.');
+        //console.log('Gamepad disconnected.');
     },
     update: function() {
 		var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
@@ -495,7 +502,10 @@ var UserInputs = {
 		this.processKeyboardOnDownEvents();
 		this.processKeyboardDASEvents();
 	},
-	getIsGamepadCharged() {
+	isGamepadCharged() {
+		return this.gamepadIsCharged;
+	},
+	isGamepadCharged() {
 		return this.gamepadIsCharged;
 	},
 	getGamepadButtonDownEventTimeStamp() {
@@ -809,13 +819,13 @@ var UserInputs = {
 	settingsList: [],
 					
 							// Keyboard
-	settingsDefault:		["0.0", "33.0", "167.0", "33.0", 
+	settingsDefault:		["0.0", "41.6", "167.0", "41.6", 
 							//"37", "39", "40", "38",
 							"74", "76", "75", "73",
 							"32", "16", "90", "88", "17", "82", "80", "600", "1000",
 							
 							// Gamepad
-							"0.0", "33.0", "167.0", "33.0", 
+							"0.0", "41.6", "160.0", "33.0", 
 							"DPad-Left", "DPad-Right",	"DPad-Down",
 							"RB", "LB", "A", "B", "DPad-Up", "Back", ""],
 	settingsMap: []
@@ -1018,7 +1028,7 @@ function Tetris(id) {
  */
 var getIdealFinesse = function(shape, loc, rot, spin) {
 	var piece = shape.flag;
-	//TODO probably map rot to state and loc to x
+	//TODO probably map rot to state and loc to x -- disregard, programs are the exact same
 	if (piece == "I") {
 		if (rot == 1) {
 			loc += + 2;
@@ -1334,6 +1344,27 @@ Tetris.prototype = {
 		['#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080']
 		];
 		
+		if(true) {
+		var Variation1 = 
+			[
+
+			[0,0,0,0,'#808080','#808080','#808080','#808080','#808080','#808080' ],
+			[0,0,0,0,'#808080','#808080','#808080','#808080','#808080','#808080' ],
+			[0,0,0,'#808080','#808080','#808080','#808080','#808080','#808080','#808080' ],
+			[0,0,0,'#808080','#808080','#808080','#808080','#808080','#808080','#808080' ],
+			[0,'#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080' ],
+			[0,'#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080' ]
+			];
+			clearMatrix(this.matrix);
+			addGarbage(this.matrix, Variation1);
+			utils.fastEmptyArray(this.shapeQueue);
+			this.shapeQueue.push(shapes.getShape(4));
+			this.shapeQueue.push(shapes.getShape(4));
+			this.shapeQueue.push(shapes.getShape(0));
+			this.shapeQueue.push(shapes.getShape(0));
+			this.shape = this.shapeQueue.shift();
+		}
+		else{
 		//[['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080'],['#808080']];
 		// Add garbage to playfield
 		addGarbage(this.matrix, Variation1);
@@ -1347,7 +1378,7 @@ Tetris.prototype = {
 			// Move piece to pushed up playfield
 			this.shape.goBottom(this.matrix);
 		}*/
-		
+		}
 		this._draw();
 	},
 	createSettings: function () {
@@ -1552,7 +1583,7 @@ Tetris.prototype = {
 			if(this.shape.canDown(this.matrix)) return;
 			
 			
-			// If piece came from hold
+			// If piece came from hold -- logic for editor
 			if(this.isPieceFromHold == true) {
 				
 				this.shape.copyTo(this.matrix);
@@ -1576,7 +1607,6 @@ Tetris.prototype = {
 				
 				// set current piece to previous piece
 				this.shape = shapes.getShape(this.shapeQueue[1].nType());
-
 
 				this.isPieceFromHold = true;
 				this.canPopFromHoldStack = false;
@@ -1716,43 +1746,6 @@ Tetris.prototype = {
 			this._processTSpinQuiz();
 			this._fireShape();
 		break;
-		case consts.GAMESTATES[6]:  // TODO: check different rng methods distrobutions. should have gaussian distrobution for each position in generated bags
-			//generate RNG data for testing random number distribution
-
-		// Handles randomly generating and returning a tetromino
-		
-			var returnBag = [];
-
-			/*
-			getTetrimino() {
-				if(this.returnBag.length == 0) // hmmm...dont think this is right.
-					this.returnBag.push.apply(this.returnBag, this.generateNewBag());
-				return parseInt(this.returnBag.shift());
-			},
-			*/
-			/*onlyUnique(value, index, self) {
-				return self.indexOf(value) === index;
-			},*/
-			//generateNewBag() {
-			var i = 50;
-			while(i-- < 0) {
-				var minoes = ['0','1','2','3','4','5','6'];
-				
-				var newBag = [];	
-				var bagLength = 7;
-
-				/*while(newBag.length < bagLength)
-				{
-					mino = Math.floor(Math.random() * Math.floor(max));
-					newBag.push(minoes[mino]);
-					newBag = newBag.filter(this.onlyUnique);
-				}*/
-				newBag = shuffle(minoes);
-				//console.log("New bag: " + newBag.toString());
-			}
-			
-			break;
-		
 
 		default:
 			break;
@@ -1771,17 +1764,16 @@ Tetris.prototype = {
 			this.lockDownTimer = 0;
 		
 		if(this.landed)
-			//if(UserInput.isPreDelayAutoShiftKeyboardKeyPressed() == false)
 				this.manipulationCounter++;		
 	},
 	// Return if the piece can be shifted or rotated
 	isPieceLocked: function() {
-		// lock down after 3000 = 3 seconds
+		// lock down piece
 		if(this.lockDownTimer >= parseInt(inputs.settingsMap.get("Lockdown Timer"))) {return true;}
 		
 		return false;
 	},
-    // Draw game data
+    // Draw game data/view
     _draw: function() {
 		if(this.isPaused)
 			return;
@@ -1803,7 +1795,7 @@ Tetris.prototype = {
 
     },
 
-	_periodicLog: function() {
+	_periodicLog: async function() {
 		if(this.logInfo.length > 0) {
 			console.log("Info: " + this.logInfo[0]);
 			utils.fastEmptyArray(this.logInfo);
@@ -1826,7 +1818,7 @@ Tetris.prototype = {
 		
 		//inputs.setEntryDelayTimeStamp(this.entryDelayTimeStamp);
 		//if(entryDelayCheck >= 6)
-			inputs.setIsCharged(false);
+		//	inputs.setIsCharged(false);
 		//if(entryDelayCheck < 6) inputs.setIsCharged(false);
 		
 	},		
@@ -1850,27 +1842,38 @@ Tetris.prototype = {
 			while((inputs.gamepadQueue != undefined && inputs.gamepadQueue.length >= 1)){
 				var curkey = inputs.gamepadQueue.shift();
 				if(inputs.settingsMap.get("Gamepad Left").includes(curkey)) {
+					
 					/*if(inputs.isGamepadCharged() == true){
-						this.piece.keysPressed.shift();
-						this.piece.keysPressed.unshift("das left");
+						var idx = this.shape.keysPressed.indexOf("left");
+						if (idx !== -1) { this.shape.keysPressed[idx] = "das left"; }
 					} else
-						this.piece.keysPressed.unshift("left");
+						this.shape.keysPressed.unshift("left");
 					*/
+
 					this.shape.goLeft(this.matrix);
 					this.resetLockdown();
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Gamepad Right").includes(curkey)) {
+					if(inputs.isGamepadCharged() == true){
+						var idx = this.shape.keysPressed.indexOf("right");
+						if (idx !== -1) { this.shape.keysPressed[idx] = "das right"; }
+					} else
+						this.shape.keysPressed.unshift("right");
+					
+					
 					this.shape.goRight(this.matrix);
 					this.resetLockdown();
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Gamepad Rotateccw").includes(curkey)) {
+					this.shape.keysPressed.unshift("ccw");
 					this.shape.rotate(this.matrix);
 					this.resetLockdown();
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Gamepad Rotate").includes(curkey)) {
+					this.shape.keysPressed.unshift("cw");
 					this.shape.rotateClockwise(this.matrix);
 					this.resetLockdown();
 					this._draw();
@@ -1885,6 +1888,7 @@ Tetris.prototype = {
 						this.popHoldStack();
 						this._draw();
 					}else {
+					this.shape.keysPressed.unshift("hd");
 					this.shape.goBottom(this.matrix);
 					this.lockDownTimer = 5000;  // Currently at 5 seconds
 					this._update();
@@ -1922,7 +1926,8 @@ Tetris.prototype = {
 				}
 				else if(inputs.settingsMap.get("Gamepad Reset").includes(curkey)) {
 					if( ( (new Date().getTime()) - this.resetTimer) >= 1000){
-						this._restartHandler();
+						this.setGameStateToTSpinQuiz();
+						//this._restartHandler();
 						this.resetTimer = new Date().getTime();
 					}
 				}
@@ -2028,11 +2033,9 @@ Tetris.prototype = {
 				}
 					
 			}
-			inputs.inputQueue = [];
-		
-		
+			//inputs.inputQueue = [];
+			utils.fastEmptyArray(inputs.inputQueue);
 			inputs.saveKeyboardKeys();
-
 			inputs.saveButtons();
 	},
     // Refresh game canvas
@@ -2066,7 +2069,7 @@ Tetris.prototype = {
 			return 1;
 		}
 	},
-    // Update game data
+    // Update game data/model
     _update: function() {
 		if(this.isPaused)
 			return;
@@ -2146,7 +2149,6 @@ Tetris.prototype = {
 		// if Sides A and B + (C or D) are touching a Surface
 		//considered a T-Spin
 		if((side1+side2+side3+side4) >= 3) {
-			//new Audio("./dist/sound/horse1.ogg").play();
 			return 2;
 		}
 		
@@ -2168,7 +2170,6 @@ Tetris.prototype = {
 			
             removeRows(this.matrix, rows);
 
-			console.log("type: " + tspinType);
             var score = calcScore(rows);
             var reward = calcRewards(rows, tspinType);
             this.score += score + reward;
@@ -3360,23 +3361,27 @@ ShapeZR.prototype = {
 	},
 	//Move the shape to the left
 	goLeft: function(matrix) {
+		let canGoLeft = false;
 		let clone = utils.deepClone(this);
 		clone.x--;
 		if (canMoveTo(clone, matrix)){
-			//new Audio('./dist/sound/Click.ogg').play();
+			canGoLeft = true;
 			clickAudio.play();
 			this.x--;
 		}
+		return canGoLeft;
 	},
 	//Move the shape to the right
 	goRight: function(matrix) {
+		let canGoRight = false;
 		let clone = utils.deepClone(this);
 		clone.x++;
 		if (canMoveTo(clone, matrix)) {
-			//new Audio('./dist/sound/Click.ogg').play();
+			canGoRight = true;
 			clickAudio.play();
 			this.x++;
 		}
+		return canGoRight;
 	},
 	//Copy the shape data to the game data
 	copyTo: function(matrix) {

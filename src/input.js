@@ -67,7 +67,10 @@ var UserInputs = {
 		this.processKeyboardOnDownEvents();
 		this.processKeyboardDASEvents();
 	},
-	getIsGamepadCharged() {
+	isGamepadCharged() {
+		return this.gamepadIsCharged;
+	},
+	isGamepadCharged() {
 		return this.gamepadIsCharged;
 	},
 	getGamepadButtonDownEventTimeStamp() {
@@ -381,13 +384,13 @@ var UserInputs = {
 	settingsList: [],
 					
 							// Keyboard
-	settingsDefault:		["0.0", "33.0", "167.0", "33.0", 
+	settingsDefault:		["0.0", "41.6", "167.0", "41.6", 
 							//"37", "39", "40", "38",
 							"74", "76", "75", "73",
 							"32", "16", "90", "88", "17", "82", "80", "600", "1000",
 							
 							// Gamepad
-							"0.0", "33.0", "167.0", "33.0", 
+							"0.0", "41.6", "160.0", "33.0", 
 							"DPad-Left", "DPad-Right",	"DPad-Down",
 							"RB", "LB", "A", "B", "DPad-Up", "Back", ""],
 	settingsMap: []
