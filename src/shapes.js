@@ -718,7 +718,8 @@ ShapeZR.prototype = {
 		clone.x--;
 		if (canMoveTo(clone, matrix)){
 			canGoLeft = true;
-			clickAudio.play();
+			//clickAudio.play();
+			(new Audio('./dist/sound/Click.ogg')).play();
 			this.x--;
 		}
 		return canGoLeft;
@@ -730,7 +731,8 @@ ShapeZR.prototype = {
 		clone.x++;
 		if (canMoveTo(clone, matrix)) {
 			canGoRight = true;
-			clickAudio.play();
+			(new Audio('./dist/sound/Click.ogg')).play();
+			//clickAudio.play();
 			this.x++;
 		}
 		return canGoRight;

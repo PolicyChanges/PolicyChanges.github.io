@@ -1258,7 +1258,7 @@ Tetris.prototype = {
 					if(this._checkHint()) return;
 					//this._fireShape();
 					this._recurseGameState();
-					 blopAudio.play();
+					blopAudio.play();
 				}
 				this._draw();
 				this.isGameOver = checkGameOver(this.matrix);
