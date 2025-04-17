@@ -4,7 +4,7 @@ var gamepadAPI = {
     turbo: false,
     connect: function(evt) {
         gamepadAPI.controller = evt.gamepad;
-        gamepadAPI.turbo = true;
+        gamepadAPI.turbo = false;
         console.log('Gamepad connected.');
     },
     disconnect: function(evt) {
@@ -17,7 +17,7 @@ var gamepadAPI = {
 			e.gamepad.axes.length,
 		  );
         delete gamepadAPI.controller;
-        //console.log('Gamepad disconnected.');
+        console.log('Gamepad disconnected.');
     },
     update: function() {
 		var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
@@ -36,7 +36,10 @@ var gamepadAPI = {
         var pressed = [];
         if (c.buttons) {
             for (var b = 0, t = c.buttons.length; b < t; b++) {
+             console.log(c.buttons[b]);
                 if (c.buttons[b].pressed) {
+                    
+                
                     pressed.push(gamepadAPI.buttons[b]);
                 }
             }
@@ -49,6 +52,7 @@ var gamepadAPI = {
         }
         gamepadAPI.axesStatus = axes;
         gamepadAPI.buttonsStatus = pressed;
+        
         return pressed;
     },	
 

@@ -346,7 +346,7 @@ var gamepadAPI = {
     turbo: false,
     connect: function(evt) {
         gamepadAPI.controller = evt.gamepad;
-        gamepadAPI.turbo = true;
+        gamepadAPI.turbo = false;
         console.log('Gamepad connected.');
     },
     disconnect: function(evt) {
@@ -359,7 +359,7 @@ var gamepadAPI = {
 			e.gamepad.axes.length,
 		  );
         delete gamepadAPI.controller;
-        //console.log('Gamepad disconnected.');
+        console.log('Gamepad disconnected.');
     },
     update: function() {
 		var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
@@ -378,7 +378,10 @@ var gamepadAPI = {
         var pressed = [];
         if (c.buttons) {
             for (var b = 0, t = c.buttons.length; b < t; b++) {
+             console.log(c.buttons[b]);
                 if (c.buttons[b].pressed) {
+                    
+                
                     pressed.push(gamepadAPI.buttons[b]);
                 }
             }
@@ -391,6 +394,7 @@ var gamepadAPI = {
         }
         gamepadAPI.axesStatus = axes;
         gamepadAPI.buttonsStatus = pressed;
+        
         return pressed;
     },	
 
@@ -432,6 +436,7 @@ window.addEventListener("gamepaddisconnected", gamepadAPI.disconnect);
 
 module.exports = gamepadAPI;
 // export gamepadAPI;
+
 },{}],4:[function(require,module,exports){
 var gamepad = require('./gamepad.js');
 var utils = require('./utils.js');
@@ -650,8 +655,9 @@ var UserInputs = {
 
 	// keyboard events rotate cc, ccw, and hard drop
 	processKeyDown(key) {
-		var DAS = Infinity;  // Effectively makes an only on key down event
+		var DAS = 0;  // Effectively makes an only on key down event
 		var ARR = 300.0;
+		
 		
 		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key]) {
 			// Not being held yet
@@ -1346,7 +1352,7 @@ Tetris.prototype = {
 		];
 		
 		if(true) {
-		var Variation1 = 
+		/*var Variation1 = 
 			[
 
 			[0,0,0,0,'#808080','#808080','#808080','#808080','#808080','#808080' ],
@@ -1356,13 +1362,27 @@ Tetris.prototype = {
 			[0,'#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080' ],
 			[0,'#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080' ]
 			];
+			*/
+			var Variation1 = [
+
+			['#31c7ef','#31c7ef','#31c7ef',0          ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef','#31c7ef','#31c7ef',0          ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef',0        ,0        ,0          ,0        ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef','#31c7ef','#31c7ef',0          ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef','#31c7ef','#31c7ef',0          ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef','#31c7ef','#31c7ef',0          ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef',0        ,0        ,0          ,0        ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef','#31c7ef','#31c7ef',0          ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef','#31c7ef','#31c7ef',0          ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef','#31c7ef','#31c7ef',0          ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ]
+			];
 			clearMatrix(this.matrix);
 			addGarbage(this.matrix, Variation1);
 			utils.fastEmptyArray(this.shapeQueue);
-			this.shapeQueue.push(shapes.getShape(4));
-			this.shapeQueue.push(shapes.getShape(4));
-			this.shapeQueue.push(shapes.getShape(0));
-			this.shapeQueue.push(shapes.getShape(0));
+			this.shapeQueue.push(shapes.getShape(6));
+			this.shapeQueue.push(shapes.getShape(6));
+			this.shapeQueue.push(shapes.getShape(6));
+			this.shapeQueue.push(shapes.getShape(6));
 			this.shape = this.shapeQueue.shift();
 		}
 		else{
@@ -1856,12 +1876,12 @@ Tetris.prototype = {
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Gamepad Right").includes(curkey)) {
-					if(inputs.isGamepadCharged() == true){
+					/*if(inputs.isGamepadCharged() == true){
 						var idx = this.shape.keysPressed.indexOf("right");
 						if (idx !== -1) { this.shape.keysPressed[idx] = "das right"; }
 					} else
 						this.shape.keysPressed.unshift("right");
-					
+					*/
 					
 					this.shape.goRight(this.matrix);
 					this.resetLockdown();

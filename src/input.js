@@ -215,8 +215,9 @@ var UserInputs = {
 
 	// keyboard events rotate cc, ccw, and hard drop
 	processKeyDown(key) {
-		var DAS = Infinity;  // Effectively makes an only on key down event
+		var DAS = 0;  // Effectively makes an only on key down event
 		var ARR = 300.0;
+		
 		
 		if(this.prevKeyboardKeys[key] != this.keyboardKeys[key]) {
 			// Not being held yet

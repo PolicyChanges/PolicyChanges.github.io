@@ -509,7 +509,7 @@ Tetris.prototype = {
 		];
 		
 		if(true) {
-		var Variation1 = 
+		/*var Variation1 = 
 			[
 
 			[0,0,0,0,'#808080','#808080','#808080','#808080','#808080','#808080' ],
@@ -519,13 +519,27 @@ Tetris.prototype = {
 			[0,'#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080' ],
 			[0,'#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080','#808080' ]
 			];
+			*/
+			var Variation1 = [
+
+			['#31c7ef','#31c7ef','#31c7ef',0          ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef','#31c7ef','#31c7ef',0          ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef',0        ,0        ,0          ,0        ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef','#31c7ef','#31c7ef',0          ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef','#31c7ef','#31c7ef',0          ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef','#31c7ef','#31c7ef',0          ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef',0        ,0        ,0          ,0        ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef','#31c7ef','#31c7ef',0          ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef','#31c7ef','#31c7ef',0          ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ],
+			['#31c7ef','#31c7ef','#31c7ef',0          ,'#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef','#31c7ef' ]
+			];
 			clearMatrix(this.matrix);
 			addGarbage(this.matrix, Variation1);
 			utils.fastEmptyArray(this.shapeQueue);
-			this.shapeQueue.push(shapes.getShape(4));
-			this.shapeQueue.push(shapes.getShape(4));
-			this.shapeQueue.push(shapes.getShape(0));
-			this.shapeQueue.push(shapes.getShape(0));
+			this.shapeQueue.push(shapes.getShape(6));
+			this.shapeQueue.push(shapes.getShape(6));
+			this.shapeQueue.push(shapes.getShape(6));
+			this.shapeQueue.push(shapes.getShape(6));
 			this.shape = this.shapeQueue.shift();
 		}
 		else{
@@ -1019,12 +1033,12 @@ Tetris.prototype = {
 					this._draw();
 				}
 				else if(inputs.settingsMap.get("Gamepad Right").includes(curkey)) {
-					if(inputs.isGamepadCharged() == true){
+					/*if(inputs.isGamepadCharged() == true){
 						var idx = this.shape.keysPressed.indexOf("right");
 						if (idx !== -1) { this.shape.keysPressed[idx] = "das right"; }
 					} else
 						this.shape.keysPressed.unshift("right");
-					
+					*/
 					
 					this.shape.goRight(this.matrix);
 					this.resetLockdown();
